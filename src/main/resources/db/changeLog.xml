@@ -3,27 +3,25 @@
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
 
-    <changeSet id="examples" author="jari.nykanen">
-        <createTable tableName="example">
+    <changeSet id="truck" author="katja.danilova">
+        <createTable tableName="truck">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(191)">
+            <column name="platenumber" type="varchar(191)">
                 <constraints nullable="false"/>
             </column>
-            <column name="amount" type="int">
+
+            <column name="creatorId" type="binary(16)">
                 <constraints nullable="false"/>
             </column>
-            <column name="createdat" type="datetime(6)">
+            <column name="createdAt" type="datetime(6)">
                 <constraints nullable="false"/>
             </column>
-            <column name="modifiedat" type="datetime(6)">
+            <column name="lastModifierId" type="binary(16)">
                 <constraints nullable="false"/>
             </column>
-            <column name="creatorid" type="binary(16)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="lastmodifierid" type="binary(16)">
+            <column name="modifiedAt" type="datetime(6)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
