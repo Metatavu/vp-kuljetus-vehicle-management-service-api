@@ -40,6 +40,11 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
+    configurations.all {
+        exclude(group = "commons-logging", module = "commons-logging")
+    }
+    implementation("org.jboss.logging:commons-logging-jboss-logging")
+
     testImplementation("io.rest-assured:kotlin-extensions")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkus:quarkus-junit5")
