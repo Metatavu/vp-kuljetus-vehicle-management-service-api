@@ -1,7 +1,9 @@
 package fi.metatavu.vp.vehicleManagement.test.functional.common
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.vp.vehicleManagement.test.functional.common.providers.MaxCharsInvalidValueProvider
 import fi.metatavu.metaform.server.test.functional.common.providers.SimpleInvalidValueProvider
+import fi.metatavu.vp.test.client.models.Trailer
 
 /**
  * Class containing commonly used invalid values
@@ -20,6 +22,26 @@ class InvalidValues {
             MaxCharsInvalidValueProvider(255)
         )
         val STRING_NOT_NULL: Collection<InvalidValueProvider> = listOf("Правда", "झूठ", "🤮").map { SimpleInvalidValueProvider(it) }
+    }
+
+    /**
+     * Invalid values for testing Trailers API
+     */
+    class Trailers {
+        companion object {
+            val INVALID_TRAILERS = listOf(
+                Trailer(plateNumber = "3"), Trailer(plateNumber = ""), Trailer(plateNumber = "hello*")
+            ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
+        }
+    }
+
+    /**
+     * Invalid values for testing Trucks API (same because they both have the same plateNumber field)
+     */
+    class Trucks {
+        companion object {
+            val INVALID_TRUCKS = Trailers.INVALID_TRAILERS
+        }
     }
 
 }

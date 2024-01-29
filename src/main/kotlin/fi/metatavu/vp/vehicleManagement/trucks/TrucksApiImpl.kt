@@ -2,6 +2,7 @@ package fi.metatavu.vp.vehicleManagement.trucks
 
 import fi.metatavu.vp.api.spec.TrucksApi
 import fi.metatavu.vp.vehicleManagement.rest.AbstractApi
+import fi.metatavu.vp.vehicleManagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
@@ -28,11 +29,18 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     lateinit var truckController: TruckController
 
     @Inject
+    lateinit var vehicleController: VehicleController
+
+    @Inject
     lateinit var vertx: Vertx
 
     @WithTransaction
     override fun createTruck(truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
+
+        if (vehicleController.isPlateNumberValid(truck.plateNumber).not()) {
+            return@async createBadRequest(INVALID_PLATE_NUMBER)
+        }
 
         val createdTruck = truckController.createTruck(
             plateNumber = truck.plateNumber,
@@ -56,11 +64,15 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     override  fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
+        if (vehicleController.isPlateNumberValid(truck.plateNumber).not()) {
+            return@async createBadRequest(INVALID_PLATE_NUMBER)
+        }
+
         val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
 
-        truckController.updateTruck(existingTruck, truck, userId)
+        val updated = truckController.updateTruck(existingTruck, truck, userId)
 
-        createOk(truckTranslator.translate(existingTruck))
+        createOk(truckTranslator.translate(updated))
     }.asUni()
 
    @WithTransaction

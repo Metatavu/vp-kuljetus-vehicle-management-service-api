@@ -19,6 +19,7 @@ import java.util.zip.ZipFile
  */
 abstract class AbstractFunctionalTest {
 
+    val plateNumber = "ABC-123"
 
     /**
      * Compares objects as serialized JSONs

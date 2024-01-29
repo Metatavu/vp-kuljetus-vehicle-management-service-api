@@ -202,8 +202,10 @@ abstract class AbstractApi {
         const val UNAUTHORIZED = "Unauthorized"
         const val FORBIDDEN = "Forbidden"
         const val MISSING_REQUEST_BODY = "Missing request body"
+        const val INVALID_PLATE_NUMBER = "Invalid plate number"
 
         const val TRUCK = "Truck"
+        const val TRAILER = "Trailer"
     }
 
 }

@@ -17,6 +17,7 @@ class InvalidValueTestScenarioBuilder(
     private val body: String? = null
 ) {
 
+    // todo this includes body too
     private val parameters: MutableList<InvalidValueTestScenarioBase> = mutableListOf()
 
     /**
@@ -42,6 +43,17 @@ class InvalidValueTestScenarioBuilder(
     }
 
     /**
+     * Adds a body parameter to the scenario
+     *
+     * @param body body
+     * @return builder instance
+     */
+    fun body(body: InvalidValueTestScenarioBody): InvalidValueTestScenarioBuilder {
+        parameters.add(body)
+        return this
+    }
+
+    /**
      * Builds test scenarios
      *
      * @return test scenarios
@@ -55,11 +67,20 @@ class InvalidValueTestScenarioBuilder(
             parameterValues.minus(parameter.except.toSet()).forEach { parameterValue ->
                 val queryParams = buildDefaultQueryParams().toMutableMap()
                 val pathParams = buildDefaultPathParams().toMutableMap()
+                var newBody = body
+                when (parameter) {
+                    is InvalidValueTestScenarioQuery -> {
+                        queryParams[parameter.name] = parameterValue
+                    }
 
-                if (parameter is InvalidValueTestScenarioQuery) {
-                    queryParams[parameter.name] = parameterValue
-                } else if (parameter is InvalidValueTestScenarioPath) {
-                    pathParams[parameter.name] = parameterValue
+                    is InvalidValueTestScenarioPath -> {
+                        pathParams[parameter.name] = parameterValue
+                    }
+
+                    is InvalidValueTestScenarioBody -> {
+                        // If there is body parameter, it should be used instead of the default provided one
+                        newBody = parameterValue.toString()
+                    }
                 }
 
                 scenarios.add(
@@ -67,7 +88,7 @@ class InvalidValueTestScenarioBuilder(
                     path = path,
                     method = method,
                     token = token,
-                    body = body,
+                    body = newBody,
                     queryParams = queryParams,
                     pathParams = pathParams,
                     expectedStatus = parameter.expectedStatus
