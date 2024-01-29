@@ -52,10 +52,17 @@ class TruckTestIT: AbstractFunctionalTest() {
             val createdTruck = builder.user.trucks.create(Truck(plateNumber = plateNumber))
             val foundTruck = builder.user.trucks.find(createdTruck!!.id!!)
             Assertions.assertNotNull(foundTruck)
-            Assertions.assertEquals(plateNumber, foundTruck!!.plateNumber)
+            Assertions.assertEquals(plateNumber, foundTruck.plateNumber)
+        }
+    }
+
+    @Test
+    fun testFindFail() {
+        createTestBuilder().use { builder ->
+            val createdTruck = builder.user.trucks.create(Truck(plateNumber = plateNumber))
 
             InvalidValueTestScenarioBuilder(path = "v1/trucks/{truckId}", method = Method.GET, token = builder.user.accessTokenProvider.accessToken)
-                .path(InvalidValueTestScenarioPath(name = "truckId", values = InvalidValues.STRING_NOT_NULL, default = createdTruck.id, expectedStatus = 404))
+                .path(InvalidValueTestScenarioPath(name = "truckId", values = InvalidValues.STRING_NOT_NULL, default = createdTruck!!.id, expectedStatus = 404))
                 .build()
                 .test()
         }
@@ -67,7 +74,7 @@ class TruckTestIT: AbstractFunctionalTest() {
             val createdTruck = builder.user.trucks.create(Truck(plateNumber = plateNumber))
             val foundTruck = builder.user.trucks.find(createdTruck!!.id!!)
             Assertions.assertNotNull(foundTruck)
-            Assertions.assertEquals(plateNumber, foundTruck!!.plateNumber)
+            Assertions.assertEquals(plateNumber, foundTruck.plateNumber)
         }
     }
 
@@ -77,11 +84,6 @@ class TruckTestIT: AbstractFunctionalTest() {
             val createdTruck = builder.user.trucks.create(Truck(plateNumber = plateNumber))
             val updatedTruck = builder.user.trucks.update(createdTruck!!.id!!, Truck(plateNumber = "DEF-456"))
             Assertions.assertEquals("DEF-456", updatedTruck.plateNumber)
-
-            InvalidValueTestScenarioBuilder(path = "v1/trucks/{truckId}", method = Method.GET, token = builder.user.accessTokenProvider.accessToken)
-                .path(InvalidValueTestScenarioPath(name = "truckId", values = InvalidValues.STRING_NOT_NULL, default = createdTruck.id, expectedStatus = 404))
-                .build()
-                .test()
         }
     }
 
