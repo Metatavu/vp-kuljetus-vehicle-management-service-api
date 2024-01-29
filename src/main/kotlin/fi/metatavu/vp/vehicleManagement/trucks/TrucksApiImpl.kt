@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehicleManagement.trucks
 
-import fi.metatavu.vp.vehicleManagement.api.spec.spec.TrucksApi
+import fi.metatavu.vp.api.spec.TrucksApi
 import fi.metatavu.vp.vehicleManagement.rest.AbstractApi
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
@@ -10,8 +10,6 @@ import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
-import jakarta.transaction.Transactional
-import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,7 +31,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     lateinit var vertx: Vertx
 
     @WithTransaction
-    override fun createTruck(truck: fi.metatavu.vp.vehicleManagement.api.spec.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+    override fun createTruck(truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
         val createdTruck = truckController.createTruck(
@@ -55,7 +53,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     }.asUni()
 
     @WithTransaction
-    override  fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.vehicleManagement.api.spec.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+    override  fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
         val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))

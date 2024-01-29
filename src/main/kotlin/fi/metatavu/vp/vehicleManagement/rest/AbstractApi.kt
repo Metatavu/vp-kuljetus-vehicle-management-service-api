@@ -182,7 +182,7 @@ abstract class AbstractApi {
      * @return error response
      */
     private fun createError(status: Response.Status, message: String): Response {
-        val entity = fi.metatavu.vp.vehicleManagement.api.spec.model.Error(
+        val entity = fi.metatavu.vp.api.model.Error(
             message = message,
             status = status.statusCode
         )

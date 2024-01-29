@@ -7,10 +7,10 @@ import jakarta.enterprise.context.ApplicationScoped
  * Translator for translating Truck entities into REST resources
  */
 @ApplicationScoped
-class TruckTranslator : AbstractTranslator<Truck, fi.metatavu.vp.vehicleManagement.api.spec.model.Truck>() {
+class TruckTranslator : AbstractTranslator<Truck, fi.metatavu.vp.api.model.Truck>() {
 
-    override fun translate(entity: Truck): fi.metatavu.vp.vehicleManagement.api.spec.model.Truck {
-        return fi.metatavu.vp.vehicleManagement.api.spec.model.Truck(
+    override fun translate(entity: Truck): fi.metatavu.vp.api.model.Truck {
+        return fi.metatavu.vp.api.model.Truck(
             id = entity.id,
             plateNumber = entity.plateNumber
         )

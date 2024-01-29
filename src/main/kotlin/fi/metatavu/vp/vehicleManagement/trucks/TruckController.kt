@@ -58,7 +58,7 @@ class TruckController {
      * @param newTruckData new truck data
      * @param userId user id
      */
-    suspend fun updateTruck(existingTruck: Truck, newTruckData: fi.metatavu.vp.vehicleManagement.api.spec.model.Truck, userId: UUID) {
+    suspend fun updateTruck(existingTruck: Truck, newTruckData: fi.metatavu.vp.api.model.Truck, userId: UUID) {
         existingTruck.plateNumber = newTruckData.plateNumber
         existingTruck.lastModifierId = userId
         truckRepository.persistSuspending(existingTruck)
