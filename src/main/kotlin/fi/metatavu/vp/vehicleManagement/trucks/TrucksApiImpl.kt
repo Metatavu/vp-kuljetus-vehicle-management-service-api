@@ -58,9 +58,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
         val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
 
-        truckController.updateTruck(existingTruck, truck, userId)
+        val updated = truckController.updateTruck(existingTruck, truck, userId)
 
-        createOk(truckTranslator.translate(existingTruck))
+        createOk(truckTranslator.translate(updated))
     }.asUni()
 
    @WithTransaction
