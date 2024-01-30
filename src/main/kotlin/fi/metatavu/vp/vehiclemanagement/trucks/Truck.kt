@@ -10,7 +10,7 @@ import java.util.*
 /**
  * Entity representing a truck
  */
-@Entity
+@Entity(name = "truck")
 class Truck: Metadata() {
 
     @Id
