@@ -19,7 +19,7 @@ import java.io.IOException
  */
 class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenTestBuilder<ApiClient>() {
 
-    private var anon: TestBuilderAuthentication? = null
+    var anon: TestBuilderAuthentication? = TestBuilderAuthentication(this, NullAccessTokenProvider())
     var user = createTestBuilderAuthentication(username = "user", password = "test")
 
     override fun createTestBuilderAuthentication(
@@ -27,20 +27,6 @@ class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenT
         authProvider: AccessTokenProvider
     ): AuthorizedTestBuilderAuthentication<ApiClient, AccessTokenProvider> {
         return TestBuilderAuthentication(this, authProvider)
-    }
-
-    /**
-     * Returns authentication resource without token
-     *
-     * @return authentication resource without token
-     */
-    @kotlin.jvm.Throws(IOException::class)
-    fun anon(): TestBuilderAuthentication {
-        if (anon == null) {
-            anon = TestBuilderAuthentication(this, NullAccessTokenProvider())
-        }
-
-        return anon!!
     }
 
     /**
