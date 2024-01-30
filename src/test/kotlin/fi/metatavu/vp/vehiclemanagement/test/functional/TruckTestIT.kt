@@ -1,21 +1,16 @@
 package fi.metatavu.vp.vehiclemanagement.test.functional
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import fi.metatavu.vp.vehiclemanagement.test.functional.resources.MysqlResource
-import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioBuilder
-import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValues
 import fi.metatavu.vp.test.client.models.Truck
+import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioPath
-import io.quarkus.test.common.QuarkusTestResource
+import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValues
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
-@QuarkusTestResource.List(
-    QuarkusTestResource(MysqlResource::class)
-)
 class TruckTestIT: AbstractFunctionalTest() {
 
     val plateNumber = "ABC-123"
