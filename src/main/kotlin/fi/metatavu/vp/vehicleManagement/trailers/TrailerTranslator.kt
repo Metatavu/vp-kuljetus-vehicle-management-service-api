@@ -9,7 +9,7 @@ import jakarta.enterprise.context.ApplicationScoped
 @ApplicationScoped
 class TrailerTranslator : AbstractTranslator<Trailer, fi.metatavu.vp.api.model.Trailer>() {
 
-    override fun translate(entity: Trailer): fi.metatavu.vp.api.model.Trailer {
+    override suspend fun translate(entity: Trailer): fi.metatavu.vp.api.model.Trailer {
         return fi.metatavu.vp.api.model.Trailer(
             id = entity.id,
             plateNumber = entity.plateNumber

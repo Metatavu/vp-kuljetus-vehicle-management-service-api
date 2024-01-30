@@ -24,8 +24,17 @@ class TrailersTestBuilderResource(
      *
      * @return created trailer
      */
-    fun create(trailer: Trailer): Trailer? {
+    fun create(trailer: Trailer): Trailer {
         return addClosable(api.createTrailer(trailer))
+    }
+
+    /**
+     * Creates new Trailer with default values
+     *
+     * @return created Trailer
+     */
+    fun create(): Trailer {
+        return create(Trailer(plateNumber = "ABC-123"))
     }
 
     /**
@@ -136,7 +145,7 @@ class TrailersTestBuilderResource(
     }
 
     override fun clean(p0: Trailer?) {
-        api.deleteTrailer(p0?.id!!)
+        delete(p0!!.id!!)
     }
 
     override fun getApi(): TrailersApi {

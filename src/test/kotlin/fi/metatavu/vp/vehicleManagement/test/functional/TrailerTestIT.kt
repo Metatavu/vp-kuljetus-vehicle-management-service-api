@@ -46,12 +46,12 @@ class TrailerTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testFind() {
+    fun testCreate() {
         createTestBuilder().use { builder ->
             val trailerData = Trailer(plateNumber = plateNumber)
             val createdTrailer = builder.user.trailers.create(trailerData)
             Assertions.assertNotNull(createdTrailer)
-            Assertions.assertEquals(trailerData.plateNumber, createdTrailer!!.plateNumber)
+            Assertions.assertEquals(trailerData.plateNumber, createdTrailer.plateNumber)
         }
     }
 
@@ -79,10 +79,10 @@ class TrailerTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testCreate() {
+    fun testFind() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create(Trailer(plateNumber = plateNumber))
-            val foundTrailer = builder.user.trailers.find(createdTrailer!!.id!!)
+            val createdTrailer = builder.user.trailers.create()
+            val foundTrailer = builder.user.trailers.find(createdTrailer.id!!)
             Assertions.assertNotNull(foundTrailer)
             Assertions.assertEquals(plateNumber, foundTrailer.plateNumber)
         }
@@ -110,8 +110,8 @@ class TrailerTestIT : AbstractFunctionalTest() {
     @Test
     fun testUpdate() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create(Trailer(plateNumber = plateNumber))
-            val updatedTrailer = builder.user.trailers.update(createdTrailer!!.id!!, Trailer(plateNumber = "DEF-456"))
+            val createdTrailer = builder.user.trailers.create()
+            val updatedTrailer = builder.user.trailers.update(createdTrailer.id!!, Trailer(plateNumber = "DEF-456"))
             Assertions.assertEquals("DEF-456", updatedTrailer.plateNumber)
         }
     }
@@ -119,7 +119,7 @@ class TrailerTestIT : AbstractFunctionalTest() {
     @Test
     fun testUpdateFail() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create(Trailer(plateNumber = plateNumber))
+            val createdTrailer = builder.user.trailers.create()
             InvalidValueTestScenarioBuilder(
                 path = "v1/trailers/{trailerId}",
                 method = Method.PUT,
@@ -129,7 +129,7 @@ class TrailerTestIT : AbstractFunctionalTest() {
                     InvalidValueTestScenarioPath(
                         name = "trailerId",
                         values = InvalidValues.STRING_NOT_NULL,
-                        default = createdTrailer!!.id,
+                        default = createdTrailer.id,
                         expectedStatus = 404
                     )
                 )
@@ -147,16 +147,16 @@ class TrailerTestIT : AbstractFunctionalTest() {
     @Test
     fun testDelete() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create(Trailer(plateNumber = plateNumber))
-            builder.user.trailers.delete(createdTrailer!!.id!!)
-            builder.user.trailers.assertFindFail(404, createdTrailer.id!!)
+            val createdTrailer = builder.user.trailers.create()
+            builder.user.trailers.delete(createdTrailer.id!!)
+            builder.user.trailers.assertFindFail(404, createdTrailer.id)
         }
     }
 
     @Test
     fun testDeleteFail() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create(Trailer(plateNumber = plateNumber))
+            val createdTrailer = builder.user.trailers.create()
             InvalidValueTestScenarioBuilder(
                 path = "v1/trailers/{trailerId}",
                 method = Method.DELETE,
@@ -166,7 +166,7 @@ class TrailerTestIT : AbstractFunctionalTest() {
                     InvalidValueTestScenarioPath(
                         name = "trailerId",
                         values = InvalidValues.STRING_NOT_NULL,
-                        default = createdTrailer!!.id,
+                        default = createdTrailer.id,
                         expectedStatus = 404
                     )
                 )

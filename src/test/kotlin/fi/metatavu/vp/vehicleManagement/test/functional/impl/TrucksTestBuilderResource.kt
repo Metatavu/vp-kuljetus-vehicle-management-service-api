@@ -24,8 +24,17 @@ class TrucksTestBuilderResource(
      *
      * @return created truck
      */
-    fun create(truck: Truck): Truck? {
+    fun create(truck: Truck): Truck {
         return addClosable(api.createTruck(truck))
+    }
+
+    /**
+     * Creates new truck with default values
+     *
+     * @return created truck
+     */
+    fun create(): Truck {
+        return create(Truck(plateNumber = "ABC-123"))
     }
 
     /**
@@ -143,6 +152,4 @@ class TrucksTestBuilderResource(
         ApiClient.accessToken = accessTokenProvider?.accessToken
         return TrucksApi(ApiTestSettings.apiBasePath)
     }
-
-
 }

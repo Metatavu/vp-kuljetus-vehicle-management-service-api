@@ -206,6 +206,7 @@ abstract class AbstractApi {
 
         const val TRUCK = "Truck"
         const val TRAILER = "Trailer"
+        const val VEHICLE = "Vehicle"
     }
 
 }

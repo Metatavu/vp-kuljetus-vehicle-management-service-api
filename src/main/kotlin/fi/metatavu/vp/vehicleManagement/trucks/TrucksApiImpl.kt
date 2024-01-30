@@ -76,12 +76,14 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     }.asUni()
 
    @WithTransaction
-   override  fun deleteTruck(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
+   override fun deleteTruck(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+       val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
 
-        val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-
-        truckController.deleteTruck(existingTruck)
-        createNoContent()
+       val partOfVehicles = vehicleController.listVehicles(existingTruck).first
+       if (partOfVehicles.isNotEmpty()) {
+           return@async createBadRequest("Truck is part of a vehicle")
+       }
+       truckController.deleteTruck(existingTruck)
+       createNoContent()
     }.asUni()
 }

@@ -7,6 +7,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenTestBuilderAuth
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.vehicleManagement.test.functional.impl.TrailersTestBuilderResource
 import fi.metatavu.vp.vehicleManagement.test.functional.impl.TrucksTestBuilderResource
+import fi.metatavu.vp.vehicleManagement.test.functional.impl.VehiclesTestBuilderResource
 
 
 /**
@@ -25,6 +26,7 @@ class TestBuilderAuthentication(
 
     val trucks = TrucksTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val trailers = TrailersTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
+    val vehicles = VehiclesTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
 
     override fun createClient(authProvider: AccessTokenProvider): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)

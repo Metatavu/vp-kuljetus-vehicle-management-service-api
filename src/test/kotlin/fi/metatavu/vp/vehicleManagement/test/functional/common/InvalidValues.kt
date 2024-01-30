@@ -4,6 +4,8 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.vp.vehicleManagement.test.functional.common.providers.MaxCharsInvalidValueProvider
 import fi.metatavu.metaform.server.test.functional.common.providers.SimpleInvalidValueProvider
 import fi.metatavu.vp.test.client.models.Trailer
+import fi.metatavu.vp.test.client.models.Vehicle
+import java.util.*
 
 /**
  * Class containing commonly used invalid values
@@ -41,6 +43,24 @@ class InvalidValues {
     class Trucks {
         companion object {
             val INVALID_TRUCKS = Trailers.INVALID_TRAILERS
+        }
+    }
+
+    /**
+     * Invalid values methods for Vehicles
+     */
+    class Vehicles {
+        companion object {
+            fun createVehicle(trailerIds: Array<UUID>, truckId: UUID): SimpleInvalidValueProvider {
+                return SimpleInvalidValueProvider(
+                    jacksonObjectMapper().writeValueAsString(
+                        Vehicle(
+                            trailerIds = trailerIds,
+                            truckId = truckId
+                        )
+                    )
+                )
+            }
         }
     }
 

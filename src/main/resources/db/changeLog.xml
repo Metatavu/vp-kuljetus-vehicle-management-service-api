@@ -51,4 +51,43 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="vehicles" author="katja danilova">
+        <createTable tableName="vehicle">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="truck_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VEHICLE_TRUCK_ID" referencedColumnNames="id" referencedTableName="truck"/>
+            </column>
+
+            <column name="creatorId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastModifierId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="trailervehicle">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+           <column name="vehicle_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TRAILERVEHICLE_VEHICLE_ID" referencedColumnNames="id" referencedTableName="vehicle"/>
+            </column>
+            <column name="trailer_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TRAILERVEHICLE_TRAILER_ID" referencedColumnNames="id" referencedTableName="trailer"/>
+            </column>
+            <column name="ordernumber" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>

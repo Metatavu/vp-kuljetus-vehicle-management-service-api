@@ -92,14 +92,19 @@ class TrailersApiImpl : TrailersApi, AbstractApi() {
     override fun deleteTrailer(trailerId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        val existingTruck = trailerController.findTrailer(trailerId) ?: return@async createNotFound(
+        val existingTrailer = trailerController.findTrailer(trailerId) ?: return@async createNotFound(
             createNotFoundMessage(
                 TRAILER,
                 trailerId
             )
         )
 
-        trailerController.deleteTrailer(existingTruck)
+        val partOfVehicles = vehicleController.listTrailerVehicles(existingTrailer)
+        if (partOfVehicles.isNotEmpty()) {
+            return@async createBadRequest("Trailer is part of a vehicle")
+        }
+
+        trailerController.deleteTrailer(existingTrailer)
         createNoContent()
     }.asUni()
 }
