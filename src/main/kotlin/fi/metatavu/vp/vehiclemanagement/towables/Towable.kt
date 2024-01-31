@@ -1,6 +1,6 @@
-package fi.metatavu.vp.vehicleManagement.towables
+package fi.metatavu.vp.vehiclemanagement.towables
 
-import fi.metatavu.vp.vehicleManagement.persistence.Metadata
+import fi.metatavu.vp.vehiclemanagement.persistence.Metadata
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotEmpty
 import java.util.*
@@ -8,7 +8,7 @@ import java.util.*
 /**
  * Entity for towables
  */
-@Entity
+@Entity(name = "towable")
 class Towable : Metadata() {
 
     @Id

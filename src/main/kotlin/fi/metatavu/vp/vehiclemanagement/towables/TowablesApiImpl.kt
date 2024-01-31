@@ -1,8 +1,8 @@
-package fi.metatavu.vp.vehicleManagement.towables
+package fi.metatavu.vp.vehiclemanagement.towables
 
 import fi.metatavu.vp.api.spec.TowablesApi
-import fi.metatavu.vp.vehicleManagement.rest.AbstractApi
-import fi.metatavu.vp.vehicleManagement.vehicles.VehicleController
+import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
+import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni

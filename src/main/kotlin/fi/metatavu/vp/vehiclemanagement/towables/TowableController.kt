@@ -1,4 +1,4 @@
-package fi.metatavu.vp.vehicleManagement.towables
+package fi.metatavu.vp.vehiclemanagement.towables
 
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject

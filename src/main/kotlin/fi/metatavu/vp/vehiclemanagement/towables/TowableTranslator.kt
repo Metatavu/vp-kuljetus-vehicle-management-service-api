@@ -1,6 +1,6 @@
-package fi.metatavu.vp.vehicleManagement.towables
+package fi.metatavu.vp.vehiclemanagement.towables
 
-import fi.metatavu.vp.vehicleManagement.rest.AbstractTranslator
+import fi.metatavu.vp.vehiclemanagement.rest.AbstractTranslator
 import jakarta.enterprise.context.ApplicationScoped
 
 /**

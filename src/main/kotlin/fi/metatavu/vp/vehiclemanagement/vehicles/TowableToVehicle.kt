@@ -1,6 +1,6 @@
-package fi.metatavu.vp.vehicleManagement.vehicles
+package fi.metatavu.vp.vehiclemanagement.vehicles
 
-import fi.metatavu.vp.vehicleManagement.towables.Towable
+import fi.metatavu.vp.vehiclemanagement.towables.Towable
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -10,7 +10,7 @@ import java.util.*
 /**
  * Entity connecting a towable to a vehicle
  */
-@Entity
+@Entity(name = "towabletovehicle")
 class TowableToVehicle {
 
     @Id

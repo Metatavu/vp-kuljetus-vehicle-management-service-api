@@ -5,8 +5,6 @@ import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestS
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioPath
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValues
-import fi.metatavu.vp.vehiclemanagement.test.functional.resources.MysqlResource
-import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions
@@ -45,6 +43,35 @@ class TruckTestIT: AbstractFunctionalTest() {
     }
 
     @Test
+    fun testCreate() {
+        createTestBuilder().use { builder ->
+            val createdTruck = builder.user.trucks.create()
+            val foundTruck = builder.user.trucks.find(createdTruck.id!!)
+            Assertions.assertNotNull(foundTruck)
+            Assertions.assertEquals(plateNumber, foundTruck.plateNumber)
+        }
+    }
+
+    @Test
+    fun testCreateFail() {
+        createTestBuilder().use { builder ->
+            InvalidValueTestScenarioBuilder(
+                path = "v1/trucks",
+                method = Method.POST,
+                token = builder.user.accessTokenProvider.accessToken
+            )
+                .body(
+                    InvalidValueTestScenarioBody(
+                        values = InvalidValues.Trucks.INVALID_TRUCKS,
+                        expectedStatus = 400
+                    )
+                )
+                .build()
+                .test()
+        }
+    }
+
+    @Test
     fun testFind() {
         createTestBuilder().use { builder ->
             val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK)
@@ -74,36 +101,6 @@ class TruckTestIT: AbstractFunctionalTest() {
                 )
                 .build()
                 .test()
-        }
-    }
-
-    @Test
-    fun testCreate() {
-        createTestBuilder().use { builder ->
-            val createdTruck = builder.user.trucks.create()
-            val foundTruck = builder.user.trucks.find(createdTruck.id!!)
-            Assertions.assertNotNull(foundTruck)
-            Assertions.assertEquals(plateNumber, foundTruck.plateNumber)
-        }
-    }
-
-    @Test
-    fun testCreateFail() {
-        createTestBuilder().use { builder ->
-            InvalidValueTestScenarioBuilder(
-                path = "v1/trucks",
-                method = Method.POST,
-                token = builder.user.accessTokenProvider.accessToken
-            )
-                .body(
-                    InvalidValueTestScenarioBody(
-                        values = InvalidValues.Trucks.INVALID_TRUCKS,
-                        expectedStatus = 400
-                    )
-                )
-                .build()
-                .test()
-            Assertions.assertEquals(plateNumber, foundTruck.plateNumber)
         }
     }
 

@@ -1,4 +1,4 @@
-package fi.metatavu.vp.vehicleManagement.test.functional.common
+package fi.metatavu.vp.vehiclemanagement.test.functional.common
 
 /**
  * Class for invalid body test scenarios

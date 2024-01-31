@@ -5,17 +5,12 @@ import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestS
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioPath
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValues
-import fi.metatavu.vp.vehiclemanagement.test.functional.resources.MysqlResource
-import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
-@QuarkusTestResource.List(
-    QuarkusTestResource(MysqlResource::class)
-)
 class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
@@ -55,21 +50,17 @@ class TowableTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testFindFail() {
+    fun testCreateFail() {
         createTestBuilder().use { builder ->
-            val createdTowable = builder.user.towables.create(Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
-
             InvalidValueTestScenarioBuilder(
-                path = "v1/towables/{towableId}",
-                method = Method.GET,
+                path = "v1/towables",
+                method = Method.POST,
                 token = builder.user.accessTokenProvider.accessToken
             )
-                .path(
-                    InvalidValueTestScenarioPath(
-                        name = "towableId",
-                        values = InvalidValues.STRING_NOT_NULL,
-                        default = createdTowable!!.id,
-                        expectedStatus = 404
+                .body(
+                    InvalidValueTestScenarioBody(
+                        values = InvalidValues.Towables.INVALID_TRAILERS,
+                        expectedStatus = 400
                     )
                 )
                 .build()
@@ -88,17 +79,21 @@ class TowableTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testCreateFail() {
+    fun testFindFail() {
         createTestBuilder().use { builder ->
+            val createdTowable = builder.user.towables.create(Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
+
             InvalidValueTestScenarioBuilder(
-                path = "v1/towables",
-                method = Method.POST,
+                path = "v1/towables/{towableId}",
+                method = Method.GET,
                 token = builder.user.accessTokenProvider.accessToken
             )
-                .body(
-                    InvalidValueTestScenarioBody(
-                        values = InvalidValues.Towables.INVALID_TRAILERS,
-                        expectedStatus = 400
+                .path(
+                    InvalidValueTestScenarioPath(
+                        name = "towableId",
+                        values = InvalidValues.STRING_NOT_NULL,
+                        default = createdTowable!!.id,
+                        expectedStatus = 404
                     )
                 )
                 .build()

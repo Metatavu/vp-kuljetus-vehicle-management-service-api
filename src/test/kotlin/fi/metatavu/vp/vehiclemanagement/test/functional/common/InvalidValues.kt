@@ -4,7 +4,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.metaform.server.test.functional.common.providers.SimpleInvalidValueProvider
 import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.test.client.models.Vehicle
-import fi.metatavu.vp.vehicleManagement.test.functional.common.providers.MaxCharsInvalidValueProvider
+import fi.metatavu.vp.vehiclemanagement.test.functional.common.providers.MaxCharsInvalidValueProvider
 import java.util.*
 
 /**

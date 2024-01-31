@@ -1,7 +1,7 @@
-package fi.metatavu.vp.vehicleManagement.vehicles
+package fi.metatavu.vp.vehiclemanagement.vehicles
 
-import fi.metatavu.vp.vehicleManagement.persistence.AbstractRepository
-import fi.metatavu.vp.vehicleManagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
+import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.quarkus.panache.common.Parameters
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*

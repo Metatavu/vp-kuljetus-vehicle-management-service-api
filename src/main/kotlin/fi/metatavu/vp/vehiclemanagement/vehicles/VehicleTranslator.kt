@@ -1,6 +1,6 @@
-package fi.metatavu.vp.vehicleManagement.vehicles
+package fi.metatavu.vp.vehiclemanagement.vehicles
 
-import fi.metatavu.vp.vehicleManagement.rest.AbstractTranslator
+import fi.metatavu.vp.vehiclemanagement.rest.AbstractTranslator
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 

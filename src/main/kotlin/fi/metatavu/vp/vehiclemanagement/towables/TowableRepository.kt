@@ -1,6 +1,6 @@
-package fi.metatavu.vp.vehicleManagement.towables
+package fi.metatavu.vp.vehiclemanagement.towables
 
-import fi.metatavu.vp.vehicleManagement.persistence.AbstractRepository
+import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.UUID

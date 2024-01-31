@@ -1,7 +1,7 @@
-package fi.metatavu.vp.vehicleManagement.vehicles
+package fi.metatavu.vp.vehiclemanagement.vehicles
 
-import fi.metatavu.vp.vehicleManagement.persistence.AbstractRepository
-import fi.metatavu.vp.vehicleManagement.towables.Towable
+import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
+import fi.metatavu.vp.vehiclemanagement.towables.Towable
 import io.quarkus.panache.common.Parameters
 import io.quarkus.panache.common.Sort
 import io.smallrye.mutiny.coroutines.awaitSuspending

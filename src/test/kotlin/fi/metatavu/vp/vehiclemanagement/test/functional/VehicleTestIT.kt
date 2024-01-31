@@ -1,13 +1,10 @@
-package fi.metatavu.vp.vehicleManagement.test.functional
+package fi.metatavu.vp.vehiclemanagement.test.functional
 
-import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.test.client.models.Vehicle
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioBody
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioPath
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValues
-import fi.metatavu.vp.vehiclemanagement.test.functional.resources.MysqlResource
-import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.*
@@ -15,9 +12,6 @@ import org.junit.jupiter.api.Test
 import java.util.*
 
 @QuarkusTest
-@QuarkusTestResource.List(
-    QuarkusTestResource(MysqlResource::class)
-)
 class VehicleTestIT : AbstractFunctionalTest() {
 
     @Test
@@ -106,11 +100,11 @@ class VehicleTestIT : AbstractFunctionalTest() {
                             // invalid truck id
                             InvalidValues.Vehicles.createVehicle(
                                 truckId = UUID.randomUUID(),
-                                towableIds = arrayOf(towable1.id, towable2.id)
+                                towableIds = arrayOf(towable1.id!!, towable2.id!!)
                             ),
                             // invalid towable id
                             InvalidValues.Vehicles.createVehicle(
-                                truckId = truck1.id,
+                                truckId = truck1.id!!,
                                 towableIds = arrayOf(UUID.randomUUID(), towable2.id)
                             ),
                             // duplicate towable id

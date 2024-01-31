@@ -1,7 +1,7 @@
-package fi.metatavu.vp.vehicleManagement.vehicles
+package fi.metatavu.vp.vehiclemanagement.vehicles
 
-import fi.metatavu.vp.vehicleManagement.towables.Towable
-import fi.metatavu.vp.vehicleManagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.towables.Towable
+import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
