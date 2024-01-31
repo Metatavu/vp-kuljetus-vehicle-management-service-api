@@ -182,37 +182,37 @@ class VehicleTestIT : AbstractFunctionalTest() {
                 truckId = truck.id!!
             )
 
-            val reorderedTrailers = it.user.vehicles.update(
+            val reorderedTowables = it.user.vehicles.update(
                 existingVehicle = createdVehicle,
                 newVehicleData = Vehicle(
                     towableIds = arrayOf(towable2.id, towable1.id),
                     truckId = truck.id
                 )
             )
-            assertEquals(2, reorderedTrailers.towableIds.size)
-            assertEquals(towable2.id, reorderedTrailers.towableIds[0])
-            assertEquals(towable1.id, reorderedTrailers.towableIds[1])
+            assertEquals(2, reorderedTowables.towableIds.size)
+            assertEquals(towable2.id, reorderedTowables.towableIds[0])
+            assertEquals(towable1.id, reorderedTowables.towableIds[1])
 
-            val removedTrailer = it.user.vehicles.update(
-                existingVehicle = reorderedTrailers,
+            val removedTowable = it.user.vehicles.update(
+                existingVehicle = reorderedTowables,
                 newVehicleData = Vehicle(
                     towableIds = arrayOf(towable2.id),
                     truckId = truck.id
                 )
             )
-            assertEquals(1, removedTrailer.towableIds.size)
-            assertEquals(towable2.id, removedTrailer.towableIds[0])
+            assertEquals(1, removedTowable.towableIds.size)
+            assertEquals(towable2.id, removedTowable.towableIds[0])
 
-            val differentTrailers = it.user.vehicles.update(
-                existingVehicle = removedTrailer,
+            val differentTowables = it.user.vehicles.update(
+                existingVehicle = removedTowable,
                 newVehicleData = Vehicle(
                     towableIds = arrayOf(towable3.id!!),
                     truckId = truck.id
                 )
             )
 
-            assertEquals(1, differentTrailers.towableIds.size)
-            assertEquals(towable3.id, differentTrailers.towableIds[0])
+            assertEquals(1, differentTowables.towableIds.size)
+            assertEquals(towable3.id, differentTowables.towableIds[0])
         }
     }
 

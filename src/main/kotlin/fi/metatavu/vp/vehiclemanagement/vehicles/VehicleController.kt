@@ -136,7 +136,7 @@ class VehicleController {
      * @param towable towable
      * @return list of towable vehicles
      */
-    suspend fun listTrailerVehicles(towable: Towable): List<TowableToVehicle> {
-        return towableToVehicleRepository.listByTrailer(towable)
+    suspend fun listTowableToVehicles(towable: Towable): List<TowableToVehicle> {
+        return towableToVehicleRepository.listByTowable(towable)
     }
 }

@@ -37,7 +37,7 @@ class TowableController {
      * @param towableId towable id
      * @return found towable or null if not found
      */
-    suspend fun findTrailer(towableId: UUID): Towable? {
+    suspend fun findTowable(towableId: UUID): Towable? {
         return towableRepository.findByIdSuspending(towableId)
     }
 
@@ -49,7 +49,7 @@ class TowableController {
      * @param maxResults max results
      * @return list of towables
      */
-    suspend fun listTrailers(plateNumber: String?, firstResult: Int?, maxResults: Int?): Pair<List<Towable>, Long> {
+    suspend fun listTowables(plateNumber: String?, firstResult: Int?, maxResults: Int?): Pair<List<Towable>, Long> {
         return towableRepository.list(plateNumber = plateNumber, firstResult = firstResult, maxResults = maxResults)
     }
 
@@ -57,16 +57,16 @@ class TowableController {
      * Updates towable
      *
      * @param existingTowable existing towable
-     * @param newTrailerData new towable data
+     * @param newTowableData new towable data
      * @param userId user id
      */
-    suspend fun updateTrailer(
+    suspend fun updateTowable(
         existingTowable: Towable,
-        newTrailerData: fi.metatavu.vp.api.model.Towable,
+        newTowableData: fi.metatavu.vp.api.model.Towable,
         userId: UUID
     ): Towable {
-        existingTowable.plateNumber = newTrailerData.plateNumber
-        existingTowable.type = newTrailerData.type
+        existingTowable.plateNumber = newTowableData.plateNumber
+        existingTowable.type = newTowableData.type
         existingTowable.lastModifierId = userId
         return towableRepository.persistSuspending(existingTowable)
     }
@@ -76,7 +76,7 @@ class TowableController {
      *
      * @param towable towable to be deleted
      */
-    suspend fun deleteTrailer(towable: Towable) {
+    suspend fun deleteTowable(towable: Towable) {
         towableRepository.deleteSuspending(towable)
     }
 

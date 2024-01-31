@@ -62,7 +62,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
 
         val truck = truckController.findTruck(vehicle.truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, vehicle.truckId))
         val towables = vehicle.towableIds.map {
-            val towable = towableController.findTrailer(it) ?: return@async createBadRequest(createNotFoundMessage(TRAILER, it))
+            val towable = towableController.findTowable(it) ?: return@async createBadRequest(createNotFoundMessage(TOWABLE, it))
             towable
         }
         val createdVehicle = vehicleController.create(
@@ -92,15 +92,15 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
 
         val foundVehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
         val newTruck = truckController.findTruck(vehicle.truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, vehicle.truckId))
-        val newTrailers = vehicle.towableIds.map {
-            val towable = towableController.findTrailer(it) ?: return@async createBadRequest(createNotFoundMessage(TRAILER, it))
+        val newTowables = vehicle.towableIds.map {
+            val towable = towableController.findTowable(it) ?: return@async createBadRequest(createNotFoundMessage(TOWABLE, it))
             towable
         }
 
         val updatedVehicle = vehicleController.update(
             existingVehicle = foundVehicle,
             newTruck = newTruck,
-            newTowables = newTrailers,
+            newTowables = newTowables,
             userId = userId
         )
 
@@ -122,8 +122,8 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
      * @return response if invalid, null if valid
      */
     private fun isInvalidVehicle(vehicle: Vehicle): Response? {
-        val distinctTrailers = vehicle.towableIds.distinct().size
-        if (distinctTrailers != vehicle.towableIds.size) {
+        val distinctTowables = vehicle.towableIds.distinct().size
+        if (distinctTowables != vehicle.towableIds.size) {
             return createBadRequest("Vehicle cannot have duplicate towables")
         }
 

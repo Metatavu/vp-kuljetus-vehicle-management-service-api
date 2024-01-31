@@ -52,9 +52,9 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
         }.asUni()
 
     override fun findTowable(towabelId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val truck = towableController.findTrailer(towabelId) ?: return@async createNotFound(
+        val truck = towableController.findTowable(towabelId) ?: return@async createNotFound(
             createNotFoundMessage(
-                TRAILER,
+                TOWABLE,
                 towabelId
             )
         )
@@ -64,7 +64,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
 
     override fun listTowables(plateNumber: String?, first: Int?, max: Int?): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
-            val (trucks, count) = towableController.listTrailers(plateNumber, first, max)
+            val (trucks, count) = towableController.listTowables(plateNumber, first, max)
             createOk(trucks.map { towableTranslator.translate(it) }, count)
         }.asUni()
 
@@ -77,35 +77,35 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
             }
 
-            val existingTowable = towableController.findTrailer(towableId) ?: return@async createNotFound(
+            val existingTowable = towableController.findTowable(towableId) ?: return@async createNotFound(
                 createNotFoundMessage(
-                    TRAILER,
+                    TOWABLE,
                     towableId
                 )
             )
 
-            val updatedTrailer = towableController.updateTrailer(existingTowable, towable, userId)
+            val updatedTowable = towableController.updateTowable(existingTowable, towable, userId)
 
-            createOk(towableTranslator.translate(updatedTrailer))
+            createOk(towableTranslator.translate(updatedTowable))
         }.asUni()
 
     @WithTransaction
     override fun deleteTowable(towableId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        val existingTrailer = towableController.findTrailer(towableId) ?: return@async createNotFound(
+        val existingTowable = towableController.findTowable(towableId) ?: return@async createNotFound(
             createNotFoundMessage(
-                TRAILER,
+                TOWABLE,
                 towableId
             )
         )
 
-        val partOfVehicles = vehicleController.listTrailerVehicles(existingTrailer)
+        val partOfVehicles = vehicleController.listTowableToVehicles(existingTowable)
         if (partOfVehicles.isNotEmpty()) {
-            return@async createBadRequest("Trailer is part of a vehicle")
+            return@async createBadRequest("Towable is part of a vehicle")
         }
 
-        towableController.deleteTrailer(existingTrailer)
+        towableController.deleteTowable(existingTowable)
         createNoContent()
     }.asUni()
 }

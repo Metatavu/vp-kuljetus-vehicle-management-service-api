@@ -27,7 +27,7 @@ class InvalidValues {
     }
 
     /**
-     * Invalid values for testing Trailers API
+     * Invalid values for testing Towables API
      */
     class Towables {
         companion object {

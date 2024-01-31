@@ -9,20 +9,20 @@ import jakarta.enterprise.context.ApplicationScoped
 import java.util.*
 
 /**
- * Repository class for TrailerVehicle
+ * Repository class for TowableToVehicle
  */
 @ApplicationScoped
 class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
 
     /**
-     * Creates a new TrailerVehicle
+     * Creates a new TowableToVehicle
      *
      * @param id id
      * @param vehicle vehicle
      * @param towable towable
      * @param order order
      * @param userId user id
-     * @return created TrailerVehicle
+     * @return created TowableToVehicle
      */
     suspend fun create(
         id: UUID,
@@ -40,10 +40,10 @@ class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
     }
 
     /**
-     * Lists TrailerVehicles by vehicle
+     * Lists TowableToVehicles by vehicle
      *
      * @param vehicle vehicle
-     * @return list of TrailerVehicles
+     * @return list of TowableToVehicles
      */
     suspend fun listByVehicle(vehicle: Vehicle): List<TowableToVehicle> {
         val sb = StringBuilder()
@@ -55,12 +55,12 @@ class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
     }
 
     /**
-     * Lists TrailerVehicles by towable
+     * Lists TowableToVehicles by towable
      *
      * @param towable towable
-     * @return list of TrailerVehicles
+     * @return list of TowableToVehicles
      */
-    suspend fun listByTrailer(towable: Towable): List<TowableToVehicle> {
+    suspend fun listByTowable(towable: Towable): List<TowableToVehicle> {
         val sb = StringBuilder()
         val parameters = Parameters()
 

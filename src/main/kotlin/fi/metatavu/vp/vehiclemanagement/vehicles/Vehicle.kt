@@ -9,7 +9,7 @@ import java.util.*
 
 /**
  * Entity for vehicles
- * Vehicle contains 1 truck and 0-2 towables (connection to towables is done via TrailerVehicle entity)
+ * Vehicle contains 1 truck and 0-2 towables (connection to towables is done via TowableToVehicle entity)
  */
 @Entity(name = "vehicle")
 class Vehicle: Metadata() {

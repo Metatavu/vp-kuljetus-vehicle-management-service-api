@@ -205,7 +205,7 @@ abstract class AbstractApi {
         const val INVALID_PLATE_NUMBER = "Invalid plate number"
 
         const val TRUCK = "Truck"
-        const val TRAILER = "Trailer"
+        const val TOWABLE = "Towable"
         const val VEHICLE = "Vehicle"
     }
 
