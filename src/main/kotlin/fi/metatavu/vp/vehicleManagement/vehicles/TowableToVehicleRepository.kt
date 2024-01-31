@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehicleManagement.vehicles
 
 import fi.metatavu.vp.vehicleManagement.persistence.AbstractRepository
-import fi.metatavu.vp.vehicleManagement.trailers.Trailer
+import fi.metatavu.vp.vehicleManagement.towables.Towable
 import io.quarkus.panache.common.Parameters
 import io.quarkus.panache.common.Sort
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -12,14 +12,14 @@ import java.util.*
  * Repository class for TrailerVehicle
  */
 @ApplicationScoped
-class TrailerVehicleRepository: AbstractRepository<TrailerVehicle, UUID>() {
+class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
 
     /**
      * Creates a new TrailerVehicle
      *
      * @param id id
      * @param vehicle vehicle
-     * @param trailer trailer
+     * @param towable towable
      * @param order order
      * @param userId user id
      * @return created TrailerVehicle
@@ -27,16 +27,16 @@ class TrailerVehicleRepository: AbstractRepository<TrailerVehicle, UUID>() {
     suspend fun create(
         id: UUID,
         vehicle: Vehicle,
-        trailer: Trailer,
+        towable: Towable,
         order: Int,
         userId: UUID
-    ): TrailerVehicle {
-        val trailerVehicle = TrailerVehicle()
-        trailerVehicle.id = UUID.randomUUID()
-        trailerVehicle.vehicle = vehicle
-        trailerVehicle.trailer = trailer
-        trailerVehicle.orderNumber = order
-        return persistSuspending(trailerVehicle)
+    ): TowableToVehicle {
+        val towableVehicle = TowableToVehicle()
+        towableVehicle.id = UUID.randomUUID()
+        towableVehicle.vehicle = vehicle
+        towableVehicle.towable = towable
+        towableVehicle.orderNumber = order
+        return persistSuspending(towableVehicle)
     }
 
     /**
@@ -45,30 +45,30 @@ class TrailerVehicleRepository: AbstractRepository<TrailerVehicle, UUID>() {
      * @param vehicle vehicle
      * @return list of TrailerVehicles
      */
-    suspend fun listByVehicle(vehicle: Vehicle): List<TrailerVehicle> {
+    suspend fun listByVehicle(vehicle: Vehicle): List<TowableToVehicle> {
         val sb = StringBuilder()
         val parameters = Parameters()
 
         addCondition(sb, "vehicle = :vehicle")
         parameters.and("vehicle", vehicle)
-        return find(sb.toString(), Sort.ascending("orderNumber"), parameters).list<TrailerVehicle>().awaitSuspending()
+        return find(sb.toString(), Sort.ascending("orderNumber"), parameters).list<TowableToVehicle>().awaitSuspending()
     }
 
     /**
-     * Lists TrailerVehicles by trailer
+     * Lists TrailerVehicles by towable
      *
-     * @param trailer trailer
+     * @param towable towable
      * @return list of TrailerVehicles
      */
-    suspend fun listByTrailer(trailer: Trailer): List<TrailerVehicle> {
+    suspend fun listByTrailer(towable: Towable): List<TowableToVehicle> {
         val sb = StringBuilder()
         val parameters = Parameters()
 
-            addCondition(sb, "trailer = :trailer")
-            parameters.and("trailer", trailer)
+            addCondition(sb, "towable = :towable")
+            parameters.and("towable", towable)
 
 
-        return find(sb.toString(), parameters).list<TrailerVehicle>().awaitSuspending()
+        return find(sb.toString(), parameters).list<TowableToVehicle>().awaitSuspending()
     }
 
 }

@@ -1,4 +1,4 @@
-package fi.metatavu.vp.vehicleManagement.trailers
+package fi.metatavu.vp.vehicleManagement.towables
 
 import fi.metatavu.vp.vehicleManagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
@@ -6,43 +6,46 @@ import jakarta.enterprise.context.ApplicationScoped
 import java.util.UUID
 
 /**
- * Repository for trailers
+ * Repository for towables
  */
 @ApplicationScoped
-class TrailerRepository: AbstractRepository<Trailer, UUID>() {
+class TowableRepository: AbstractRepository<Towable, UUID>() {
 
     /**
-     * Creates new trailer
+     * Creates new towable
      *
      * @param id id
      * @param plateNumber plate number
+     * @param type type
      * @param creatorId creator id
      * @param lastModifierId last modifier id
-     * @return created trailer
+     * @return created towable
      */
     suspend fun create(
         id: UUID,
         plateNumber: String,
+        type: fi.metatavu.vp.api.model.Towable.Type,
         creatorId: UUID,
         lastModifierId: UUID
-    ): Trailer {
-        val trailer = Trailer()
-        trailer.id = id
-        trailer.plateNumber = plateNumber
-        trailer.creatorId = creatorId
-        trailer.lastModifierId = lastModifierId
-        return persistSuspending(trailer)
+    ): Towable {
+        val towable = Towable()
+        towable.id = id
+        towable.plateNumber = plateNumber
+        towable.type = type
+        towable.creatorId = creatorId
+        towable.lastModifierId = lastModifierId
+        return persistSuspending(towable)
     }
 
     /**
-     * Lists trailers
+     * Lists towables
      *
      * @param plateNumber plate number
      * @param firstResult first result
      * @param maxResults max results
-     * @return list of trailers
+     * @return list of towables
      */
-    suspend fun list(plateNumber: String?, firstResult: Int?, maxResults: Int?): Pair<List<Trailer>, Long> {
+    suspend fun list(plateNumber: String?, firstResult: Int?, maxResults: Int?): Pair<List<Towable>, Long> {
         val sb = StringBuilder()
         val parameters = Parameters()
 

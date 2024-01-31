@@ -44,6 +44,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
         val createdTruck = truckController.createTruck(
             plateNumber = truck.plateNumber,
+            type = truck.type,
             userId = userId
         )
         createOk(truckTranslator.translate(createdTruck))

@@ -24,9 +24,9 @@ class TruckTestIT: AbstractFunctionalTest() {
     @Test
     fun testList() {
         createTestBuilder().use { builder ->
-            builder.user.trucks.create(Truck(plateNumber = plateNumber))
-            builder.user.trucks.create(Truck(plateNumber = "DEF-456"))
-            builder.user.trucks.create(Truck(plateNumber = "GHI-789"))
+            builder.user.trucks.create(plateNumber = plateNumber)
+            builder.user.trucks.create(plateNumber = "DEF-456")
+            builder.user.trucks.create(plateNumber = "GHI-789")
             val totalList = builder.user.trucks.list()
             Assertions.assertEquals(3, totalList.size)
 
@@ -50,7 +50,7 @@ class TruckTestIT: AbstractFunctionalTest() {
     @Test
     fun testFind() {
         createTestBuilder().use { builder ->
-            val truckData = Truck(plateNumber = plateNumber)
+            val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK)
             val createdTruck = builder.user.trucks.create(truckData)
             Assertions.assertNotNull(createdTruck)
             Assertions.assertEquals(truckData.plateNumber, createdTruck.plateNumber)
@@ -113,7 +113,7 @@ class TruckTestIT: AbstractFunctionalTest() {
     fun testUpdate() {
         createTestBuilder().use { builder ->
             val createdTruck = builder.user.trucks.create()
-            val updatedTruck = builder.user.trucks.update(createdTruck.id!!, Truck(plateNumber = "DEF-456"))
+            val updatedTruck = builder.user.trucks.update(createdTruck.id!!, Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK))
             Assertions.assertEquals("DEF-456", updatedTruck.plateNumber)
         }
     }

@@ -12,7 +12,8 @@ class TruckTranslator : AbstractTranslator<Truck, fi.metatavu.vp.api.model.Truck
     override suspend fun translate(entity: Truck): fi.metatavu.vp.api.model.Truck {
         return fi.metatavu.vp.api.model.Truck(
             id = entity.id,
-            plateNumber = entity.plateNumber
+            plateNumber = entity.plateNumber,
+            type = entity.type
         )
     }
 

@@ -1,6 +1,6 @@
-package fi.metatavu.vp.vehicleManagement.trailers
+package fi.metatavu.vp.vehicleManagement.towables
 
-import fi.metatavu.vp.api.spec.TrailersApi
+import fi.metatavu.vp.api.spec.TowablesApi
 import fi.metatavu.vp.vehicleManagement.rest.AbstractApi
 import fi.metatavu.vp.vehicleManagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
@@ -20,13 +20,13 @@ import java.util.*
 @RequestScoped
 @OptIn(ExperimentalCoroutinesApi::class)
 @WithSession
-class TrailersApiImpl : TrailersApi, AbstractApi() {
+class TowablesApiImpl : TowablesApi, AbstractApi() {
 
     @Inject
-    lateinit var trailerTranslator: TrailerTranslator
+    lateinit var towableTranslator: TowableTranslator
 
     @Inject
-    lateinit var trailerController: TrailerController
+    lateinit var towableController: TowableController
 
     @Inject
     lateinit var vehicleController: VehicleController
@@ -35,67 +35,68 @@ class TrailersApiImpl : TrailersApi, AbstractApi() {
     lateinit var vertx: Vertx
 
     @WithTransaction
-    override fun createTrailer(trailer: fi.metatavu.vp.api.model.Trailer): Uni<Response> =
+    override fun createTowable(towable: fi.metatavu.vp.api.model.Towable): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-            if (vehicleController.isPlateNumberValid(trailer.plateNumber).not()) {
+            if (vehicleController.isPlateNumberValid(towable.plateNumber).not()) {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
             }
 
-            val createdTruck = trailerController.createTrailer(
-                plateNumber = trailer.plateNumber,
+            val createdTruck = towableController.createTowable(
+                plateNumber = towable.plateNumber,
+                type = towable.type,
                 userId = userId
             )
-            createOk(trailerTranslator.translate(createdTruck))
+            createOk(towableTranslator.translate(createdTruck))
         }.asUni()
 
-    override fun findTrailer(trailerId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val truck = trailerController.findTrailer(trailerId) ?: return@async createNotFound(
+    override fun findTowable(towabelId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        val truck = towableController.findTrailer(towabelId) ?: return@async createNotFound(
             createNotFoundMessage(
                 TRAILER,
-                trailerId
+                towabelId
             )
         )
 
-        createOk(trailerTranslator.translate(truck))
+        createOk(towableTranslator.translate(truck))
     }.asUni()
 
-    override fun listTrailers(plateNumber: String?, first: Int?, max: Int?): Uni<Response> =
+    override fun listTowables(plateNumber: String?, first: Int?, max: Int?): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
-            val (trucks, count) = trailerController.listTrailers(plateNumber, first, max)
-            createOk(trucks.map { trailerTranslator.translate(it) }, count)
+            val (trucks, count) = towableController.listTrailers(plateNumber, first, max)
+            createOk(trucks.map { towableTranslator.translate(it) }, count)
         }.asUni()
 
     @WithTransaction
-    override fun updateTrailer(trailerId: UUID, trailer: fi.metatavu.vp.api.model.Trailer): Uni<Response> =
+    override fun updateTowable(towableId: UUID, towable: fi.metatavu.vp.api.model.Towable): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-            if (vehicleController.isPlateNumberValid(trailer.plateNumber).not()) {
+            if (vehicleController.isPlateNumberValid(towable.plateNumber).not()) {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
             }
 
-            val existingTrailer = trailerController.findTrailer(trailerId) ?: return@async createNotFound(
+            val existingTowable = towableController.findTrailer(towableId) ?: return@async createNotFound(
                 createNotFoundMessage(
                     TRAILER,
-                    trailerId
+                    towableId
                 )
             )
 
-            val updatedTrailer = trailerController.updateTrailer(existingTrailer, trailer, userId)
+            val updatedTrailer = towableController.updateTrailer(existingTowable, towable, userId)
 
-            createOk(trailerTranslator.translate(updatedTrailer))
+            createOk(towableTranslator.translate(updatedTrailer))
         }.asUni()
 
     @WithTransaction
-    override fun deleteTrailer(trailerId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+    override fun deleteTowable(towableId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        val existingTrailer = trailerController.findTrailer(trailerId) ?: return@async createNotFound(
+        val existingTrailer = towableController.findTrailer(towableId) ?: return@async createNotFound(
             createNotFoundMessage(
                 TRAILER,
-                trailerId
+                towableId
             )
         )
 
@@ -104,7 +105,7 @@ class TrailersApiImpl : TrailersApi, AbstractApi() {
             return@async createBadRequest("Trailer is part of a vehicle")
         }
 
-        trailerController.deleteTrailer(existingTrailer)
+        towableController.deleteTrailer(existingTrailer)
         createNoContent()
     }.asUni()
 }

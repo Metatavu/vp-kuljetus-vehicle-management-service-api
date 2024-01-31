@@ -1,10 +1,10 @@
 package fi.metatavu.vp.vehicleManagement.test.functional.common
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import fi.metatavu.vp.vehicleManagement.test.functional.common.providers.MaxCharsInvalidValueProvider
 import fi.metatavu.metaform.server.test.functional.common.providers.SimpleInvalidValueProvider
-import fi.metatavu.vp.test.client.models.Trailer
+import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.test.client.models.Vehicle
+import fi.metatavu.vp.vehicleManagement.test.functional.common.providers.MaxCharsInvalidValueProvider
 import java.util.*
 
 /**
@@ -29,10 +29,10 @@ class InvalidValues {
     /**
      * Invalid values for testing Trailers API
      */
-    class Trailers {
+    class Towables {
         companion object {
             val INVALID_TRAILERS = listOf(
-                Trailer(plateNumber = "3"), Trailer(plateNumber = ""), Trailer(plateNumber = "hello*")
+                Towable(plateNumber = "3", Towable.Type.TRAILER), Towable(plateNumber = "", Towable.Type.TRAILER), Towable(plateNumber = "hello*", Towable.Type.SEMI_TRAILER)
             ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
         }
     }
@@ -42,7 +42,7 @@ class InvalidValues {
      */
     class Trucks {
         companion object {
-            val INVALID_TRUCKS = Trailers.INVALID_TRAILERS
+            val INVALID_TRUCKS = Towables.INVALID_TRAILERS
         }
     }
 
@@ -51,11 +51,11 @@ class InvalidValues {
      */
     class Vehicles {
         companion object {
-            fun createVehicle(trailerIds: Array<UUID>, truckId: UUID): SimpleInvalidValueProvider {
+            fun createVehicle(towableIds: Array<UUID>, truckId: UUID): SimpleInvalidValueProvider {
                 return SimpleInvalidValueProvider(
                     jacksonObjectMapper().writeValueAsString(
                         Vehicle(
-                            trailerIds = trailerIds,
+                            towableIds = towableIds,
                             truckId = truckId
                         )
                     )

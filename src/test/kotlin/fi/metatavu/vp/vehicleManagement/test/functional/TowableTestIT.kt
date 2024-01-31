@@ -1,7 +1,6 @@
 package fi.metatavu.vp.vehicleManagement.test.functional
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import fi.metatavu.vp.test.client.models.Trailer
+import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioBody
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioBuilder
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioPath
@@ -17,30 +16,30 @@ import org.junit.jupiter.api.Test
 @QuarkusTestResource.List(
     QuarkusTestResource(MysqlResource::class)
 )
-class TrailerTestIT : AbstractFunctionalTest() {
+class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() {
         createTestBuilder().use { builder ->
-            builder.user.trailers.create(Trailer(plateNumber = plateNumber))
-            builder.user.trailers.create(Trailer(plateNumber = "DEF-456"))
-            builder.user.trailers.create(Trailer(plateNumber = "GHI-789"))
-            val totalList = builder.user.trailers.list()
+            builder.user.towables.create(Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
+            builder.user.towables.create(Towable(plateNumber = "DEF-456", type = Towable.Type.TRAILER))
+            builder.user.towables.create(Towable(plateNumber = "GHI-789", type = Towable.Type.TRAILER))
+            val totalList = builder.user.towables.list()
             Assertions.assertEquals(3, totalList.size)
 
-            val pagedList = builder.user.trailers.list(firstResult = 1, maxResults = 1)
+            val pagedList = builder.user.towables.list(firstResult = 1, maxResults = 1)
             Assertions.assertEquals(1, pagedList.size)
 
-            val pagedList2 = builder.user.trailers.list(firstResult = 0, maxResults = 3)
+            val pagedList2 = builder.user.towables.list(firstResult = 0, maxResults = 3)
             Assertions.assertEquals(3, pagedList2.size)
 
-            val pagedList3 = builder.user.trailers.list(firstResult = 0, maxResults = 2)
+            val pagedList3 = builder.user.towables.list(firstResult = 0, maxResults = 2)
             Assertions.assertEquals(2, pagedList3.size)
 
-            val pagedList4 = builder.user.trailers.list(firstResult = 0, maxResults = 0)
+            val pagedList4 = builder.user.towables.list(firstResult = 0, maxResults = 0)
             Assertions.assertEquals(0, pagedList4.size)
 
-            val filteredList = builder.user.trailers.list(plateNumber = plateNumber)
+            val filteredList = builder.user.towables.list(plateNumber = plateNumber)
             Assertions.assertEquals(1, filteredList.size)
         }
     }
@@ -48,28 +47,28 @@ class TrailerTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreate() {
         createTestBuilder().use { builder ->
-            val trailerData = Trailer(plateNumber = plateNumber)
-            val createdTrailer = builder.user.trailers.create(trailerData)
-            Assertions.assertNotNull(createdTrailer)
-            Assertions.assertEquals(trailerData.plateNumber, createdTrailer.plateNumber)
+            val towableData = Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER)
+            val createdTowable = builder.user.towables.create(towableData)
+            Assertions.assertNotNull(createdTowable)
+            Assertions.assertEquals(towableData.plateNumber, createdTowable.plateNumber)
         }
     }
 
     @Test
     fun testFindFail() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create(Trailer(plateNumber = plateNumber))
+            val createdTowable = builder.user.towables.create(Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
 
             InvalidValueTestScenarioBuilder(
-                path = "v1/trailers/{trailerId}",
+                path = "v1/towables/{towableId}",
                 method = Method.GET,
                 token = builder.user.accessTokenProvider.accessToken
             )
                 .path(
                     InvalidValueTestScenarioPath(
-                        name = "trailerId",
+                        name = "towableId",
                         values = InvalidValues.STRING_NOT_NULL,
-                        default = createdTrailer!!.id,
+                        default = createdTowable!!.id,
                         expectedStatus = 404
                     )
                 )
@@ -81,10 +80,10 @@ class TrailerTestIT : AbstractFunctionalTest() {
     @Test
     fun testFind() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create()
-            val foundTrailer = builder.user.trailers.find(createdTrailer.id!!)
-            Assertions.assertNotNull(foundTrailer)
-            Assertions.assertEquals(plateNumber, foundTrailer.plateNumber)
+            val createdTowable = builder.user.towables.create()
+            val foundTowable = builder.user.towables.find(createdTowable.id!!)
+            Assertions.assertNotNull(foundTowable)
+            Assertions.assertEquals(plateNumber, foundTowable.plateNumber)
         }
     }
 
@@ -92,13 +91,13 @@ class TrailerTestIT : AbstractFunctionalTest() {
     fun testCreateFail() {
         createTestBuilder().use { builder ->
             InvalidValueTestScenarioBuilder(
-                path = "v1/trailers",
+                path = "v1/towables",
                 method = Method.POST,
                 token = builder.user.accessTokenProvider.accessToken
             )
                 .body(
                     InvalidValueTestScenarioBody(
-                        values = InvalidValues.Trailers.INVALID_TRAILERS,
+                        values = InvalidValues.Towables.INVALID_TRAILERS,
                         expectedStatus = 400
                     )
                 )
@@ -110,32 +109,32 @@ class TrailerTestIT : AbstractFunctionalTest() {
     @Test
     fun testUpdate() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create()
-            val updatedTrailer = builder.user.trailers.update(createdTrailer.id!!, Trailer(plateNumber = "DEF-456"))
-            Assertions.assertEquals("DEF-456", updatedTrailer.plateNumber)
+            val createdTowable = builder.user.towables.create()
+            val updatedTowable = builder.user.towables.update(createdTowable.id!!, Towable(plateNumber = "DEF-456", type = Towable.Type.TRAILER))
+            Assertions.assertEquals("DEF-456", updatedTowable.plateNumber)
         }
     }
 
     @Test
     fun testUpdateFail() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create()
+            val createdTowable = builder.user.towables.create()
             InvalidValueTestScenarioBuilder(
-                path = "v1/trailers/{trailerId}",
+                path = "v1/towables/{towableId}",
                 method = Method.PUT,
                 token = builder.user.accessTokenProvider.accessToken
             )
                 .path(
                     InvalidValueTestScenarioPath(
-                        name = "trailerId",
+                        name = "towableId",
                         values = InvalidValues.STRING_NOT_NULL,
-                        default = createdTrailer.id,
+                        default = createdTowable.id,
                         expectedStatus = 404
                     )
                 )
                 .body(
                     InvalidValueTestScenarioBody(
-                        values = InvalidValues.Trailers.INVALID_TRAILERS,
+                        values = InvalidValues.Towables.INVALID_TRAILERS,
                         expectedStatus = 400
                     )
                 )
@@ -147,26 +146,26 @@ class TrailerTestIT : AbstractFunctionalTest() {
     @Test
     fun testDelete() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create()
-            builder.user.trailers.delete(createdTrailer.id!!)
-            builder.user.trailers.assertFindFail(404, createdTrailer.id)
+            val createdTowable = builder.user.towables.create()
+            builder.user.towables.delete(createdTowable.id!!)
+            builder.user.towables.assertFindFail(404, createdTowable.id)
         }
     }
 
     @Test
     fun testDeleteFail() {
         createTestBuilder().use { builder ->
-            val createdTrailer = builder.user.trailers.create()
+            val createdTowable = builder.user.towables.create()
             InvalidValueTestScenarioBuilder(
-                path = "v1/trailers/{trailerId}",
+                path = "v1/towables/{towableId}",
                 method = Method.DELETE,
                 token = builder.user.accessTokenProvider.accessToken
             )
                 .path(
                     InvalidValueTestScenarioPath(
-                        name = "trailerId",
+                        name = "towableId",
                         values = InvalidValues.STRING_NOT_NULL,
-                        default = createdTrailer.id,
+                        default = createdTowable.id,
                         expectedStatus = 404
                     )
                 )

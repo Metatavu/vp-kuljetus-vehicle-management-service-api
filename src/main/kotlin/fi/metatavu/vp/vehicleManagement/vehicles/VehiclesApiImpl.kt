@@ -3,7 +3,7 @@ package fi.metatavu.vp.vehicleManagement.vehicles
 import fi.metatavu.vp.api.model.Vehicle
 import fi.metatavu.vp.api.spec.VehiclesApi
 import fi.metatavu.vp.vehicleManagement.rest.AbstractApi
-import fi.metatavu.vp.vehicleManagement.trailers.TrailerController
+import fi.metatavu.vp.vehicleManagement.towables.TowableController
 import fi.metatavu.vp.vehicleManagement.trucks.TruckController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.smallrye.mutiny.Uni
@@ -30,7 +30,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
     lateinit var truckController: TruckController
 
     @Inject
-    lateinit var trailerController: TrailerController
+    lateinit var towableController: TowableController
 
     @Inject
     lateinit var vehicleTranslator: VehicleTranslator
@@ -59,31 +59,18 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         }
 
         val truck = truckController.findTruck(vehicle.truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, vehicle.truckId))
-        val trailers = vehicle.trailerIds.map {
-            val trailer = trailerController.findTrailer(it) ?: return@async createBadRequest(createNotFoundMessage(TRAILER, it))
-            trailer
+        val towables = vehicle.towableIds.map {
+            val towable = towableController.findTrailer(it) ?: return@async createBadRequest(createNotFoundMessage(TRAILER, it))
+            towable
         }
         val createdVehicle = vehicleController.create(
             truck = truck,
-            trailers = trailers,
+            towables = towables,
             userId = userId
         )
 
         createOk(vehicleTranslator.translate(createdVehicle))
     }.asUni()
-
-    private fun isInvalidVehicle(vehicle: Vehicle): Response? {
-        if (vehicle.trailerIds.size > 2) {
-            return createBadRequest("Vehicle can have maximum of 2 trailers")
-        }
-
-        val distinctTrailers = vehicle.trailerIds.distinct().size
-        if (distinctTrailers != vehicle.trailerIds.size) {
-            return createBadRequest("Vehicle cannot have duplicate trailers")
-        }
-
-        return null
-    }
 
     override fun findVehicle(vehicleId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val vehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
@@ -102,15 +89,15 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
 
         val foundVehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
         val newTruck = truckController.findTruck(vehicle.truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, vehicle.truckId))
-        val newTrailers = vehicle.trailerIds.map {
-            val trailer = trailerController.findTrailer(it) ?: return@async createBadRequest(createNotFoundMessage(TRAILER, it))
-            trailer
+        val newTrailers = vehicle.towableIds.map {
+            val towable = towableController.findTrailer(it) ?: return@async createBadRequest(createNotFoundMessage(TRAILER, it))
+            towable
         }
 
         val updatedVehicle = vehicleController.update(
             existingVehicle = foundVehicle,
             newTruck = newTruck,
-            newTrailers = newTrailers,
+            newTowables = newTrailers,
             userId = userId
         )
 
@@ -122,4 +109,20 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         vehicleController.delete(vehicle)
         createNoContent()
     }.asUni()
+
+
+    /**
+     * Checks if the given vehicle is valid
+     *
+     * @param vehicle vehicle to be checked
+     * @return response if invalid, null if valid
+     */
+    private fun isInvalidVehicle(vehicle: Vehicle): Response? {
+        val distinctTrailers = vehicle.towableIds.distinct().size
+        if (distinctTrailers != vehicle.towableIds.size) {
+            return createBadRequest("Vehicle cannot have duplicate towables")
+        }
+
+        return null
+    }
 }

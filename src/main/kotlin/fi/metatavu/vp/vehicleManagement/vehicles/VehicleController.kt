@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehicleManagement.vehicles
 
-import fi.metatavu.vp.vehicleManagement.trailers.Trailer
+import fi.metatavu.vp.vehicleManagement.towables.Towable
 import fi.metatavu.vp.vehicleManagement.trucks.Truck
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -17,7 +17,7 @@ class VehicleController {
     lateinit var vehicleRepository: VehicleRepository
 
     @Inject
-    lateinit var trailerVehicleRepository: TrailerVehicleRepository
+    lateinit var towableToVehicleRepository: TowableToVehicleRepository
 
     /**
      * Lists vehicles
@@ -33,27 +33,27 @@ class VehicleController {
      * Creates a new vehicle
      *
      * @param truck truck
-     * @param trailers trailers
+     * @param towables towables
      * @param userId user id
      * @return created vehicle
      */
-    suspend fun create(truck: Truck, trailers: List<Trailer>, userId: UUID): Vehicle {
+    suspend fun create(truck: Truck, towables: List<Towable>, userId: UUID): Vehicle {
         val createdVehicle = vehicleRepository.create(
             id = UUID.randomUUID(),
             truck = truck,
             userId = userId
         )
 
-        trailers.forEachIndexed { index, trailer ->
-            trailerVehicleRepository.create(
+        towables.forEachIndexed { index, towable ->
+            towableToVehicleRepository.create(
                 id = UUID.randomUUID(),
                 vehicle = createdVehicle,
-                trailer = trailer,
+                towable = towable,
                 order = index,
                 userId = userId
             )
         }
-        trailerVehicleRepository.flush().awaitSuspending()
+        towableToVehicleRepository.flush().awaitSuspending()
 
         return createdVehicle
     }
@@ -73,25 +73,25 @@ class VehicleController {
      *
      * @param existingVehicle existing vehicle
      * @param newTruck new truck
-     * @param newTrailers new trailers
+     * @param newTowables new towables
      * @param userId user id
      * @return updated vehicle
      */
-    suspend fun update(existingVehicle: Vehicle, newTruck: Truck, newTrailers: List<Trailer>, userId: UUID): Vehicle {
+    suspend fun update(existingVehicle: Vehicle, newTruck: Truck, newTowables: List<Towable>, userId: UUID): Vehicle {
         existingVehicle.truck = newTruck
         existingVehicle.lastModifierId = userId
 
-        //remove connection to trailers
-        val trailerVehicles = trailerVehicleRepository.listByVehicle(existingVehicle)
-        trailerVehicles.forEach {
-            trailerVehicleRepository.deleteSuspending(it)
+        //remove connection to towables
+        val towableVehicles = towableToVehicleRepository.listByVehicle(existingVehicle)
+        towableVehicles.forEach {
+            towableToVehicleRepository.deleteSuspending(it)
         }
         //add new connections
-        newTrailers.forEachIndexed { index, trailer ->
-            trailerVehicleRepository.create(
+        newTowables.forEachIndexed { index, towable ->
+            towableToVehicleRepository.create(
                 id = UUID.randomUUID(),
                 vehicle = existingVehicle,
-                trailer = trailer,
+                towable = towable,
                 order = index,
                 userId = userId
             )
@@ -106,12 +106,12 @@ class VehicleController {
      * @param vehicle vehicle to be deleted
      */
     suspend fun delete(vehicle: Vehicle) {
-        val trailerVehicles = trailerVehicleRepository.listByVehicle(vehicle)
-        trailerVehicles.forEach {
-            trailerVehicleRepository.deleteSuspending(it)
+        val towableVehicles = towableToVehicleRepository.listByVehicle(vehicle)
+        towableVehicles.forEach {
+            towableToVehicleRepository.deleteSuspending(it)
         }
         vehicleRepository.deleteSuspending(vehicle)
-        trailerVehicleRepository.flush().awaitSuspending()
+        towableToVehicleRepository.flush().awaitSuspending()
     }
 
     /**
@@ -131,12 +131,12 @@ class VehicleController {
     }
 
     /**
-     * Lists trailer connections to vehicles
+     * Lists towable connections to vehicles
      *
-     * @param trailer trailer
-     * @return list of trailer vehicles
+     * @param towable towable
+     * @return list of towable vehicles
      */
-    suspend fun listTrailerVehicles(trailer: Trailer): List<TrailerVehicle> {
-        return trailerVehicleRepository.listByTrailer(trailer)
+    suspend fun listTrailerVehicles(towable: Towable): List<TowableToVehicle> {
+        return towableToVehicleRepository.listByTrailer(towable)
     }
 }

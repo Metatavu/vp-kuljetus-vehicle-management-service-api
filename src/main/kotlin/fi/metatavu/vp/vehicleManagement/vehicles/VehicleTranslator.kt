@@ -8,13 +8,13 @@ import jakarta.inject.Inject
 class VehicleTranslator : AbstractTranslator<Vehicle, fi.metatavu.vp.api.model.Vehicle>() {
 
     @Inject
-    lateinit var trailerVehicleRepository: TrailerVehicleRepository
+    lateinit var towableToVehicleRepository: TowableToVehicleRepository
 
     override suspend fun translate(entity: Vehicle): fi.metatavu.vp.api.model.Vehicle {
         return fi.metatavu.vp.api.model.Vehicle(
             id = entity.id,
             truckId = entity.truck.id!!,
-            trailerIds = trailerVehicleRepository.listByVehicle(entity).map { it.trailer.id!! }
+            towableIds = towableToVehicleRepository.listByVehicle(entity).map { it.towable.id!! }
         )
     }
 

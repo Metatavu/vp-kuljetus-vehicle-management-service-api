@@ -1,66 +1,70 @@
 package fi.metatavu.vp.vehicleManagement.test.functional.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
-import fi.metatavu.vp.test.client.apis.TrailersApi
+import fi.metatavu.vp.test.client.apis.TowablesApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
-import fi.metatavu.vp.test.client.models.Trailer
+import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.vehicleManagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehicleManagement.test.functional.settings.ApiTestSettings
 import org.junit.Assert
 import java.util.*
 
 /**
- * Test builder resource for Trailers API
+ * Test builder resource for Towables API
  */
-class TrailersTestBuilderResource(
+class TowablesTestBuilderResource(
     testBuilder: TestBuilder,
     private val accessTokenProvider: AccessTokenProvider?,
     apiClient: ApiClient
-) : ApiTestBuilderResource<Trailer, ApiClient>(testBuilder, apiClient) {
+) : ApiTestBuilderResource<Towable, ApiClient>(testBuilder, apiClient) {
 
     /**
-     * Creates new trailer
+     * Creates new towable
      *
-     * @return created trailer
+     * @return created towable
      */
-    fun create(trailer: Trailer): Trailer {
-        return addClosable(api.createTrailer(trailer))
+    fun create(towable: Towable): Towable {
+        return addClosable(api.createTowable(towable))
     }
 
     /**
-     * Creates new Trailer with default values
+     * Creates new Towable with default values
      *
-     * @return created Trailer
+     * @return created Towable
      */
-    fun create(): Trailer {
-        return create(Trailer(plateNumber = "ABC-123"))
+    fun create(): Towable {
+        return create(Towable(plateNumber = "ABC-123", type = Towable.Type.TRAILER))
+    }
+
+    fun create(plateNumber: String): Towable {
+        return create(Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
     }
 
     /**
-     * Finds trailer
+     * Finds towable
      *
-     * @param trailerId trailer id
-     * @return found trailer
+     * @param towableId towable id
+     * @return found towable
      */
-    fun find(trailerId: UUID): Trailer {
-        return api.findTrailer(trailerId)
+    fun find(towableId: UUID): Towable {
+        return api.findTowable(towableId)
     }
 
     /**
-     * Lists trailers
+     * Lists towables
      *
      * @param plateNumber plate number
      * @param firstResult first result
      * @param maxResults max results
-     * @return list of trailers
+     * @return list of towables
      */
     fun list(
         plateNumber: String? = null,
         firstResult: Int? = null,
         maxResults: Int? = null
-    ): Array<Trailer> {
-        return api.listTrailers(
+    ): Array<Towable> {
+        return api.listTowables(
             plateNumber,
             firstResult,
             maxResults
@@ -68,35 +72,35 @@ class TrailersTestBuilderResource(
     }
 
     /**
-     * Updates trailer
+     * Updates towable
      *
-     * @param trailerId trailer id
+     * @param towableId towable id
      * @param updateData update data
-     * @return updated trailer
+     * @return updated towable
      */
-    fun update(trailerId: UUID, updateData: Trailer): Trailer {
-        return api.updateTrailer(trailerId, updateData)
+    fun update(towableId: UUID, updateData: Towable): Towable {
+        return api.updateTowable(towableId, updateData)
     }
 
     /**
-     * Deletes trailer
+     * Deletes towable
      *
-     * @param trailerId trailer id
+     * @param towableId towable id
      */
-    fun delete(trailerId: UUID) {
-        api.deleteTrailer(trailerId)
+    fun delete(towableId: UUID) {
+        api.deleteTowable(towableId)
         removeCloseable { closable: Any ->
-            if (closable !is Trailer) {
+            if (closable !is Towable) {
                 return@removeCloseable false
             }
 
-            closable.id == trailerId
+            closable.id == towableId
         }
     }
 
-    fun assertFindFail(expectedStatus: Int, trailerId: UUID) {
+    fun assertFindFail(expectedStatus: Int, towableId: UUID) {
         try {
-            api.findTrailer(trailerId)
+            api.findTowable(towableId)
             Assert.fail(String.format("Expected find to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
@@ -110,47 +114,47 @@ class TrailersTestBuilderResource(
         maxResults: Int? = null
     ) {
         try {
-            api.listTrailers(plateNumber, firstResult, maxResults)
+            api.listTowables(plateNumber, firstResult, maxResults)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
 
-    fun assertUpdateFail(expectedStatus: Int, trailerId: UUID, updateData: Trailer) {
+    fun assertUpdateFail(expectedStatus: Int, towableId: UUID, updateData: Towable) {
         try {
-            api.updateTrailer(trailerId, updateData)
+            api.updateTowable(towableId, updateData)
             Assert.fail(String.format("Expected update to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
 
-    fun assertDeleteFail(expectedStatus: Int, trailerId: UUID) {
+    fun assertDeleteFail(expectedStatus: Int, towableId: UUID) {
         try {
-            api.deleteTrailer(trailerId)
+            api.deleteTowable(towableId)
             Assert.fail(String.format("Expected delete to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
 
-    fun assertCreateFail(expectedStatus: Int, trailer: Trailer) {
+    fun assertCreateFail(expectedStatus: Int, towable: Towable) {
         try {
-            api.createTrailer(trailer)
+            api.createTowable(towable)
             Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
 
-    override fun clean(p0: Trailer?) {
+    override fun clean(p0: Towable?) {
         delete(p0!!.id!!)
     }
 
-    override fun getApi(): TrailersApi {
+    override fun getApi(): TowablesApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return TrailersApi(ApiTestSettings.apiBasePath)
+        return TowablesApi(ApiTestSettings.apiBasePath)
     }
 
 

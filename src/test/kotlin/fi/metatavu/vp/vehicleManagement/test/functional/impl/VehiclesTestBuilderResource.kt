@@ -30,10 +30,12 @@ class VehiclesTestBuilderResource(
     /**
      * Creates new vehicle with default values
      *
+     * @param truckId truck id
+     * @param towableIds towable id list
      * @return created vehicle
      */
-    fun create(truckId: UUID, trailerIds: Array<UUID>): Vehicle {
-        return create(Vehicle(truckId = truckId, trailerIds = trailerIds))
+    fun create(truckId: UUID, towableIds: Array<UUID>): Vehicle {
+        return create(Vehicle(truckId = truckId, towableIds = towableIds))
     }
 
     /**

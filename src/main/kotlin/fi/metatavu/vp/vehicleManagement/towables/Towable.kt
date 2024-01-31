@@ -1,17 +1,15 @@
-package fi.metatavu.vp.vehicleManagement.trailers
+package fi.metatavu.vp.vehicleManagement.towables
 
 import fi.metatavu.vp.vehicleManagement.persistence.Metadata
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
+import jakarta.persistence.*
 import jakarta.validation.constraints.NotEmpty
 import java.util.*
 
 /**
- * Entity for trailers
+ * Entity for towables
  */
 @Entity
-class Trailer: Metadata() {
+class Towable : Metadata() {
 
     @Id
     var id: UUID? = null
@@ -19,6 +17,10 @@ class Trailer: Metadata() {
     @Column(nullable = false)
     @NotEmpty
     lateinit var plateNumber: String
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    lateinit var type: fi.metatavu.vp.api.model.Towable.Type
 
     override lateinit var creatorId: UUID
 

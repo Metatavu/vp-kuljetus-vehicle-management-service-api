@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehicleManagement.test.functional
 
-import fi.metatavu.vp.test.client.models.Trailer
+import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.test.client.models.Vehicle
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioBody
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioBuilder
@@ -26,17 +26,17 @@ class VehicleTestIT : AbstractFunctionalTest() {
             val truck1 = builder.user.trucks.create()
             val truck2 = builder.user.trucks.create()
 
-            val trailer1 = builder.user.trailers.create(Trailer(plateNumber = "DEF-456"))
-            val trailer2 = builder.user.trailers.create(Trailer(plateNumber = "GHI-789"))
-            val trailer3 = builder.user.trailers.create(Trailer(plateNumber = "JKL-012"))
+            val towable1 = builder.user.towables.create(plateNumber = "DEF-456")
+            val towable2 = builder.user.towables.create(plateNumber = "GHI-789")
+            val towable3 = builder.user.towables.create(plateNumber = "JKL-012")
 
             builder.user.vehicles.create(
                 truckId = truck1.id!!,
-                trailerIds = arrayOf(trailer1.id!!, trailer2.id!!)
+                towableIds = arrayOf(towable1.id!!, towable2.id!!)
             )
             builder.user.vehicles.create(
                 truckId = truck2.id!!,
-                trailerIds = arrayOf(trailer3.id!!)
+                towableIds = arrayOf(towable3.id!!)
             )
 
             val totalList = builder.user.vehicles.list()
@@ -63,24 +63,24 @@ class VehicleTestIT : AbstractFunctionalTest() {
     fun create() {
         createTestBuilder().use {
             val truck = it.user.trucks.create()
-            val trailer1 = it.user.trailers.create(Trailer(plateNumber = "DEF-456"))
-            val trailer2 = it.user.trailers.create(Trailer(plateNumber = "GHI-789"))
+            val towable1 = it.user.towables.create(plateNumber = "DEF-456")
+            val towable2 = it.user.towables.create(plateNumber = "GHI-789")
 
             val createdVehicle = it.user.vehicles.create(
-                trailerIds = arrayOf(trailer1.id!!, trailer2.id!!),
+                towableIds = arrayOf(towable1.id!!, towable2.id!!),
                 truckId = truck.id!!
             )
 
             assertNotNull(createdVehicle)
             assertEquals(truck.id, createdVehicle.truckId)
-            assertEquals(2, createdVehicle.trailerIds.size)
-            assertEquals(trailer1.id, createdVehicle.trailerIds[0])
-            assertEquals(trailer2.id, createdVehicle.trailerIds[1])
+            assertEquals(2, createdVehicle.towableIds.size)
+            assertEquals(towable1.id, createdVehicle.towableIds[0])
+            assertEquals(towable2.id, createdVehicle.towableIds[1])
 
-            // cannot delete trailers or trucks connected to the vehicle
+            // cannot delete towables or trucks connected to the vehicle
             it.user.trucks.assertDeleteFail(400, truck.id)
-            it.user.trailers.assertDeleteFail(400, trailer1.id)
-            it.user.trailers.assertDeleteFail(400, trailer2.id)
+            it.user.towables.assertDeleteFail(400, towable1.id)
+            it.user.towables.assertDeleteFail(400, towable2.id)
         }
     }
 
@@ -91,9 +91,9 @@ class VehicleTestIT : AbstractFunctionalTest() {
     fun createFail() {
         createTestBuilder().use {
             val truck1 = it.user.trucks.create()
-            val trailer1 = it.user.trailers.create(Trailer(plateNumber = "DEF-456"))
-            val trailer2 = it.user.trailers.create(Trailer(plateNumber = "GHI-789"))
-            val trailer3 = it.user.trailers.create(Trailer(plateNumber = "JKL-012"))
+            val towable1 = it.user.towables.create(plateNumber = "DEF-456")
+            val towable2 = it.user.towables.create(plateNumber = "GHI-789")
+            val towable3 = it.user.towables.create(plateNumber = "JKL-012")
 
             InvalidValueTestScenarioBuilder(
                 path = "v1/vehicles",
@@ -103,25 +103,20 @@ class VehicleTestIT : AbstractFunctionalTest() {
                 .body(
                     InvalidValueTestScenarioBody(
                         values = listOf(
-                            // too many trailers
-                            InvalidValues.Vehicles.createVehicle(
-                                truckId = truck1.id!!,
-                                trailerIds = arrayOf(trailer1.id!!, trailer2.id!!, trailer3.id!!)
-                            ),
                             // invalid truck id
                             InvalidValues.Vehicles.createVehicle(
                                 truckId = UUID.randomUUID(),
-                                trailerIds = arrayOf(trailer1.id, trailer2.id)
+                                towableIds = arrayOf(towable1.id, towable2.id)
                             ),
-                            // invalid trailer id
+                            // invalid towable id
                             InvalidValues.Vehicles.createVehicle(
                                 truckId = truck1.id,
-                                trailerIds = arrayOf(UUID.randomUUID(), trailer2.id)
+                                towableIds = arrayOf(UUID.randomUUID(), towable2.id)
                             ),
-                            // duplicate trailer id
+                            // duplicate towable id
                             InvalidValues.Vehicles.createVehicle(
                                 truckId = truck1.id,
-                                trailerIds = arrayOf(trailer1.id, trailer1.id)
+                                towableIds = arrayOf(towable1.id, towable1.id)
                             ),
                         ),
                         expectedStatus = 400
@@ -136,19 +131,19 @@ class VehicleTestIT : AbstractFunctionalTest() {
     fun find() {
         createTestBuilder().use { builder ->
             val truck = builder.user.trucks.create()
-            val trailer1 = builder.user.trailers.create(Trailer(plateNumber = "DEF-456"))
-            val trailer2 = builder.user.trailers.create(Trailer(plateNumber = "GHI-789"))
+            val towable1 = builder.user.towables.create(plateNumber = "DEF-456")
+            val towable2 = builder.user.towables.create(plateNumber = "GHI-789")
             val createdVehicle = builder.user.vehicles.create(
-                trailerIds = arrayOf(trailer1.id!!, trailer2.id!!),
+                towableIds = arrayOf(towable1.id!!, towable2.id!!),
                 truckId = truck.id!!
             )
 
             val foundVehicle = builder.user.vehicles.find(createdVehicle.id!!)
             assertNotNull(foundVehicle)
             assertEquals(truck.id, foundVehicle.truckId)
-            assertEquals(2, foundVehicle.trailerIds.size)
-            assertTrue(foundVehicle.trailerIds.contains(trailer1.id))
-            assertTrue(foundVehicle.trailerIds.contains(trailer2.id))
+            assertEquals(2, foundVehicle.towableIds.size)
+            assertTrue(foundVehicle.towableIds.contains(towable1.id))
+            assertTrue(foundVehicle.towableIds.contains(towable2.id))
         }
     }
 
@@ -156,9 +151,9 @@ class VehicleTestIT : AbstractFunctionalTest() {
     fun findFail() {
         createTestBuilder().use { builder ->
             val truck = builder.user.trucks.create()
-            val trailer1 = builder.user.trailers.create(Trailer(plateNumber = "DEF-456"))
+            val towable1 = builder.user.towables.create(plateNumber = "DEF-456")
             val createdVehicle = builder.user.vehicles.create(
-                trailerIds = arrayOf(trailer1.id!!),
+                towableIds = arrayOf(towable1.id!!),
                 truckId = truck.id!!
             )
 
@@ -184,46 +179,46 @@ class VehicleTestIT : AbstractFunctionalTest() {
     fun update() {
         createTestBuilder().use {
             val truck = it.user.trucks.create()
-            val trailer1 = it.user.trailers.create(Trailer(plateNumber = "DEF-456"))
-            val trailer2 = it.user.trailers.create(Trailer(plateNumber = "GHI-789"))
-            val trailer3 = it.user.trailers.create(Trailer(plateNumber = "JKL-012"))
+            val towable1 = it.user.towables.create(plateNumber = "DEF-456")
+            val towable2 = it.user.towables.create(plateNumber = "GHI-789")
+            val towable3 = it.user.towables.create(plateNumber = "JKL-012")
 
             val createdVehicle = it.user.vehicles.create(
-                trailerIds = arrayOf(trailer1.id!!, trailer2.id!!),
+                towableIds = arrayOf(towable1.id!!, towable2.id!!),
                 truckId = truck.id!!
             )
 
             val reorderedTrailers = it.user.vehicles.update(
                 existingVehicle = createdVehicle,
                 newVehicleData = Vehicle(
-                    trailerIds = arrayOf(trailer2.id, trailer1.id),
+                    towableIds = arrayOf(towable2.id, towable1.id),
                     truckId = truck.id
                 )
             )
-            assertEquals(2, reorderedTrailers.trailerIds.size)
-            assertEquals(trailer2.id, reorderedTrailers.trailerIds[0])
-            assertEquals(trailer1.id, reorderedTrailers.trailerIds[1])
+            assertEquals(2, reorderedTrailers.towableIds.size)
+            assertEquals(towable2.id, reorderedTrailers.towableIds[0])
+            assertEquals(towable1.id, reorderedTrailers.towableIds[1])
 
             val removedTrailer = it.user.vehicles.update(
                 existingVehicle = reorderedTrailers,
                 newVehicleData = Vehicle(
-                    trailerIds = arrayOf(trailer2.id),
+                    towableIds = arrayOf(towable2.id),
                     truckId = truck.id
                 )
             )
-            assertEquals(1, removedTrailer.trailerIds.size)
-            assertEquals(trailer2.id, removedTrailer.trailerIds[0])
+            assertEquals(1, removedTrailer.towableIds.size)
+            assertEquals(towable2.id, removedTrailer.towableIds[0])
 
             val differentTrailers = it.user.vehicles.update(
                 existingVehicle = removedTrailer,
                 newVehicleData = Vehicle(
-                    trailerIds = arrayOf(trailer3.id!!),
+                    towableIds = arrayOf(towable3.id!!),
                     truckId = truck.id
                 )
             )
 
-            assertEquals(1, differentTrailers.trailerIds.size)
-            assertEquals(trailer3.id, differentTrailers.trailerIds[0])
+            assertEquals(1, differentTrailers.towableIds.size)
+            assertEquals(towable3.id, differentTrailers.towableIds[0])
         }
     }
 
@@ -231,12 +226,12 @@ class VehicleTestIT : AbstractFunctionalTest() {
     fun updateFail() {
         createTestBuilder().use {
             val truck = it.user.trucks.create()
-            val trailer1 = it.user.trailers.create(Trailer(plateNumber = "DEF-456"))
-            val trailer2 = it.user.trailers.create(Trailer(plateNumber = "GHI-789"))
-            val trailer3 = it.user.trailers.create(Trailer(plateNumber = "JKL-012"))
+            val towable1 = it.user.towables.create(plateNumber = "DEF-456")
+            val towable2 = it.user.towables.create(plateNumber = "GHI-789")
+            val towable3 = it.user.towables.create(plateNumber = "JKL-012")
 
             val createdVehicle = it.user.vehicles.create(
-                trailerIds = arrayOf(trailer1.id!!),
+                towableIds = arrayOf(towable1.id!!),
                 truckId = truck.id!!
             )
 
@@ -256,20 +251,15 @@ class VehicleTestIT : AbstractFunctionalTest() {
                 .body(
                     InvalidValueTestScenarioBody(
                         values = listOf(
-                            // too many trailers
-                            InvalidValues.Vehicles.createVehicle(
-                                truckId = truck.id,
-                                trailerIds = arrayOf(trailer1.id, trailer2.id!!, trailer3.id!!)
-                            ),
                             // invalid truck id
                             InvalidValues.Vehicles.createVehicle(
                                 truckId = UUID.randomUUID(),
-                                trailerIds = arrayOf(trailer1.id)
+                                towableIds = arrayOf(towable1.id)
                             ),
-                            // invalid trailer id
+                            // invalid towable id
                             InvalidValues.Vehicles.createVehicle(
                                 truckId = truck.id,
-                                trailerIds = arrayOf(UUID.randomUUID())
+                                towableIds = arrayOf(UUID.randomUUID())
                             ),
                         ),
                         expectedStatus = 400
@@ -287,7 +277,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
 
             val createdVehicle = it.user.vehicles.create(
                 truckId = truck.id!!,
-                trailerIds = emptyArray()
+                towableIds = emptyArray()
             )
 
             it.user.vehicles.delete(createdVehicle.id!!)
@@ -303,7 +293,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
 
             val createdVehicle = it.user.vehicles.create(
                 truckId = truck.id!!,
-                trailerIds = emptyArray()
+                towableIds = emptyArray()
             )
 
             InvalidValueTestScenarioBuilder(

@@ -16,6 +16,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
      *
      * @param id id
      * @param plateNumber plate number
+     * @param type truck type
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created truck
@@ -23,12 +24,14 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
     suspend fun create(
         id: UUID,
         plateNumber: String,
+        type: fi.metatavu.vp.api.model.Truck.Type,
         creatorId: UUID,
         lastModifierId: UUID
     ): Truck {
         val truck = Truck()
         truck.id = id
         truck.plateNumber = plateNumber
+        truck.type = type
         truck.creatorId = creatorId
         truck.lastModifierId = lastModifierId
         return persistSuspending(truck)
