@@ -8,6 +8,8 @@ import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValues
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
@@ -20,22 +22,22 @@ class TowableTestIT : AbstractFunctionalTest() {
             builder.user.towables.create(Towable(plateNumber = "DEF-456", type = Towable.Type.TRAILER))
             builder.user.towables.create(Towable(plateNumber = "GHI-789", type = Towable.Type.TRAILER))
             val totalList = builder.user.towables.list()
-            Assertions.assertEquals(3, totalList.size)
+            assertEquals(3, totalList.size)
 
             val pagedList = builder.user.towables.list(firstResult = 1, maxResults = 1)
-            Assertions.assertEquals(1, pagedList.size)
+            assertEquals(1, pagedList.size)
 
             val pagedList2 = builder.user.towables.list(firstResult = 0, maxResults = 3)
-            Assertions.assertEquals(3, pagedList2.size)
+            assertEquals(3, pagedList2.size)
 
             val pagedList3 = builder.user.towables.list(firstResult = 0, maxResults = 2)
-            Assertions.assertEquals(2, pagedList3.size)
+            assertEquals(2, pagedList3.size)
 
             val pagedList4 = builder.user.towables.list(firstResult = 0, maxResults = 0)
-            Assertions.assertEquals(0, pagedList4.size)
+            assertEquals(0, pagedList4.size)
 
             val filteredList = builder.user.towables.list(plateNumber = plateNumber)
-            Assertions.assertEquals(1, filteredList.size)
+            assertEquals(1, filteredList.size)
         }
     }
 
@@ -44,8 +46,10 @@ class TowableTestIT : AbstractFunctionalTest() {
         createTestBuilder().use { builder ->
             val towableData = Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER)
             val createdTowable = builder.user.towables.create(towableData)
-            Assertions.assertNotNull(createdTowable)
-            Assertions.assertEquals(towableData.plateNumber, createdTowable.plateNumber)
+            assertNotNull(createdTowable)
+            assertEquals(towableData.plateNumber, createdTowable.plateNumber)
+            assertEquals(towableData.type, createdTowable.type)
+            assertNotNull(createdTowable.id)
         }
     }
 
@@ -73,8 +77,8 @@ class TowableTestIT : AbstractFunctionalTest() {
         createTestBuilder().use { builder ->
             val createdTowable = builder.user.towables.create()
             val foundTowable = builder.user.towables.find(createdTowable.id!!)
-            Assertions.assertNotNull(foundTowable)
-            Assertions.assertEquals(plateNumber, foundTowable.plateNumber)
+            assertNotNull(foundTowable)
+            assertEquals(plateNumber, foundTowable.plateNumber)
         }
     }
 
@@ -105,8 +109,10 @@ class TowableTestIT : AbstractFunctionalTest() {
     fun testUpdate() {
         createTestBuilder().use { builder ->
             val createdTowable = builder.user.towables.create()
-            val updatedTowable = builder.user.towables.update(createdTowable.id!!, Towable(plateNumber = "DEF-456", type = Towable.Type.TRAILER))
-            Assertions.assertEquals("DEF-456", updatedTowable.plateNumber)
+            val updateData = Towable(plateNumber = "DEF-456", type = Towable.Type.DOLLY)
+            val updatedTowable = builder.user.towables.update(createdTowable.id!!, updateData)
+            assertEquals(updateData.plateNumber, updatedTowable.plateNumber)
+            assertEquals(updateData.type, updatedTowable.type)
         }
     }
 

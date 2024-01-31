@@ -8,6 +8,8 @@ import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValues
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
 /**
@@ -23,32 +25,34 @@ class TruckTestIT: AbstractFunctionalTest() {
             builder.user.trucks.create(plateNumber = "DEF-456")
             builder.user.trucks.create(plateNumber = "GHI-789")
             val totalList = builder.user.trucks.list()
-            Assertions.assertEquals(3, totalList.size)
+            assertEquals(3, totalList.size)
 
             val pagedList = builder.user.trucks.list(firstResult = 1, maxResults = 1)
-            Assertions.assertEquals(1, pagedList.size)
+            assertEquals(1, pagedList.size)
 
             val pagedList2 = builder.user.trucks.list(firstResult = 0, maxResults = 3)
-            Assertions.assertEquals(3, pagedList2.size)
+            assertEquals(3, pagedList2.size)
 
             val pagedList3 = builder.user.trucks.list(firstResult = 0, maxResults = 2)
-            Assertions.assertEquals(2, pagedList3.size)
+            assertEquals(2, pagedList3.size)
 
             val pagedList4 = builder.user.trucks.list(firstResult = 0, maxResults = 0)
-            Assertions.assertEquals(0, pagedList4.size)
+            assertEquals(0, pagedList4.size)
 
             val filteredList = builder.user.trucks.list(plateNumber = plateNumber)
-            Assertions.assertEquals(1, filteredList.size)
+            assertEquals(1, filteredList.size)
         }
     }
 
     @Test
     fun testCreate() {
         createTestBuilder().use { builder ->
-            val createdTruck = builder.user.trucks.create()
-            val foundTruck = builder.user.trucks.find(createdTruck.id!!)
-            Assertions.assertNotNull(foundTruck)
-            Assertions.assertEquals(plateNumber, foundTruck.plateNumber)
+            val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK)
+            val createdTruck = builder.user.trucks.create(truckData)
+            assertNotNull(createdTruck)
+            assertNotNull(createdTruck.id)
+            assertEquals(truckData.plateNumber, createdTruck.plateNumber)
+            assertEquals(truckData.type, createdTruck.type)
         }
     }
 
@@ -77,7 +81,7 @@ class TruckTestIT: AbstractFunctionalTest() {
             val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK)
             val createdTruck = builder.user.trucks.create(truckData)
             Assertions.assertNotNull(createdTruck)
-            Assertions.assertEquals(truckData.plateNumber, createdTruck.plateNumber)
+            assertEquals(truckData.plateNumber, createdTruck.plateNumber)
         }
     }
 
@@ -108,8 +112,11 @@ class TruckTestIT: AbstractFunctionalTest() {
     fun testUpdate() {
         createTestBuilder().use { builder ->
             val createdTruck = builder.user.trucks.create()
-            val updatedTruck = builder.user.trucks.update(createdTruck.id!!, Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK))
-            Assertions.assertEquals("DEF-456", updatedTruck.plateNumber)
+            val updateData = Truck(plateNumber = "DEF-456", type = Truck.Type.SEMI_TRUCK)
+            val updatedTruck = builder.user.trucks.update(createdTruck.id!!, updateData)
+            assertNotNull(updatedTruck)
+            assertEquals(updateData.plateNumber, updatedTruck.plateNumber)
+            assertEquals(updateData.type, updatedTruck.type)
         }
     }
 

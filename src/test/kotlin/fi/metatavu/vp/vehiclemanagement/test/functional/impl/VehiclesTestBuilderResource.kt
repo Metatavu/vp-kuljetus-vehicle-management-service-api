@@ -95,7 +95,6 @@ class VehiclesTestBuilderResource(
     }
 
     override fun clean(p0: Vehicle?) {
-        println("cleaning vehicle")
         delete(p0!!.id!!)
     }
 
