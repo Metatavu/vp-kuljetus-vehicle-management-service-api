@@ -6,6 +6,7 @@ import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.towables.TowableController
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asUni
 import io.vertx.core.Vertx
@@ -49,6 +50,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         createOk(vehicleTranslator.translate(vehicles), count)
     }.asUni()
 
+    @WithTransaction
     override fun createVehicle(vehicle: Vehicle): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
@@ -78,6 +80,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         createOk(vehicleTranslator.translate(vehicle))
     }.asUni()
 
+    @WithTransaction
     override fun updateVehicle(vehicleId: UUID, vehicle: Vehicle): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
@@ -104,6 +107,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         createOk(vehicleTranslator.translate(updatedVehicle))
     }.asUni()
 
+    @WithTransaction
     override fun deleteVehicle(vehicleId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val vehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
         vehicleController.delete(vehicle)
