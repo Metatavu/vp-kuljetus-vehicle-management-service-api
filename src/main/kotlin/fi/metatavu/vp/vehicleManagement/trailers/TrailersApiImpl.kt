@@ -39,8 +39,12 @@ class TrailersApiImpl : TrailersApi, AbstractApi() {
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-            if (vehicleController.isPlateNumberValid(trailer.plateNumber).not()) {
+            if (!vehicleController.isPlateNumberValid(trailer.plateNumber)) {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
+            }
+
+            if (!vehicleController.isPlateNumberUnique(trailer.plateNumber)) {
+                return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
             }
 
             val createdTruck = trailerController.createTrailer(
@@ -72,7 +76,7 @@ class TrailersApiImpl : TrailersApi, AbstractApi() {
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-            if (vehicleController.isPlateNumberValid(trailer.plateNumber).not()) {
+            if (!vehicleController.isPlateNumberValid(trailer.plateNumber)) {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
             }
 
@@ -82,6 +86,10 @@ class TrailersApiImpl : TrailersApi, AbstractApi() {
                     trailerId
                 )
             )
+
+            if (!vehicleController.isPlateNumberUnique(trailer.plateNumber) && existingTrailer.plateNumber != trailer.plateNumber) {
+                return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+            }
 
             val updatedTrailer = trailerController.updateTrailer(existingTrailer, trailer, userId)
 

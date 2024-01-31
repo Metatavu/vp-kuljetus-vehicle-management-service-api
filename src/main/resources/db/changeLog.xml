@@ -90,4 +90,9 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="unique_plate_numbers" author="katja_danilova">
+        <addUniqueConstraint tableName="trailer" columnNames="platenumber"/>
+        <addUniqueConstraint tableName="truck" columnNames="platenumber"/>
+    </changeSet>
 </databaseChangeLog>

@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehicleManagement.test.functional
 
 import fi.metatavu.vp.test.client.models.Trailer
+import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.test.client.models.Vehicle
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioBody
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioBuilder
@@ -24,7 +25,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
     fun list() {
         createTestBuilder().use { builder ->
             val truck1 = builder.user.trucks.create()
-            val truck2 = builder.user.trucks.create()
+            val truck2 = builder.user.trucks.create(Truck(plateNumber = "DEF-457"))
 
             val trailer1 = builder.user.trailers.create(Trailer(plateNumber = "DEF-456"))
             val trailer2 = builder.user.trailers.create(Trailer(plateNumber = "GHI-789"))

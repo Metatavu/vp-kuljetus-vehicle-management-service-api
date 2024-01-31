@@ -1,7 +1,9 @@
 package fi.metatavu.vp.vehicleManagement.vehicles
 
 import fi.metatavu.vp.vehicleManagement.trailers.Trailer
+import fi.metatavu.vp.vehicleManagement.trailers.TrailerRepository
 import fi.metatavu.vp.vehicleManagement.trucks.Truck
+import fi.metatavu.vp.vehicleManagement.trucks.TruckRepository
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -18,6 +20,12 @@ class VehicleController {
 
     @Inject
     lateinit var trailerVehicleRepository: TrailerVehicleRepository
+
+    @Inject
+    lateinit var truckRepository: TruckRepository
+
+    @Inject
+    lateinit var trailerRepository: TrailerRepository
 
     /**
      * Lists vehicles
@@ -121,13 +129,37 @@ class VehicleController {
      * @return true if the plate number is valid
      */
     fun isPlateNumberValid(plateNumber: String): Boolean {
-        val lengthCheck = plateNumber.isNotEmpty()
+        val isValidLength = plateNumber.isNotEmpty()
             && plateNumber.isNotBlank()
             && plateNumber.length >= 2
-        if (!lengthCheck) {
+        if (!isValidLength) {
             return false
         }
-        return !(plateNumber.contains("?") || plateNumber.contains("*") || plateNumber.contains("!"))
+        val illegalSymbols = plateNumber.contains("?") || plateNumber.contains("*") || plateNumber.contains("!")
+        if (illegalSymbols) {
+            return false
+        }
+
+        return true
+    }
+
+    /**
+     * Checks if plate number is unique (not present in both trucks and trailers)
+     *
+     * @param plateNumber plate number
+     * @return true if unique
+     */
+    suspend fun isPlateNumberUnique(plateNumber: String): Boolean {
+        val duplicateTruckPlates = truckRepository.countByPlateNumber(plateNumber)
+        if (duplicateTruckPlates > 0) {
+            return false
+        }
+        val duplicateTrailerPlates = trailerRepository.countByPlateNumber(plateNumber)
+        if (duplicateTrailerPlates > 0) {
+            return false
+        }
+
+        return true
     }
 
     /**

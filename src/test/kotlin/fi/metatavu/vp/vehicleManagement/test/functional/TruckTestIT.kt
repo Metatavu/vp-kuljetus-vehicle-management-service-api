@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehicleManagement.test.functional
 
+import fi.metatavu.vp.test.client.models.Trailer
 import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioBody
 import fi.metatavu.vp.vehicleManagement.test.functional.common.InvalidValueTestScenarioBuilder
@@ -87,6 +88,10 @@ class TruckTestIT: AbstractFunctionalTest() {
             val foundTruck = builder.user.trucks.find(createdTruck.id!!)
             Assertions.assertNotNull(foundTruck)
             Assertions.assertEquals(plateNumber, foundTruck.plateNumber)
+
+            // We cannot create trucks or trailers with already existing plate number
+            builder.user.trucks.assertCreateFail(400, createdTruck)
+            builder.user.trailers.assertCreateFail(400, Trailer(plateNumber = plateNumber))
         }
     }
 
@@ -112,9 +117,19 @@ class TruckTestIT: AbstractFunctionalTest() {
     @Test
     fun testUpdate() {
         createTestBuilder().use { builder ->
-            val createdTruck = builder.user.trucks.create()
-            val updatedTruck = builder.user.trucks.update(createdTruck.id!!, Truck(plateNumber = "DEF-456"))
-            Assertions.assertEquals("DEF-456", updatedTruck.plateNumber)
+            val truck1 = builder.user.trucks.create()
+            val truck2 = builder.user.trucks.create(Truck(plateNumber = "DEF-456"))
+
+            val updateData = Truck(plateNumber = "somenewnumber")
+            val updatedTruck = builder.user.trucks.update(truck1.id!!, updateData)
+            Assertions.assertEquals(updateData.plateNumber, updatedTruck.plateNumber)
+
+            // Truck updates check for the plate number duplicates (ignoring own number)
+            builder.user.trucks.update(truck1.id, truck1)
+            builder.user.trucks.assertUpdateFail(400, truck1.id, truck2)
+            // Trailer updates check for plate number duplicates too
+            val trailer = builder.user.trailers.create(Trailer("trailerNumber"))
+            builder.user.trailers.assertUpdateFail(400, trailer.id!!, Trailer(plateNumber = truck1.plateNumber))
         }
     }
 
