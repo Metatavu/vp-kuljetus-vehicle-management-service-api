@@ -1,7 +1,9 @@
 package fi.metatavu.vp.vehiclemanagement.vehicles
 
 import fi.metatavu.vp.vehiclemanagement.towables.Towable
+import fi.metatavu.vp.vehiclemanagement.towables.TowableRepository
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckRepository
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -23,7 +25,7 @@ class VehicleController {
     lateinit var truckRepository: TruckRepository
 
     @Inject
-    lateinit var trailerRepository: TrailerRepository
+    lateinit var towableRepository: TowableRepository
 
     /**
      * Lists vehicles
@@ -152,7 +154,7 @@ class VehicleController {
         if (duplicateTruckPlates > 0) {
             return false
         }
-        val duplicateTrailerPlates = trailerRepository.countByPlateNumber(plateNumber)
+        val duplicateTrailerPlates = towableRepository.countByPlateNumber(plateNumber)
         if (duplicateTrailerPlates > 0) {
             return false
         }
