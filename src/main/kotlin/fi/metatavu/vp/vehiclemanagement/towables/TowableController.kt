@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.towables
 
+import fi.metatavu.vp.vehiclemanagement.telematics.TelematicsRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -13,19 +14,24 @@ class TowableController {
     @Inject
     lateinit var towableRepository: TowableRepository
 
+    @Inject
+    lateinit var telematicsRepository: TelematicsRepository
+
     /**
      * Creates new towable
      *
      * @param plateNumber plate number
      * @param type type
+     * @param vin vin
      * @param userId user id
      * @return created towable
      */
-    suspend fun createTowable(plateNumber: String, type: fi.metatavu.vp.api.model.Towable.Type, userId: UUID): Towable {
+    suspend fun createTowable(plateNumber: String, type: fi.metatavu.vp.api.model.Towable.Type, vin: String?, userId: UUID): Towable {
         return towableRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,
             type = type,
+            vin = vin,
             creatorId = userId,
             lastModifierId = userId
         )
@@ -67,6 +73,7 @@ class TowableController {
     ): Towable {
         existingTowable.plateNumber = newTowableData.plateNumber
         existingTowable.type = newTowableData.type
+        existingTowable.vin = newTowableData.vin
         existingTowable.lastModifierId = userId
         return towableRepository.persistSuspending(existingTowable)
     }
@@ -77,6 +84,9 @@ class TowableController {
      * @param towable towable to be deleted
      */
     suspend fun deleteTowable(towable: Towable) {
+        telematicsRepository.listByDevice(towable).forEach {
+            telematicsRepository.deleteSuspending(it)
+        }
         towableRepository.deleteSuspending(towable)
     }
 

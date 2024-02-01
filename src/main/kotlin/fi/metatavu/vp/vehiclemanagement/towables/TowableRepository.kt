@@ -4,7 +4,7 @@ import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
-import java.util.UUID
+import java.util.*
 
 /**
  * Repository for towables
@@ -18,6 +18,7 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
      * @param id id
      * @param plateNumber plate number
      * @param type type
+     * @param vin vin
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created towable
@@ -26,6 +27,7 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
         id: UUID,
         plateNumber: String,
         type: fi.metatavu.vp.api.model.Towable.Type,
+        vin: String?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Towable {
@@ -33,6 +35,7 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
         towable.id = id
         towable.plateNumber = plateNumber
         towable.type = type
+        towable.vin = vin
         towable.creatorId = creatorId
         towable.lastModifierId = lastModifierId
         return persistSuspending(towable)
@@ -72,4 +75,23 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
         return count("plateNumber", plateNumber).awaitSuspending()
     }
 
+    /**
+     * Finds a towable by VIN
+     *
+     * @param vin VIN
+     * @return found towable or null if not found
+     */
+    suspend fun findByVin(vin: String): Towable? {
+        return find("vin", vin).firstResult<Towable>().awaitSuspending()
+    }
+
+    /**
+     * Counts towables by VIN
+     *
+     * @param vin VIN
+     * @return number of towables with the given VIN
+     */
+    suspend fun countByVin(vin: String): Long {
+        return count("vin", vin).awaitSuspending()
+    }
 }

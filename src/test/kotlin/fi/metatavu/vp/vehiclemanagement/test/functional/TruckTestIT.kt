@@ -48,16 +48,20 @@ class TruckTestIT: AbstractFunctionalTest() {
     @Test
     fun testCreate() {
         createTestBuilder().use { builder ->
-            val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK)
+            val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK, vin = "someVinNumber")
             val createdTruck = builder.user.trucks.create(truckData)
             assertNotNull(createdTruck)
             assertNotNull(createdTruck.id)
             assertEquals(truckData.plateNumber, createdTruck.plateNumber)
             assertEquals(truckData.type, createdTruck.type)
+            assertEquals(truckData.vin, createdTruck.vin)
 
             // We cannot create trucks or towables with already existing plate number
             builder.user.trucks.assertCreateFail(400, createdTruck)
             builder.user.towables.assertCreateFail(400, Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
+            // Same check for vin
+            builder.user.trucks.assertCreateFail(400, Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin!!))
+            builder.user.towables.assertCreateFail(400, Towable(plateNumber = "DEF-456", type = Towable.Type.TRAILER, vin = createdTruck.vin))
         }
     }
 
@@ -116,21 +120,28 @@ class TruckTestIT: AbstractFunctionalTest() {
     @Test
     fun testUpdate() {
         createTestBuilder().use { builder ->
-            val truck1 = builder.user.trucks.create()
-            val truck2 = builder.user.trucks.create(plateNumber = "truck2")
+            val truck1 = builder.user.trucks.create(Truck(plateNumber = "0111", type = Truck.Type.SEMI_TRUCK, vin = "vin1"))
+            val truck2 = builder.user.trucks.create(Truck(plateNumber = "0222", type = Truck.Type.SEMI_TRUCK, vin = "vin2"))
 
-            val updateData = Truck(plateNumber = "DEF-456", type = Truck.Type.SEMI_TRUCK)
+            val updateData = Truck(plateNumber = "DEF-456", type = Truck.Type.SEMI_TRUCK, vin = "someVinNumber")
             val updatedTruck = builder.user.trucks.update(truck1.id!!, updateData)
             assertNotNull(updatedTruck)
             assertEquals(updateData.plateNumber, updatedTruck.plateNumber)
             assertEquals(updateData.type, updatedTruck.type)
+            assertEquals(updateData.vin, updatedTruck.vin)
 
             // Truck updates check for the plate number duplicates (ignoring own number)
-            builder.user.trucks.update(truck1.id, truck1)
+            builder.user.trucks.update(truck1.id, updatedTruck)
             builder.user.trucks.assertUpdateFail(400, truck1.id, truck2)
+
             // Trailer updates check for plate number duplicates too
             val towable = builder.user.towables.create(Towable("trailerNumber", Towable.Type.TRAILER))
-            builder.user.towables.assertUpdateFail(400, towable.id!!, Towable(plateNumber = truck1.plateNumber, type = Towable.Type.TRAILER))
+            builder.user.towables.assertUpdateFail(400, towable.id!!, Towable(plateNumber = updatedTruck.plateNumber, type = Towable.Type.TRAILER))
+
+            // Same checks for vin
+            val someNewNumber = "someNewNumber"
+            builder.user.trucks.assertUpdateFail(400, truck1.id, Truck(plateNumber = someNewNumber, type = Truck.Type.SEMI_TRUCK, vin = truck2.vin!!))
+            builder.user.towables.assertUpdateFail(400, towable.id, Towable(plateNumber = someNewNumber, type = Towable.Type.TRAILER, vin = truck2.vin))
         }
     }
 

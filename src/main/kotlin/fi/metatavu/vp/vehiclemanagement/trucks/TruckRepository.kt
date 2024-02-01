@@ -18,6 +18,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
      * @param id id
      * @param plateNumber plate number
      * @param type truck type
+     * @param vin vin
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created truck
@@ -26,6 +27,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         id: UUID,
         plateNumber: String,
         type: fi.metatavu.vp.api.model.Truck.Type,
+        vin: String?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Truck {
@@ -33,6 +35,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         truck.id = id
         truck.plateNumber = plateNumber
         truck.type = type
+        truck.vin = vin
         truck.creatorId = creatorId
         truck.lastModifierId = lastModifierId
         return persistSuspending(truck)
@@ -72,4 +75,23 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         return count("plateNumber", plateNumber).awaitSuspending()
     }
 
+    /**
+     * Finds a truck by vin
+     *
+     * @param vin vin
+     * @return found truck or null if not found
+     */
+    suspend fun findByVin(vin: String): Truck? {
+        return find("vin", vin).firstResult<Truck>().awaitSuspending()
+    }
+
+    /**
+     * Counts trucks by vin
+     *
+     * @param vin vin
+     * @return number of trucks with the given vin
+     */
+    suspend fun countByVin(vin: String): Long {
+        return count("vin", vin).awaitSuspending()
+    }
 }
