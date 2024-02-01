@@ -1,70 +1,70 @@
 package fi.metatavu.vp.vehiclemanagement.test.functional.impl
 
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
-import fi.metatavu.vp.test.client.apis.TrucksApi
+import fi.metatavu.vp.test.client.apis.TowablesApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
-import fi.metatavu.vp.test.client.models.Truck
+import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import org.junit.Assert
 import java.util.*
 
 /**
- * Test builder resource for Trucks API
+ * Test builder resource for Towables API
  */
-class TrucksTestBuilderResource(
+class TowablesTestBuilderResource(
     testBuilder: TestBuilder,
     private val accessTokenProvider: AccessTokenProvider?,
     apiClient: ApiClient
-) : ApiTestBuilderResource<Truck, ApiClient>(testBuilder, apiClient) {
+) : ApiTestBuilderResource<Towable, ApiClient>(testBuilder, apiClient) {
 
     /**
-     * Creates new truck
+     * Creates new towable
      *
-     * @return created truck
+     * @return created towable
      */
-    fun create(truck: Truck): Truck {
-        return addClosable(api.createTruck(truck))
-    }
-
-    fun create(plateNumber: String): Truck {
-        return create(Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK))
+    fun create(towable: Towable): Towable {
+        return addClosable(api.createTowable(towable))
     }
 
     /**
-     * Creates new truck with default values
+     * Creates new Towable with default values
      *
-     * @return created truck
+     * @return created Towable
      */
-    fun create(): Truck {
-        return create("ABC-123")
+    fun create(): Towable {
+        return create(Towable(plateNumber = "ABC-123", type = Towable.Type.TRAILER))
+    }
+
+    fun create(plateNumber: String): Towable {
+        return create(Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
     }
 
     /**
-     * Finds truck
+     * Finds towable
      *
-     * @param truckId truck id
-     * @return found truck
+     * @param towableId towable id
+     * @return found towable
      */
-    fun find(truckId: UUID): Truck {
-        return api.findTruck(truckId)
+    fun find(towableId: UUID): Towable {
+        return api.findTowable(towableId)
     }
 
     /**
-     * Lists trucks
+     * Lists towables
      *
      * @param plateNumber plate number
      * @param firstResult first result
      * @param maxResults max results
-     * @return list of trucks
+     * @return list of towables
      */
     fun list(
         plateNumber: String? = null,
         firstResult: Int? = null,
         maxResults: Int? = null
-    ): Array<Truck> {
-        return api.listTrucks(
+    ): Array<Towable> {
+        return api.listTowables(
             plateNumber,
             firstResult,
             maxResults
@@ -72,35 +72,35 @@ class TrucksTestBuilderResource(
     }
 
     /**
-     * Updates truck
+     * Updates towable
      *
-     * @param truckId truck id
+     * @param towableId towable id
      * @param updateData update data
-     * @return updated truck
+     * @return updated towable
      */
-    fun update(truckId: UUID, updateData: Truck): Truck {
-        return api.updateTruck(truckId, updateData)
+    fun update(towableId: UUID, updateData: Towable): Towable {
+        return api.updateTowable(towableId, updateData)
     }
 
     /**
-     * Deletes truck
+     * Deletes towable
      *
-     * @param truckId truck id
+     * @param towableId towable id
      */
-    fun delete(truckId: UUID) {
-        api.deleteTruck(truckId)
+    fun delete(towableId: UUID) {
+        api.deleteTowable(towableId)
         removeCloseable { closable: Any ->
-            if (closable !is Truck) {
+            if (closable !is Towable) {
                 return@removeCloseable false
             }
 
-            closable.id == truckId
+            closable.id == towableId
         }
     }
 
-    fun assertFindFail(expectedStatus: Int, truckId: UUID) {
+    fun assertFindFail(expectedStatus: Int, towableId: UUID) {
         try {
-            api.findTruck(truckId)
+            api.findTowable(towableId)
             Assert.fail(String.format("Expected find to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
@@ -114,46 +114,48 @@ class TrucksTestBuilderResource(
         maxResults: Int? = null
     ) {
         try {
-            api.listTrucks(plateNumber, firstResult, maxResults)
+            api.listTowables(plateNumber, firstResult, maxResults)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
 
-    fun assertUpdateFail(expectedStatus: Int, truckId: UUID, updateData: Truck) {
+    fun assertUpdateFail(expectedStatus: Int, towableId: UUID, updateData: Towable) {
         try {
-            api.updateTruck(truckId, updateData)
+            api.updateTowable(towableId, updateData)
             Assert.fail(String.format("Expected update to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
 
-    fun assertDeleteFail(expectedStatus: Int, truckId: UUID) {
+    fun assertDeleteFail(expectedStatus: Int, towableId: UUID) {
         try {
-            api.deleteTruck(truckId)
+            api.deleteTowable(towableId)
             Assert.fail(String.format("Expected delete to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
 
-    fun assertCreateFail(expectedStatus: Int, truck: Truck) {
+    fun assertCreateFail(expectedStatus: Int, towable: Towable) {
         try {
-            api.createTruck(truck)
+            api.createTowable(towable)
             Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
     }
 
-    override fun clean(p0: Truck?) {
-        api.deleteTruck(p0?.id!!)
+    override fun clean(p0: Towable?) {
+        delete(p0!!.id!!)
     }
 
-    override fun getApi(): TrucksApi {
+    override fun getApi(): TowablesApi {
         ApiClient.accessToken = accessTokenProvider?.accessToken
-        return TrucksApi(ApiTestSettings.apiBasePath)
+        return TowablesApi(ApiTestSettings.apiBasePath)
     }
+
+
 }

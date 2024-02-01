@@ -17,13 +17,15 @@ class TruckController {
      * Creates new truck
      *
      * @param plateNumber plate number
+     * @param type truck type
      * @param userId user id
      * @return created truck
      */
-    suspend fun createTruck(plateNumber: String, userId: UUID): Truck {
+    suspend fun createTruck(plateNumber: String, type: fi.metatavu.vp.api.model.Truck.Type, userId: UUID): Truck {
         return truckRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,
+            type = type,
             creatorId = userId,
             lastModifierId = userId
         )
@@ -61,6 +63,7 @@ class TruckController {
      */
     suspend fun updateTruck(existingTruck: Truck, newTruckData: fi.metatavu.vp.api.model.Truck, userId: UUID): Truck {
         existingTruck.plateNumber = newTruckData.plateNumber
+        existingTruck.type = newTruckData.type
         existingTruck.lastModifierId = userId
         return truckRepository.persistSuspending(existingTruck)
     }

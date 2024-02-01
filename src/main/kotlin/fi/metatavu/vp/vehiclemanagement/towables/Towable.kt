@@ -1,4 +1,4 @@
-package fi.metatavu.vp.vehiclemanagement.trucks
+package fi.metatavu.vp.vehiclemanagement.towables
 
 import fi.metatavu.vp.vehiclemanagement.persistence.Metadata
 import jakarta.persistence.*
@@ -6,10 +6,10 @@ import jakarta.validation.constraints.NotEmpty
 import java.util.*
 
 /**
- * Entity representing a truck
+ * Entity for towables
  */
-@Entity(name = "truck")
-class Truck: Metadata() {
+@Entity(name = "towable")
+class Towable : Metadata() {
 
     @Id
     var id: UUID? = null
@@ -20,7 +20,7 @@ class Truck: Metadata() {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    lateinit var type: fi.metatavu.vp.api.model.Truck.Type
+    lateinit var type: fi.metatavu.vp.api.model.Towable.Type
 
     override lateinit var creatorId: UUID
 
