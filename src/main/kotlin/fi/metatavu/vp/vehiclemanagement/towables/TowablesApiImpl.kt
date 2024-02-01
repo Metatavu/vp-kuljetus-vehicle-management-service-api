@@ -43,23 +43,23 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
             }
 
-            if (!vehicleController.isPlateNumberUnique(towable.plateNumber)) {
-                return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
-            }
+            if (!vehicleController.isPlateNumberUnique(towable.plateNumber)) return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+            if (!vehicleController.isVinUnique(towable.vin)) return@async createBadRequest(NOT_UNIQUE_VIN)
 
             val createdTruck = towableController.createTowable(
                 plateNumber = towable.plateNumber,
                 type = towable.type,
+                vin = towable.vin,
                 userId = userId
             )
             createOk(towableTranslator.translate(createdTruck))
         }.asUni()
 
-    override fun findTowable(towabelId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val truck = towableController.findTowable(towabelId) ?: return@async createNotFound(
+    override fun findTowable(towableId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        val truck = towableController.findTowable(towableId) ?: return@async createNotFound(
             createNotFoundMessage(
                 TOWABLE,
-                towabelId
+                towableId
             )
         )
 
@@ -88,8 +88,11 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 )
             )
 
-            if (!vehicleController.isPlateNumberUnique(towable.plateNumber)) {
+            if (!vehicleController.isPlateNumberUnique(towable.plateNumber) && existingTowable.plateNumber != towable.plateNumber) {
                 return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+            }
+            if (!vehicleController.isVinUnique(towable.vin) && existingTowable.vin != towable.vin) {
+                return@async createBadRequest(NOT_UNIQUE_VIN)
             }
 
             val updatedTowable = towableController.updateTowable(existingTowable, towable, userId)

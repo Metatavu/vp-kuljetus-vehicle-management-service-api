@@ -13,6 +13,7 @@ class TowableTranslator : AbstractTranslator<Towable, fi.metatavu.vp.api.model.T
         return fi.metatavu.vp.api.model.Towable(
             id = entity.id,
             plateNumber = entity.plateNumber,
+            vin = entity.vin,
             type = entity.type
         )
     }

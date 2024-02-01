@@ -42,13 +42,13 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             return@async createBadRequest(INVALID_PLATE_NUMBER)
         }
 
-        if (!vehicleController.isPlateNumberUnique(truck.plateNumber)) {
-            return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
-        }
+        if (!vehicleController.isPlateNumberUnique(truck.plateNumber)) return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+        if (!vehicleController.isVinUnique(truck.vin)) return@async createBadRequest(NOT_UNIQUE_VIN)
 
         val createdTruck = truckController.createTruck(
             plateNumber = truck.plateNumber,
             type = truck.type,
+            vin = truck.vin,
             userId = userId
         )
         createOk(truckTranslator.translate(createdTruck))
@@ -77,6 +77,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
         if (!vehicleController.isPlateNumberUnique(truck.plateNumber) && existingTruck.plateNumber != truck.plateNumber) {
             return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+        }
+        if (!vehicleController.isVinUnique(truck.vin) && existingTruck.vin != truck.vin) {
+            return@async createBadRequest(NOT_UNIQUE_VIN)
         }
 
         val updated = truckController.updateTruck(existingTruck, truck, userId)

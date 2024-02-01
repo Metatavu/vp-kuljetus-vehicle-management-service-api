@@ -163,6 +163,29 @@ class VehicleController {
     }
 
     /**
+     * Checks if VIN is unique (not present in both trucks and trailers)
+     *
+     * @param vin VIN
+     * @return true if unique
+     */
+    suspend fun isVinUnique(vin: String?): Boolean {
+        if (vin == null) {
+            return true
+        }
+
+        val duplicateTruckVins = truckRepository.countByVin(vin)
+        if (duplicateTruckVins > 0) {
+            return false
+        }
+        val duplicateTrailerVins = towableRepository.countByVin(vin)
+        if (duplicateTrailerVins > 0) {
+            return false
+        }
+
+        return true
+    }
+
+    /**
      * Lists towable connections to vehicles
      *
      * @param towable towable

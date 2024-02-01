@@ -106,4 +106,40 @@
         <addUniqueConstraint tableName="towable" columnNames="platenumber"/>
         <addUniqueConstraint tableName="truck" columnNames="platenumber"/>
     </changeSet>
+
+    <changeSet id="telematics" author="katja danilova">
+        <addColumn tableName="towable">
+            <column name="vin" type="varchar(191)"/>
+        </addColumn>
+        <addColumn tableName="truck">
+            <column name="vin" type="varchar(191)"/>
+        </addColumn>
+
+        <createTable tableName="telematics">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="truck_id" type="binary(16)">
+                <constraints foreignKeyName="FK_TELEMATICS_TRUCK_ID" referencedColumnNames="id" referencedTableName="truck"/>
+            </column>
+            <column name="towable_id" type="binary(16)">
+                <constraints foreignKeyName="FK_TELEMATICS_TOWABLE_ID" referencedColumnNames="id" referencedTableName="towable"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="imei" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="speed" type="float">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
