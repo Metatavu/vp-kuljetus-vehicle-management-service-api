@@ -12,7 +12,7 @@ env:
 
 jobs:
   build-and-push-image:
-    runs-on: ubuntu-latest
+    runs-on: linux_x64_8_cpu_32_gb
     permissions:
       contents: read
       packages: write
