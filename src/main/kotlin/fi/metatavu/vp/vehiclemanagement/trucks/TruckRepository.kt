@@ -2,6 +2,7 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.UUID
 
@@ -59,6 +60,16 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
             firstIndex = firstResult,
             maxResults = maxResults
         )
+    }
+
+    /**
+     * Counts trucks by plate number
+     *
+     * @param plateNumber plate number
+     * @return number of trucks with the given plate number
+     */
+    suspend fun countByPlateNumber(plateNumber: String): Long {
+        return count("plateNumber", plateNumber).awaitSuspending()
     }
 
 }

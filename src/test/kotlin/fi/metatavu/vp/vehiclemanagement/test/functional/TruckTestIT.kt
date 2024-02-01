@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.test.functional
 
+import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioBody
 import fi.metatavu.vp.vehiclemanagement.test.functional.common.InvalidValueTestScenarioBuilder
@@ -53,6 +54,10 @@ class TruckTestIT: AbstractFunctionalTest() {
             assertNotNull(createdTruck.id)
             assertEquals(truckData.plateNumber, createdTruck.plateNumber)
             assertEquals(truckData.type, createdTruck.type)
+
+            // We cannot create trucks or towables with already existing plate number
+            builder.user.trucks.assertCreateFail(400, createdTruck)
+            builder.user.towables.assertCreateFail(400, Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
         }
     }
 
@@ -111,12 +116,21 @@ class TruckTestIT: AbstractFunctionalTest() {
     @Test
     fun testUpdate() {
         createTestBuilder().use { builder ->
-            val createdTruck = builder.user.trucks.create()
+            val truck1 = builder.user.trucks.create()
+            val truck2 = builder.user.trucks.create(plateNumber = "truck2")
+
             val updateData = Truck(plateNumber = "DEF-456", type = Truck.Type.SEMI_TRUCK)
-            val updatedTruck = builder.user.trucks.update(createdTruck.id!!, updateData)
+            val updatedTruck = builder.user.trucks.update(truck1.id!!, updateData)
             assertNotNull(updatedTruck)
             assertEquals(updateData.plateNumber, updatedTruck.plateNumber)
             assertEquals(updateData.type, updatedTruck.type)
+
+            // Truck updates check for the plate number duplicates (ignoring own number)
+            builder.user.trucks.update(truck1.id, truck1)
+            builder.user.trucks.assertUpdateFail(400, truck1.id, truck2)
+            // Trailer updates check for plate number duplicates too
+            val towable = builder.user.towables.create(Towable("trailerNumber", Towable.Type.TRAILER))
+            builder.user.towables.assertUpdateFail(400, towable.id!!, Towable(plateNumber = truck1.plateNumber, type = Towable.Type.TRAILER))
         }
     }
 

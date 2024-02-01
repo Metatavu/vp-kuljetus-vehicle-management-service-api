@@ -2,6 +2,7 @@ package fi.metatavu.vp.vehiclemanagement.towables
 
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.UUID
 
@@ -59,6 +60,16 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
             firstIndex = firstResult,
             maxResults = maxResults
         )
+    }
+
+    /**
+     * Counts trailers by plate number
+     *
+     * @param plateNumber plate number
+     * @return number of trailers with the given plate number
+     */
+    suspend fun countByPlateNumber(plateNumber: String): Long {
+        return count("plateNumber", plateNumber).awaitSuspending()
     }
 
 }

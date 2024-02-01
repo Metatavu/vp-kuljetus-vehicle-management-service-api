@@ -14,7 +14,7 @@ class Truck: Metadata() {
     @Id
     var id: UUID? = null
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     @NotEmpty
     lateinit var plateNumber: String
 

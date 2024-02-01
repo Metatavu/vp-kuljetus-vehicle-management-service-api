@@ -102,4 +102,8 @@
         </addColumn>
     </changeSet>
 
+    <changeSet id="unique_plate_numbers" author="katja_danilova">
+        <addUniqueConstraint tableName="towable" columnNames="platenumber"/>
+        <addUniqueConstraint tableName="truck" columnNames="platenumber"/>
+    </changeSet>
 </databaseChangeLog>

@@ -38,8 +38,12 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     override fun createTruck(truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        if (vehicleController.isPlateNumberValid(truck.plateNumber).not()) {
+        if (!vehicleController.isPlateNumberValid(truck.plateNumber)) {
             return@async createBadRequest(INVALID_PLATE_NUMBER)
+        }
+
+        if (!vehicleController.isPlateNumberUnique(truck.plateNumber)) {
+            return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
         }
 
         val createdTruck = truckController.createTruck(
@@ -65,11 +69,15 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     override fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        if (vehicleController.isPlateNumberValid(truck.plateNumber).not()) {
+        if (!vehicleController.isPlateNumberValid(truck.plateNumber)) {
             return@async createBadRequest(INVALID_PLATE_NUMBER)
         }
 
         val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+
+        if (!vehicleController.isPlateNumberUnique(truck.plateNumber) && existingTruck.plateNumber != truck.plateNumber) {
+            return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+        }
 
         val updated = truckController.updateTruck(existingTruck, truck, userId)
 

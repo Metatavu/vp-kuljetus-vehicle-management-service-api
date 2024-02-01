@@ -43,6 +43,10 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
             }
 
+            if (!vehicleController.isPlateNumberUnique(towable.plateNumber)) {
+                return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+            }
+
             val createdTruck = towableController.createTowable(
                 plateNumber = towable.plateNumber,
                 type = towable.type,
@@ -83,6 +87,10 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                     towableId
                 )
             )
+
+            if (!vehicleController.isPlateNumberUnique(towable.plateNumber)) {
+                return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+            }
 
             val updatedTowable = towableController.updateTowable(existingTowable, towable, userId)
 
