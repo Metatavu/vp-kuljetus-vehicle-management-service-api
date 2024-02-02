@@ -3,8 +3,7 @@ name: Publish Docker image
 on:
   push:
     branches:
-      - feature-12-deployment-pipelines
-      # - develop
+      - develop
 
 env:
   REGISTRY: ghcr.io
