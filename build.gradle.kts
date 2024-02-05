@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.ir.backend.js.compile
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
