@@ -2,6 +2,7 @@ package fi.metatavu.vp.vehiclemanagement.telematics
 
 import fi.metatavu.vp.api.model.TelematicData
 import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicData
+import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicDataRepository
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject

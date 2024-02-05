@@ -1,14 +1,13 @@
-package fi.metatavu.vp.vehiclemanagement.telematics
+package fi.metatavu.vp.vehiclemanagement.telematics.trucks
 
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
-import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicData
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import java.util.*
 
 /**
- * Repository class for Telematics
+ * Repository class for Telematics data for trucks
  */
 @ApplicationScoped
 class TruckTelematicDataRepository : AbstractRepository<TruckTelematicData, UUID>() {

@@ -1,6 +1,5 @@
 package fi.metatavu.vp.vehiclemanagement.telematics.trucks
 
-import fi.metatavu.vp.vehiclemanagement.towables.Towable
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -9,7 +8,7 @@ import jakarta.persistence.ManyToOne
 import java.util.*
 
 /**
- * Telematics entity
+ * TruckTelematicData entity
  */
 @Entity
 class TruckTelematicData {

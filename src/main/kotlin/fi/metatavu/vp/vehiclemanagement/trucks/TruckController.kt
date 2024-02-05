@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.vehiclemanagement.telematics.TruckTelematicDataRepository
+import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicDataRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
