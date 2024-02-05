@@ -42,16 +42,16 @@ class VehicleRepository: AbstractRepository<Vehicle, UUID>() {
      * @return vehicles
      */
     suspend fun list(truck: Truck?, first: Int?, max: Int?): Pair<List<Vehicle>, Long> {
-        val sb = StringBuilder()
+        val stringBuilder = StringBuilder()
         val parameters = Parameters()
 
         if (truck != null) {
-            addCondition(sb, "truck = :truck")
+            addCondition(stringBuilder, "truck = :truck")
             parameters.and("truck", truck)
         }
 
         return applyFirstMaxToQuery(
-            query = find(sb.toString(), parameters),
+            query = find(stringBuilder.toString(), parameters),
             firstIndex = first,
             maxResults = max
         )

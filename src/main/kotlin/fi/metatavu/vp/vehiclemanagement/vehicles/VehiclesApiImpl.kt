@@ -19,6 +19,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import java.util.*
 
+/**
+ * Vehicles API implementation
+ */
 @RequestScoped
 @OptIn(ExperimentalCoroutinesApi::class)
 @WithSession
@@ -54,10 +57,8 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
     override fun createVehicle(vehicle: Vehicle): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        isInvalidVehicle(vehicle).let { response ->
-            if (response != null) {
-                return@async response
-            }
+        isInvalidVehicle(vehicle)?.let {
+            return@async it
         }
 
         val truck = truckController.findTruck(vehicle.truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, vehicle.truckId))
@@ -84,10 +85,8 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
     override fun updateVehicle(vehicleId: UUID, vehicle: Vehicle): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        isInvalidVehicle(vehicle).let { response ->
-            if (response != null) {
-                return@async response
-            }
+        isInvalidVehicle(vehicle)?.let {
+            return@async it
         }
 
         val foundVehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))

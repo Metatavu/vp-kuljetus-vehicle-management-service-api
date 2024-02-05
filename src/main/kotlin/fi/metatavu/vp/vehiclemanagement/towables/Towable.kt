@@ -1,7 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.towables
 
 import fi.metatavu.vp.vehiclemanagement.persistence.Metadata
-import fi.metatavu.vp.vehiclemanagement.telematics.TelematicsDevice
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotEmpty
 import java.util.*
@@ -9,8 +8,8 @@ import java.util.*
 /**
  * Entity for towables
  */
-@Entity(name = "towable")
-class Towable : Metadata(), TelematicsDevice {
+@Entity
+class Towable : Metadata() {
 
     @Id
     var id: UUID? = null
@@ -23,7 +22,7 @@ class Towable : Metadata(), TelematicsDevice {
     @Enumerated(EnumType.STRING)
     lateinit var type: fi.metatavu.vp.api.model.Towable.Type
 
-    @Column
+    @Column(unique = true)
     var vin: String? = null
 
     override lateinit var creatorId: UUID
