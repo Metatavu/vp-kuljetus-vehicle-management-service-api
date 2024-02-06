@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
 		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
     <changeSet id="truck" author="katja.danilova">
-        <createTable tableName="truck">
+        <createTable tableName="Truck">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -29,7 +29,7 @@
     </changeSet>
 
     <changeSet id="towables" author="katja.danilova">
-        <createTable tableName="towable">
+        <createTable tableName="Towable">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
@@ -56,12 +56,12 @@
     </changeSet>
 
     <changeSet id="vehicles" author="katja danilova">
-        <createTable tableName="vehicle">
+        <createTable tableName="Vehicle">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="truck_id" type="binary(16)">
-                <constraints nullable="false" foreignKeyName="FK_VEHICLE_TRUCK_ID" referencedColumnNames="id" referencedTableName="truck"/>
+                <constraints nullable="false" foreignKeyName="FK_VEHICLE_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
             </column>
 
             <column name="creatorId" type="binary(16)">
@@ -78,15 +78,15 @@
             </column>
         </createTable>
 
-        <createTable tableName="towabletovehicle">
+        <createTable tableName="VehicleTowable">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
            <column name="vehicle_id" type="binary(16)">
-                <constraints nullable="false" foreignKeyName="FK_TOWAVLETOVEHICLE_VEHICLE_ID" referencedColumnNames="id" referencedTableName="vehicle"/>
+                <constraints nullable="false" foreignKeyName="FK_TOWAVLETOVEHICLE_VEHICLE_ID" referencedColumnNames="id" referencedTableName="Vehicle"/>
             </column>
             <column name="towable_id" type="binary(16)">
-                <constraints nullable="false" foreignKeyName="FK_TOWBLETORVEHICLE_TOWABLE_ID" referencedColumnNames="id" referencedTableName="towable"/>
+                <constraints nullable="false" foreignKeyName="FK_TOWBLETORVEHICLE_TOWABLE_ID" referencedColumnNames="id" referencedTableName="Towable"/>
             </column>
             <column name="ordernumber" type="integer">
                 <constraints nullable="false"/>
@@ -95,7 +95,7 @@
     </changeSet>
 
     <changeSet id="truck_type" author="katja_danilova">
-        <addColumn tableName="truck">
+        <addColumn tableName="Truck">
             <column name="type" type="varchar(191)">
                 <constraints nullable="false"/>
             </column>
@@ -103,27 +103,27 @@
     </changeSet>
 
     <changeSet id="unique_plate_numbers" author="katja_danilova">
-        <addUniqueConstraint tableName="towable" columnNames="platenumber"/>
-        <addUniqueConstraint tableName="truck" columnNames="platenumber"/>
+        <addUniqueConstraint tableName="Towable" columnNames="platenumber"/>
+        <addUniqueConstraint tableName="Truck" columnNames="platenumber"/>
     </changeSet>
 
     <changeSet id="telematics" author="katja danilova">
-        <addColumn tableName="towable">
+        <addColumn tableName="Towable">
             <column name="vin" type="varchar(191)"/>
         </addColumn>
-        <addColumn tableName="truck">
+        <addColumn tableName="Truck">
             <column name="vin" type="varchar(191)"/>
         </addColumn>
 
-        <createTable tableName="telematics">
+        <createTable tableName="TruckTelematicData">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="truck_id" type="binary(16)">
-                <constraints foreignKeyName="FK_TELEMATICS_TRUCK_ID" referencedColumnNames="id" referencedTableName="truck"/>
+                <constraints foreignKeyName="FK_TELEMATICS_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
             </column>
             <column name="towable_id" type="binary(16)">
-                <constraints foreignKeyName="FK_TELEMATICS_TOWABLE_ID" referencedColumnNames="id" referencedTableName="towable"/>
+                <constraints foreignKeyName="FK_TELEMATICS_TOWABLE_ID" referencedColumnNames="id" referencedTableName="Towable"/>
             </column>
             <column name="timestamp" type="bigint">
                 <constraints nullable="false"/>

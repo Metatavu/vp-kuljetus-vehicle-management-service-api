@@ -19,7 +19,7 @@ class VehicleController {
     lateinit var vehicleRepository: VehicleRepository
 
     @Inject
-    lateinit var towableToVehicleRepository: TowableToVehicleRepository
+    lateinit var vehicleTowableRepository: VehicleTowableRepository
 
     @Inject
     lateinit var truckRepository: TruckRepository
@@ -53,7 +53,7 @@ class VehicleController {
         )
 
         towables.forEachIndexed { index, towable ->
-            towableToVehicleRepository.create(
+            vehicleTowableRepository.create(
                 id = UUID.randomUUID(),
                 vehicle = createdVehicle,
                 towable = towable,
@@ -61,7 +61,7 @@ class VehicleController {
                 userId = userId
             )
         }
-        towableToVehicleRepository.flush().awaitSuspending()
+        vehicleTowableRepository.flush().awaitSuspending()
 
         return createdVehicle
     }
@@ -90,13 +90,13 @@ class VehicleController {
         existingVehicle.lastModifierId = userId
 
         //remove connection to towables
-        val towableVehicles = towableToVehicleRepository.listByVehicle(existingVehicle)
+        val towableVehicles = vehicleTowableRepository.listByVehicle(existingVehicle)
         towableVehicles.forEach {
-            towableToVehicleRepository.deleteSuspending(it)
+            vehicleTowableRepository.deleteSuspending(it)
         }
         //add new connections
         newTowables.forEachIndexed { index, towable ->
-            towableToVehicleRepository.create(
+            vehicleTowableRepository.create(
                 id = UUID.randomUUID(),
                 vehicle = existingVehicle,
                 towable = towable,
@@ -114,12 +114,12 @@ class VehicleController {
      * @param vehicle vehicle to be deleted
      */
     suspend fun delete(vehicle: Vehicle) {
-        val towableVehicles = towableToVehicleRepository.listByVehicle(vehicle)
+        val towableVehicles = vehicleTowableRepository.listByVehicle(vehicle)
         towableVehicles.forEach {
-            towableToVehicleRepository.deleteSuspending(it)
+            vehicleTowableRepository.deleteSuspending(it)
         }
         vehicleRepository.deleteSuspending(vehicle)
-        towableToVehicleRepository.flush().awaitSuspending()
+        vehicleTowableRepository.flush().awaitSuspending()
     }
 
     /**
@@ -191,7 +191,7 @@ class VehicleController {
      * @param towable towable
      * @return list of towable vehicles
      */
-    suspend fun listTowableToVehicles(towable: Towable): List<TowableToVehicle> {
-        return towableToVehicleRepository.listByTowable(towable)
+    suspend fun listTowableToVehicles(towable: Towable): List<VehicleTowable> {
+        return vehicleTowableRepository.listByTowable(towable)
     }
 }

@@ -1,6 +1,5 @@
-package fi.metatavu.vp.vehiclemanagement.telematics
+package fi.metatavu.vp.vehiclemanagement.telematics.trucks
 
-import fi.metatavu.vp.vehiclemanagement.towables.Towable
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -9,33 +8,30 @@ import jakarta.persistence.ManyToOne
 import java.util.*
 
 /**
- * Telematics entity
+ * TruckTelematicData entity
  */
-@Entity(name = "telematics")
-class Telematics {
+@Entity
+class TruckTelematicData {
 
     @Id
     var id: UUID? = null
 
     @ManyToOne
-    var truck: Truck? = null
-
-    @ManyToOne
-    var towable: Towable? = null
+    lateinit var truck: Truck
 
     @Column(nullable = false)
-    var timestamp: Long? = null
+    var timestamp: Long = 0
 
     @Column(nullable = false)
     lateinit var imei: String
 
     @Column(nullable = false)
-    var speed: Float? = null
+    var speed: Float = 0.0f
 
     @Column(nullable = false)
-    var latitude: Double? = null
+    var latitude: Double = 0.0
 
     @Column(nullable = false)
-    var longitude: Double? = null
+    var longitude: Double = 0.0
 
 }

@@ -3,6 +3,7 @@ package fi.metatavu.vp.vehiclemanagement.telematics
 import fi.metatavu.vp.api.model.TelematicData
 import fi.metatavu.vp.api.spec.TelematicsApi
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
@@ -15,6 +16,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 
+/**
+ * Telematics API implementation
+ */
 @RequestScoped
 @OptIn(ExperimentalCoroutinesApi::class)
 @WithSession
@@ -24,13 +28,17 @@ class TelematicsApiImpl : TelematicsApi, AbstractApi() {
     lateinit var telematicsController: TelematicsController
 
     @Inject
+    lateinit var truckController: TruckController
+
+    @Inject
     lateinit var vertx: io.vertx.core.Vertx
 
     @WithTransaction
     override fun receiveTelematicData(vin: String, telematicData: TelematicData): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
-            val telematicsDevice = telematicsController.fineDeviceByVin(vin) ?: return@async createNotFound("Device with $vin not found")
-            telematicsController.create(telematicsDevice, telematicData)
+            val foundTruck = truckController.findTruck(vin) ?: return@async createNotFound("Device with $vin not found")
+            telematicsController.createTruckTelematicData(foundTruck, telematicData)
+            // Implemented only for trucks atm
             createNoContent()
         }.asUni()
 }

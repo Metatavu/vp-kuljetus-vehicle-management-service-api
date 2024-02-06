@@ -1,6 +1,5 @@
 package fi.metatavu.vp.vehiclemanagement.towables
 
-import fi.metatavu.vp.vehiclemanagement.telematics.TelematicsRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -13,9 +12,6 @@ class TowableController {
 
     @Inject
     lateinit var towableRepository: TowableRepository
-
-    @Inject
-    lateinit var telematicsRepository: TelematicsRepository
 
     /**
      * Creates new towable
@@ -84,9 +80,6 @@ class TowableController {
      * @param towable towable to be deleted
      */
     suspend fun deleteTowable(towable: Towable) {
-        telematicsRepository.listByDevice(towable).forEach {
-            telematicsRepository.deleteSuspending(it)
-        }
         towableRepository.deleteSuspending(towable)
     }
 

@@ -4,23 +4,24 @@ plugins {
     kotlin("jvm") version "1.9.22"
     kotlin("plugin.allopen") version "1.9.22"
     id("io.quarkus")
-    id("org.openapi.generator") version "7.0.0-kotlin-jaxrs-mutiny-rc1"
+    id("org.openapi.generator") version "7.2.0"
 }
 
 repositories {
     mavenLocal()
     mavenCentral()
-    maven("https://us-central1-maven.pkg.dev/metatavu/openapi-generator")
 }
 
 val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
+val sentryVersion: String by project
+val okhttpVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
-    implementation("io.quarkiverse.loggingsentry:quarkus-logging-sentry:2.0.1")
+    implementation("io.quarkiverse.loggingsentry:quarkus-logging-sentry:$sentryVersion")
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-hibernate-reactive-panache")
     implementation("io.quarkus:quarkus-liquibase")
@@ -48,7 +49,7 @@ dependencies {
     testImplementation("io.rest-assured:kotlin-extensions")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkus:quarkus-junit5")
-    testImplementation("com.squareup.okhttp3:okhttp")
+    testImplementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
     testImplementation("org.testcontainers:mysql")
     testImplementation("org.testcontainers:testcontainers")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
@@ -67,6 +68,7 @@ sourceSets["main"].java {
 }
 sourceSets["test"].java {
     srcDir("build/generated/api-client/src/main/kotlin")
+    srcDir("quarkus-invalid-param-test/src/main/kotlin")
 }
 
 allOpen {
@@ -115,12 +117,6 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     this.configOptions.put("collectionType", "array")
     this.configOptions.put("serializationLibrary", "jackson")
     this.configOptions.put("enumPropertyNaming", "UPPERCASE")
-}
-
-tasks.named("clean") {
-    this.doFirst {
-        file("$rootDir/src/gen").deleteRecursively()
-    }
 }
 
 tasks.named("compileKotlin") {

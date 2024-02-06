@@ -12,10 +12,10 @@ import java.util.*
  * Repository class for TowableToVehicle
  */
 @ApplicationScoped
-class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
+class VehicleTowableRepository: AbstractRepository<VehicleTowable, UUID>() {
 
     /**
-     * Creates a new TowableToVehicle
+     * Creates a new VehicleTowable
      *
      * @param id id
      * @param vehicle vehicle
@@ -30,8 +30,8 @@ class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
         towable: Towable,
         order: Int,
         userId: UUID
-    ): TowableToVehicle {
-        val towableVehicle = TowableToVehicle()
+    ): VehicleTowable {
+        val towableVehicle = VehicleTowable()
         towableVehicle.id = UUID.randomUUID()
         towableVehicle.vehicle = vehicle
         towableVehicle.towable = towable
@@ -45,13 +45,13 @@ class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
      * @param vehicle vehicle
      * @return list of TowableToVehicles
      */
-    suspend fun listByVehicle(vehicle: Vehicle): List<TowableToVehicle> {
+    suspend fun listByVehicle(vehicle: Vehicle): List<VehicleTowable> {
         val sb = StringBuilder()
         val parameters = Parameters()
 
         addCondition(sb, "vehicle = :vehicle")
         parameters.and("vehicle", vehicle)
-        return find(sb.toString(), Sort.ascending("orderNumber"), parameters).list<TowableToVehicle>().awaitSuspending()
+        return find(sb.toString(), Sort.ascending("orderNumber"), parameters).list<VehicleTowable>().awaitSuspending()
     }
 
     /**
@@ -60,7 +60,7 @@ class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
      * @param towable towable
      * @return list of TowableToVehicles
      */
-    suspend fun listByTowable(towable: Towable): List<TowableToVehicle> {
+    suspend fun listByTowable(towable: Towable): List<VehicleTowable> {
         val sb = StringBuilder()
         val parameters = Parameters()
 
@@ -68,7 +68,7 @@ class TowableToVehicleRepository: AbstractRepository<TowableToVehicle, UUID>() {
             parameters.and("towable", towable)
 
 
-        return find(sb.toString(), parameters).list<TowableToVehicle>().awaitSuspending()
+        return find(sb.toString(), parameters).list<VehicleTowable>().awaitSuspending()
     }
 
 }

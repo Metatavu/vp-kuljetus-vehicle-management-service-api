@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.vehiclemanagement.telematics.TelematicsRepository
+import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicDataRepository
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -15,7 +15,7 @@ class TruckController {
     lateinit var truckRepository: TruckRepository
 
     @Inject
-    lateinit var telematicsRepository: TelematicsRepository
+    lateinit var truckTelematicDataRepository: TruckTelematicDataRepository
 
     /**
      * Creates new truck
@@ -45,6 +45,16 @@ class TruckController {
      */
     suspend fun findTruck(truckId: UUID): Truck? {
         return truckRepository.findByIdSuspending(truckId)
+    }
+
+    /**
+     * Finds truck by vin
+     *
+     * @param vin vin
+     * @return found truck or null if not found
+     */
+    suspend fun findTruck(vin: String): Truck? {
+        return truckRepository.findByVin(vin)
     }
 
     /**
@@ -81,8 +91,8 @@ class TruckController {
      * @param truck truck to be deleted
      */
     suspend fun deleteTruck(truck: Truck) {
-        telematicsRepository.listByDevice(truck).forEach {
-            telematicsRepository.deleteSuspending(it)
+        truckTelematicDataRepository.listByTruck(truck).forEach {
+            truckTelematicDataRepository.deleteSuspending(it)
         }
         truckRepository.deleteSuspending(truck)
     }
