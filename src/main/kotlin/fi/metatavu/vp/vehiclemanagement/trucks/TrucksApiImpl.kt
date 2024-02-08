@@ -41,7 +41,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     override fun createTruck(truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        if (!vehicleController.isPlateNumberValid(truck.plateNumber)) {
+        if (!vehicleController.isPlateNumberValid(truck.plateNumber) || truck.vin.isEmpty()) {
             return@async createBadRequest(INVALID_PLATE_NUMBER)
         }
 
@@ -72,7 +72,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     override fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-        if (!vehicleController.isPlateNumberValid(truck.plateNumber)) {
+        if (!vehicleController.isPlateNumberValid(truck.plateNumber) || truck.vin.isEmpty()) {
             return@async createBadRequest(INVALID_PLATE_NUMBER)
         }
 

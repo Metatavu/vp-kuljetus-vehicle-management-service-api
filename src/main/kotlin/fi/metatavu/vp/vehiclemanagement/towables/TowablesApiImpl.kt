@@ -42,7 +42,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-            if (vehicleController.isPlateNumberValid(towable.plateNumber).not()) {
+            if (!vehicleController.isPlateNumberValid(towable.plateNumber) || towable.vin.isEmpty()) {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
             }
 
@@ -80,7 +80,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-            if (vehicleController.isPlateNumberValid(towable.plateNumber).not()) {
+            if (!vehicleController.isPlateNumberValid(towable.plateNumber) || towable.vin.isEmpty()) {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
             }
 

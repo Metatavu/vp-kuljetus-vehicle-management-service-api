@@ -14,7 +14,11 @@ class TowableTranslator : AbstractTranslator<Towable, fi.metatavu.vp.api.model.T
             id = entity.id,
             plateNumber = entity.plateNumber,
             vin = entity.vin,
-            type = entity.type
+            type = entity.type,
+            createdAt = entity.createdAt,
+            modifiedAt = entity.modifiedAt,
+            lastModifierId = entity.lastModifierId,
+            creatorId = entity.creatorId
         )
     }
 

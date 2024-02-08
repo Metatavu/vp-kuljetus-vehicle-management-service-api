@@ -22,9 +22,9 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        builder.user.trucks.create(plateNumber = plateNumber)
-        builder.user.trucks.create(plateNumber = "DEF-456")
-        builder.user.trucks.create(plateNumber = "GHI-789")
+        builder.user.trucks.create(plateNumber = plateNumber, vin = "001")
+        builder.user.trucks.create(plateNumber = "DEF-456", vin = "002")
+        builder.user.trucks.create(plateNumber = "GHI-789", vin = "003")
         val totalList = builder.user.trucks.list()
         assertEquals(3, totalList.size)
 
@@ -51,17 +51,18 @@ class TruckTestIT : AbstractFunctionalTest() {
         val createdTruck = builder.user.trucks.create(truckData)
         assertNotNull(createdTruck)
         assertNotNull(createdTruck.id)
+        assertNotNull(createdTruck.createdAt)
         assertEquals(truckData.plateNumber, createdTruck.plateNumber)
         assertEquals(truckData.type, createdTruck.type)
         assertEquals(truckData.vin, createdTruck.vin)
 
         // We cannot create trucks or towables with already existing plate number
         builder.user.trucks.assertCreateFail(400, createdTruck)
-        builder.user.towables.assertCreateFail(400, Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
+        builder.user.towables.assertCreateFail(400, Towable(plateNumber = plateNumber, vin = "003", type = Towable.Type.TRAILER))
         // Same check for vin
         builder.user.trucks.assertCreateFail(
             400,
-            Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin!!)
+            Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin)
         )
         builder.user.towables.assertCreateFail(
             400,
@@ -89,7 +90,7 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFind() = createTestBuilder().use { builder ->
-        val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK)
+        val truckData = Truck(plateNumber = plateNumber, vin = "001", type = Truck.Type.TRUCK)
         val createdTruck = builder.user.trucks.create(truckData)
         assertNotNull(createdTruck)
         assertEquals(truckData.plateNumber, createdTruck.plateNumber)
@@ -134,11 +135,11 @@ class TruckTestIT : AbstractFunctionalTest() {
         builder.user.trucks.assertUpdateFail(400, truck1.id, truck2)
 
         // Trailer updates check for plate number duplicates too
-        val towable = builder.user.towables.create(Towable("trailerNumber", Towable.Type.TRAILER))
+        val towable = builder.user.towables.create(Towable("trailerNumber", vin = "001", type =   Towable.Type.TRAILER))
         builder.user.towables.assertUpdateFail(
             400,
             towable.id!!,
-            Towable(plateNumber = updatedTruck.plateNumber, type = Towable.Type.TRAILER)
+            Towable(plateNumber = updatedTruck.plateNumber, vin = "001", type = Towable.Type.TRAILER)
         )
 
         // Same checks for vin
@@ -146,7 +147,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         builder.user.trucks.assertUpdateFail(
             400,
             truck1.id,
-            Truck(plateNumber = someNewNumber, type = Truck.Type.SEMI_TRUCK, vin = truck2.vin!!)
+            Truck(plateNumber = someNewNumber, type = Truck.Type.SEMI_TRUCK, vin = truck2.vin)
         )
         builder.user.towables.assertUpdateFail(
             400,
@@ -174,7 +175,7 @@ class TruckTestIT : AbstractFunctionalTest() {
             )
             .body(
                 InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.Trucks.INVALID_TRUCKS,
+                    values = InvalidTestValues.Trucks.INVALID_TRUCKS,//todo vin must be checked too
                     expectedStatus = 400
                 )
             )

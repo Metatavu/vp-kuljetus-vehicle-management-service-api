@@ -142,4 +142,10 @@
             </column>
         </createTable>
     </changeSet>
+
+   <changeSet id="required_vin" author="katja danilova">
+        <addNotNullConstraint tableName="Towable" columnName="vin" columnDataType="varchar(191)"/>
+        <addNotNullConstraint tableName="Truck" columnName="vin" columnDataType="varchar(191)"/>
+    </changeSet>
+
 </databaseChangeLog>
