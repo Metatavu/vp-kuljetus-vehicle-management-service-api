@@ -7,7 +7,9 @@ import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.vehiclemanagement.test.functional.impl.InvalidTestValues
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
+import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.Test
  * Test class for testing Towables API
  */
 @QuarkusTest
+@TestProfile(DefaultTestProfile::class)
 class TowableTestIT : AbstractFunctionalTest() {
 
     @Test

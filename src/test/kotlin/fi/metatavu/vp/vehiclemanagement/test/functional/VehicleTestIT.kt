@@ -7,13 +7,16 @@ import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.test.client.models.Vehicle
 import fi.metatavu.vp.vehiclemanagement.test.functional.impl.InvalidTestValues
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
+import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.util.*
 
 @QuarkusTest
+@TestProfile(DefaultTestProfile::class)
 class VehicleTestIT : AbstractFunctionalTest() {
 
     @Test

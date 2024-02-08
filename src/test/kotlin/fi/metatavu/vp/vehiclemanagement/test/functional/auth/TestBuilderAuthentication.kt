@@ -28,11 +28,11 @@ class TestBuilderAuthentication(
     val trucks = TrucksTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val towables = TowablesTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val vehicles = VehiclesTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
-    val telematics = TelematicsTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
+    val telematics = TelematicsTestBuilderResource(testBuilder, createClient())
 
-    override fun createClient(authProvider: AccessTokenProvider): ApiClient {
+    override fun createClient(authProvider: AccessTokenProvider?): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)
-        ApiClient.accessToken = authProvider.accessToken
+        ApiClient.accessToken = authProvider?.accessToken
         return result
     }
 

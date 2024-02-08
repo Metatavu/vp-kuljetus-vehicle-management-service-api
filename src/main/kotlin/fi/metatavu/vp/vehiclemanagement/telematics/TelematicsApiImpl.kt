@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import org.eclipse.microprofile.config.inject.ConfigProperty
 
 /**
  * Telematics API implementation
@@ -23,6 +24,9 @@ import kotlinx.coroutines.async
 @OptIn(ExperimentalCoroutinesApi::class)
 @WithSession
 class TelematicsApiImpl : TelematicsApi, AbstractApi() {
+
+    @ConfigProperty(name = "vp.vehiclemanagement.telematics.apiKey")
+    lateinit var apiKey: String
 
     @Inject
     lateinit var telematicsController: TelematicsController
@@ -36,6 +40,10 @@ class TelematicsApiImpl : TelematicsApi, AbstractApi() {
     @WithTransaction
     override fun receiveTelematicData(vin: String, telematicData: TelematicData): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
+            if (requestApiKey != apiKey) {
+                return@async createForbidden("Invalid api key")
+            }
+
             val foundTruck = truckController.findTruck(vin) ?: return@async createNotFound("Device with $vin not found")
             telematicsController.createTruckTelematicData(foundTruck, telematicData)
             // Implemented only for trucks atm

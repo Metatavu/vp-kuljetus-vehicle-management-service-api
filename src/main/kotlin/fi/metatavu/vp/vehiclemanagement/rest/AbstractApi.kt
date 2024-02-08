@@ -1,6 +1,8 @@
 package fi.metatavu.vp.vehiclemanagement.rest
 
 import jakarta.inject.Inject
+import jakarta.ws.rs.core.Context
+import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
 import org.eclipse.microprofile.jwt.JsonWebToken
 import java.util.*
@@ -16,6 +18,9 @@ abstract class AbstractApi {
     @Inject
     private lateinit var jsonWebToken: JsonWebToken
 
+    @Context
+    lateinit var headers: HttpHeaders
+
     /**
      * Returns logged user id
      *
@@ -29,6 +34,17 @@ abstract class AbstractApi {
 
             return null
         }
+
+    /**
+     * Returns request api key
+     *
+     * @return request api key
+     */
+    protected val requestApiKey: String?
+        get() {
+            return headers.getHeaderString("X-API-KEY")
+        }
+
     /**
      * Constructs ok response
      *
