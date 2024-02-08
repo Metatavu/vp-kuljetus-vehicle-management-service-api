@@ -16,12 +16,10 @@ val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
-val sentryVersion: String by project
 val okhttpVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
-    implementation("io.quarkiverse.loggingsentry:quarkus-logging-sentry:$sentryVersion")
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-hibernate-reactive-panache")
     implementation("io.quarkus:quarkus-liquibase")
@@ -50,8 +48,6 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
-    testImplementation("org.testcontainers:mysql")
-    testImplementation("org.testcontainers:testcontainers")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
 }
 
