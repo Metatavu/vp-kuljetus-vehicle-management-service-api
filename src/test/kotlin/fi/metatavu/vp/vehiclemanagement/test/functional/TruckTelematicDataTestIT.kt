@@ -57,7 +57,7 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
         InvalidValueTestScenarioBuilder(
             path = "v1/telematics/{vin}",
             method = Method.POST,
-            header = "X-API-KEY" to "test-api-key",
+            header = "X-API-Key" to "test-api-key",
             basePath = ApiTestSettings.apiBasePath,
             body = jacksonObjectMapper().writeValueAsString(temelaticData)
         )

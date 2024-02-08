@@ -42,7 +42,7 @@ abstract class AbstractApi {
      */
     protected val requestApiKey: String?
         get() {
-            return headers.getHeaderString("X-API-KEY")
+            return headers.getHeaderString("X-API-Key")
         }
 
     /**

@@ -30,14 +30,14 @@ class TelematicsTestBuilderResource(
      * @param key key
      */
     fun setKey(key: String) {
-        ApiClient.apiKey["X-API-KEY"] = key
+        ApiClient.apiKey["X-API-Key"] = key
     }
 
     /**
      * Removes api key
      */
     fun removeKey() {
-        ApiClient.apiKey.remove("X-API-KEY")
+        ApiClient.apiKey.remove("X-API-Key")
     }
 
     /**
