@@ -3,9 +3,12 @@ package fi.metatavu.vp.vehiclemanagement.test.functional.impl
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.test.client.apis.VehiclesApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
+import fi.metatavu.vp.test.client.infrastructure.ClientException
+import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.test.client.models.Vehicle
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
+import org.junit.Assert
 import java.util.*
 
 /**
@@ -92,6 +95,89 @@ class VehiclesTestBuilderResource(
             closable.id == vehicleId
         }
         api.deleteVehicle(vehicleId)
+    }
+
+    /**
+     * Asserts that find operation fails with expected status
+     *
+     * @param expectedStatus expected status
+     * @param vehicleId vehicle id
+     */
+    fun assertFindFail(expectedStatus: Int, vehicleId: UUID) {
+        try {
+            api.findVehicle(vehicleId)
+            Assert.fail(String.format("Expected find to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Asserts that list operation fails with expected status
+     *
+     * @param expectedStatus expected status
+     * @param vehicleId vehicle id
+     * @param firstResult first result
+     * @param maxResults max results
+     */
+    fun assertListFail(
+        expectedStatus: Int,
+        vehicleId: UUID? = null,
+        firstResult: Int? = null,
+        maxResults: Int? = null
+    ) {
+        try {
+            api.listVehicles(vehicleId, firstResult, maxResults)
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Asserts that update operation fails with expected status
+     *
+     * @param expectedStatus expected status
+     * @param vehicleId vehicle id
+     * @param updateData update data
+     */
+    fun assertUpdateFail(expectedStatus: Int, vehicleId: UUID, updateData: Vehicle) {
+        try {
+            api.updateVehicle(vehicleId, updateData)
+            Assert.fail(String.format("Expected update to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Asserts that delete operation fails with expected status
+     *
+     * @param expectedStatus expected status
+     * @param vehicleId vehicle id
+     */
+    fun assertDeleteFail(expectedStatus: Int, vehicleId: UUID) {
+        try {
+            api.deleteVehicle(vehicleId)
+            Assert.fail(String.format("Expected delete to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Asserts that create operation fails with expected status
+     *
+     * @param expectedStatus expected status
+     * @param truck vehicle
+     */
+    fun assertCreateFail(expectedStatus: Int, truck: Vehicle) {
+        try {
+            api.createVehicle(truck)
+            Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
     }
 
     override fun clean(p0: Vehicle?) {

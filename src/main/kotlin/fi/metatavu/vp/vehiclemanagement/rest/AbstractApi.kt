@@ -209,6 +209,9 @@ abstract class AbstractApi {
         const val TRUCK = "Truck"
         const val TOWABLE = "Towable"
         const val VEHICLE = "Vehicle"
+
+        const val DRIVER_ROLE = "driver"
+        const val MANAGER_ROLE = "manager"
     }
 
 }

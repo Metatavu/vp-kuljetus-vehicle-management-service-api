@@ -20,7 +20,9 @@ import java.io.IOException
 class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenTestBuilder<ApiClient>() {
 
     var anon: TestBuilderAuthentication? = TestBuilderAuthentication(this, NullAccessTokenProvider())
-    var user = createTestBuilderAuthentication(username = "user", password = "test")
+    var user = createTestBuilderAuthentication(username = "user", password = "userPassword")
+    val driver = createTestBuilderAuthentication(username = "driver", password = "driverPassword")
+    val manager = createTestBuilderAuthentication(username = "manager", password = "managerPassword")
 
     override fun createTestBuilderAuthentication(
         abstractTestBuilder: AbstractTestBuilder<ApiClient, AccessTokenProvider>,
