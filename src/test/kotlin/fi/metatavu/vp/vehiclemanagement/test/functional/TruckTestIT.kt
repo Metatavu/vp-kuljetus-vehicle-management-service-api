@@ -175,7 +175,7 @@ class TruckTestIT : AbstractFunctionalTest() {
             )
             .body(
                 InvalidValueTestScenarioBody(
-                    values = InvalidTestValues.Trucks.INVALID_TRUCKS,//todo vin must be checked too
+                    values = InvalidTestValues.Trucks.INVALID_TRUCKS,
                     expectedStatus = 400
                 )
             )
