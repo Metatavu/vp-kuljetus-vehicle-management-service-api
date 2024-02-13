@@ -21,9 +21,9 @@ class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        builder.user.towables.create(Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
-        builder.user.towables.create(Towable(plateNumber = "DEF-456", type = Towable.Type.TRAILER))
-        builder.user.towables.create(Towable(plateNumber = "GHI-789", type = Towable.Type.TRAILER))
+        builder.user.towables.create(Towable(plateNumber = plateNumber, vin= "001", type = Towable.Type.TRAILER))
+        builder.user.towables.create(Towable(plateNumber = "DEF-456", vin= "002", type = Towable.Type.TRAILER))
+        builder.user.towables.create(Towable(plateNumber = "GHI-789", vin = "003", type = Towable.Type.TRAILER))
         val totalList = builder.user.towables.list()
         assertEquals(3, totalList.size)
 
@@ -52,6 +52,7 @@ class TowableTestIT : AbstractFunctionalTest() {
         assertEquals(towableData.type, createdTowable.type)
         assertEquals(towableData.vin, createdTowable.vin)
         assertNotNull(createdTowable.id)
+        assertNotNull(createdTowable.createdAt)
     }
 
     @Test
@@ -83,7 +84,7 @@ class TowableTestIT : AbstractFunctionalTest() {
     @Test
     fun testFindFail() = createTestBuilder().use { builder ->
         val createdTowable =
-            builder.user.towables.create(Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER))
+            builder.user.towables.create(Towable(plateNumber = plateNumber, vin = "001", type = Towable.Type.TRAILER))
 
         InvalidValueTestScenarioBuilder(
             path = "v1/towables/{towableId}",

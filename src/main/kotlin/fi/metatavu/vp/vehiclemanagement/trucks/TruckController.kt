@@ -26,7 +26,7 @@ class TruckController {
      * @param userId user id
      * @return created truck
      */
-    suspend fun createTruck(plateNumber: String, type: fi.metatavu.vp.api.model.Truck.Type, vin: String?, userId: UUID): Truck {
+    suspend fun createTruck(plateNumber: String, type: fi.metatavu.vp.api.model.Truck.Type, vin: String, userId: UUID): Truck {
         return truckRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,

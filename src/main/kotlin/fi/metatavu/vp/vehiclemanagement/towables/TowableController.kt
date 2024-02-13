@@ -22,7 +22,7 @@ class TowableController {
      * @param userId user id
      * @return created towable
      */
-    suspend fun createTowable(plateNumber: String, type: fi.metatavu.vp.api.model.Towable.Type, vin: String?, userId: UUID): Towable {
+    suspend fun createTowable(plateNumber: String, type: fi.metatavu.vp.api.model.Towable.Type, vin: String, userId: UUID): Towable {
         return towableRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,

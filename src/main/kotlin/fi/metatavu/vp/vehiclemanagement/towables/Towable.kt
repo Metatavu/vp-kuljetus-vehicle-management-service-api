@@ -22,8 +22,9 @@ class Towable : Metadata() {
     @Enumerated(EnumType.STRING)
     lateinit var type: fi.metatavu.vp.api.model.Towable.Type
 
-    @Column(unique = true)
-    var vin: String? = null
+    @Column(unique = true, nullable = false)
+    @NotEmpty
+    lateinit var vin: String
 
     override lateinit var creatorId: UUID
 

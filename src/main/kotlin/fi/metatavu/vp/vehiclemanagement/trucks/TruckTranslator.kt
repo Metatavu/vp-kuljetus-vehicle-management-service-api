@@ -14,7 +14,11 @@ class TruckTranslator : AbstractTranslator<Truck, fi.metatavu.vp.api.model.Truck
             id = entity.id,
             plateNumber = entity.plateNumber,
             vin = entity.vin,
-            type = entity.type
+            type = entity.type,
+            createdAt = entity.createdAt,
+            modifiedAt = entity.modifiedAt,
+            lastModifierId = entity.lastModifierId,
+            creatorId = entity.creatorId
         )
     }
 

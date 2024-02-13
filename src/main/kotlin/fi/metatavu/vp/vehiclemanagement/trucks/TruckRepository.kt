@@ -27,7 +27,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         id: UUID,
         plateNumber: String,
         type: fi.metatavu.vp.api.model.Truck.Type,
-        vin: String?,
+        vin: String,
         creatorId: UUID,
         lastModifierId: UUID
     ): Truck {

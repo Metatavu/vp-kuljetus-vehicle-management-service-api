@@ -27,7 +27,7 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
         id: UUID,
         plateNumber: String,
         type: fi.metatavu.vp.api.model.Towable.Type,
-        vin: String?,
+        vin: String,
         creatorId: UUID,
         lastModifierId: UUID
     ): Towable {

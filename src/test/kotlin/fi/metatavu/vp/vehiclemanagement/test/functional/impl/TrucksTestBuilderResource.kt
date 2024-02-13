@@ -28,8 +28,8 @@ class TrucksTestBuilderResource(
         return addClosable(api.createTruck(truck))
     }
 
-    fun create(plateNumber: String): Truck {
-        return create(Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK))
+    fun create(plateNumber: String, vin: String): Truck {
+        return create(Truck(plateNumber = plateNumber, vin = vin, type = Truck.Type.TRUCK))
     }
 
     /**
@@ -38,7 +38,7 @@ class TrucksTestBuilderResource(
      * @return created truck
      */
     fun create(): Truck {
-        return create("ABC-123")
+        return create("ABC-123", "001")
     }
 
     /**
