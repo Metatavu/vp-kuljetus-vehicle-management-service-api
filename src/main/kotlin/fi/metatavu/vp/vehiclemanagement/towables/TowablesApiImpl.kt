@@ -42,8 +42,11 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-            if (!vehicleController.isPlateNumberValid(towable.plateNumber) || towable.vin.isEmpty()) {
+            if (!vehicleController.isPlateNumberValid(towable.plateNumber)) {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
+            }
+            if (towable.vin.isEmpty()) {
+                return@async createBadRequest(INVALID_VIN)
             }
 
             if (!vehicleController.isPlateNumberUnique(towable.plateNumber)) return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
@@ -80,8 +83,11 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
         CoroutineScope(vertx.dispatcher()).async {
             val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
 
-            if (!vehicleController.isPlateNumberValid(towable.plateNumber) || towable.vin.isEmpty()) {
+            if (!vehicleController.isPlateNumberValid(towable.plateNumber)) {
                 return@async createBadRequest(INVALID_PLATE_NUMBER)
+            }
+            if (towable.vin.isEmpty()) {
+                return@async createBadRequest(INVALID_VIN)
             }
 
             val existingTowable = towableController.findTowable(towableId) ?: return@async createNotFound(
