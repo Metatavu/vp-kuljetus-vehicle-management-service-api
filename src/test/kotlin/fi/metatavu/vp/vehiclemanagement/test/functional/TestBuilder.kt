@@ -9,7 +9,6 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.KeycloakAccessTokenProvide
 import fi.metatavu.jaxrs.test.functional.builder.auth.NullAccessTokenProvider
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import org.eclipse.microprofile.config.ConfigProvider
-import java.io.IOException
 
 /**
  * Abstract test builder class
@@ -19,16 +18,28 @@ import java.io.IOException
  */
 class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenTestBuilder<ApiClient>() {
 
-    var anon: TestBuilderAuthentication? = TestBuilderAuthentication(this, NullAccessTokenProvider())
-    var user = createTestBuilderAuthentication(username = "user", password = "test")
+    var anon = TestBuilderAuthentication(this, NullAccessTokenProvider(), null)
+    var user = createTestBuilderAuthentication(username = "user", password = "userPassword")
+    val driver = createTestBuilderAuthentication(username = "driver", password = "driverPassword")
+    val manager = createTestBuilderAuthentication(username = "manager", password = "managerPassword")
 
     override fun createTestBuilderAuthentication(
         abstractTestBuilder: AbstractTestBuilder<ApiClient, AccessTokenProvider>,
         authProvider: AccessTokenProvider
     ): AuthorizedTestBuilderAuthentication<ApiClient, AccessTokenProvider> {
-        return TestBuilderAuthentication(this, authProvider)
+        return TestBuilderAuthentication(this, authProvider, null)
     }
 
+    /**
+     * Returns authentication with api key
+     *
+     * @param apiKey device key
+     * @return authorized client
+     */
+    fun setApiKey(apiKey: String?): TestBuilderAuthentication {
+        return TestBuilderAuthentication(this, NullAccessTokenProvider(), apiKey)
+    }
+    
     /**
      * Creates test builder authenticatior for given user
      *
@@ -41,7 +52,7 @@ class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenT
         val realm: String = ConfigProvider.getConfig().getValue("quarkus.keycloak.devservices.realm-name", String::class.java)
         val clientId = "test"
         val clientSecret = "secret"
-        return TestBuilderAuthentication(this, KeycloakAccessTokenProvider(serverUrl, realm, clientId, username, password, clientSecret))
+        return TestBuilderAuthentication(this, KeycloakAccessTokenProvider(serverUrl, realm, clientId, username, password, clientSecret), null)
     }
 
 }

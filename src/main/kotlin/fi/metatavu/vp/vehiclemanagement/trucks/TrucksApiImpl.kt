@@ -9,6 +9,7 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asUni
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
+import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
@@ -37,6 +38,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     @Inject
     lateinit var vertx: Vertx
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createTruck(truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
@@ -57,17 +59,20 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         createOk(truckTranslator.translate(createdTruck))
     }.asUni()
 
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun findTruck(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
 
         createOk(truckTranslator.translate(truck))
     }.asUni()
 
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun listTrucks(plateNumber: String?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val ( trucks, count ) = truckController.listTrucks(plateNumber, first, max)
         createOk(trucks.map { truckTranslator.translate(it) }, count)
     }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
@@ -90,6 +95,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         createOk(truckTranslator.translate(updated))
     }.asUni()
 
+   @RolesAllowed(MANAGER_ROLE)
    @WithTransaction
    override fun deleteTruck(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
        val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
@@ -100,5 +106,5 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
        }
        truckController.deleteTruck(existingTruck)
        createNoContent()
-    }.asUni()
+   }.asUni()
 }

@@ -5,8 +5,8 @@ import io.quarkus.test.junit.QuarkusIntegrationTest
 import io.quarkus.test.junit.TestProfile
 
 /**
- * Native tests for Truck API
+ * Native tests for telematic API
  */
 @QuarkusIntegrationTest
 @TestProfile(DefaultTestProfile::class)
-class NativeTruckTestIT: TruckTestIT()
+class NativeTruckTelematicDataTestIT: TruckTelematicDataTestIT()

@@ -19,20 +19,22 @@ import fi.metatavu.vp.vehiclemanagement.test.functional.impl.VehiclesTestBuilder
  *
  * @param testBuilder test builder instance
  * @param accessTokenProvider access token provider
+ * @param apiKey api key
  */
 class TestBuilderAuthentication(
     private val testBuilder: TestBuilder,
-    val accessTokenProvider: AccessTokenProvider
-): AccessTokenTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
+    val accessTokenProvider: AccessTokenProvider,
+    private val apiKey: String?
+    ): AccessTokenTestBuilderAuthentication<ApiClient>(testBuilder, accessTokenProvider) {
 
     val trucks = TrucksTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val towables = TowablesTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val vehicles = VehiclesTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
-    val telematics = TelematicsTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
+    val telematics = TelematicsTestBuilderResource(testBuilder, this.apiKey, createClient())
 
-    override fun createClient(authProvider: AccessTokenProvider): ApiClient {
+    override fun createClient(authProvider: AccessTokenProvider?): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)
-        ApiClient.accessToken = authProvider.accessToken
+        ApiClient.accessToken = authProvider?.accessToken
         return result
     }
 

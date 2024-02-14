@@ -8,7 +8,9 @@ import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.vehiclemanagement.test.functional.impl.InvalidTestValues
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
+import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -18,37 +20,44 @@ import org.junit.jupiter.api.Test
  * Test class for testing Trucks API
  */
 @QuarkusTest
+@TestProfile(DefaultTestProfile::class)
 class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        builder.user.trucks.create(plateNumber = plateNumber, vin = "001")
-        builder.user.trucks.create(plateNumber = "DEF-456", vin = "002")
-        builder.user.trucks.create(plateNumber = "GHI-789", vin = "003")
-        val totalList = builder.user.trucks.list()
+        builder.manager.trucks.create(plateNumber = plateNumber, vin = "001")
+        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002")
+        builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003")
+        val totalList = builder.manager.trucks.list()
         assertEquals(3, totalList.size)
 
-        val pagedList = builder.user.trucks.list(firstResult = 1, maxResults = 1)
+        val pagedList = builder.manager.trucks.list(firstResult = 1, maxResults = 1)
         assertEquals(1, pagedList.size)
 
-        val pagedList2 = builder.user.trucks.list(firstResult = 0, maxResults = 3)
+        val pagedList2 = builder.manager.trucks.list(firstResult = 0, maxResults = 3)
         assertEquals(3, pagedList2.size)
 
-        val pagedList3 = builder.user.trucks.list(firstResult = 0, maxResults = 2)
+        val pagedList3 = builder.manager.trucks.list(firstResult = 0, maxResults = 2)
         assertEquals(2, pagedList3.size)
 
-        val pagedList4 = builder.user.trucks.list(firstResult = 0, maxResults = 0)
+        val pagedList4 = builder.manager.trucks.list(firstResult = 0, maxResults = 0)
         assertEquals(0, pagedList4.size)
 
-        val filteredList = builder.user.trucks.list(plateNumber = plateNumber)
+        val filteredList = builder.manager.trucks.list(plateNumber = plateNumber)
         assertEquals(1, filteredList.size)
     }
 
+    @Test
+    fun testListFail(): Unit = createTestBuilder().use {
+        it.user.trucks.assertListFail(403)
+        assertNotNull(it.driver.trucks.list())
+        assertNotNull(it.manager.trucks.list())
+    }
 
     @Test
     fun testCreate() = createTestBuilder().use { builder ->
         val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK, vin = "someVinNumber")
-        val createdTruck = builder.user.trucks.create(truckData)
+        val createdTruck = builder.manager.trucks.create(truckData)
         assertNotNull(createdTruck)
         assertNotNull(createdTruck.id)
         assertNotNull(createdTruck.createdAt)
@@ -57,14 +66,14 @@ class TruckTestIT : AbstractFunctionalTest() {
         assertEquals(truckData.vin, createdTruck.vin)
 
         // We cannot create trucks or towables with already existing plate number
-        builder.user.trucks.assertCreateFail(400, createdTruck)
-        builder.user.towables.assertCreateFail(400, Towable(plateNumber = plateNumber, vin = "003", type = Towable.Type.TRAILER))
+        builder.manager.trucks.assertCreateFail(400, createdTruck)
+        builder.manager.towables.assertCreateFail(400, Towable(plateNumber = plateNumber, vin = "003", type = Towable.Type.TRAILER))
         // Same check for vin
-        builder.user.trucks.assertCreateFail(
+        builder.manager.trucks.assertCreateFail(
             400,
             Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin)
         )
-        builder.user.towables.assertCreateFail(
+        builder.manager.towables.assertCreateFail(
             400,
             Towable(plateNumber = "DEF-456", type = Towable.Type.TRAILER, vin = createdTruck.vin)
         )
@@ -72,10 +81,15 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreateFail() = createTestBuilder().use { builder ->
+        val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK, vin = "someVinNumber")
+
+        builder.user.trucks.assertCreateFail(403, truckData)
+        builder.driver.trucks.assertCreateFail(403, truckData)
+
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks",
             method = Method.POST,
-            token = builder.user.accessTokenProvider.accessToken,
+            token = builder.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .body(
@@ -91,19 +105,22 @@ class TruckTestIT : AbstractFunctionalTest() {
     @Test
     fun testFind() = createTestBuilder().use { builder ->
         val truckData = Truck(plateNumber = plateNumber, vin = "001", type = Truck.Type.TRUCK)
-        val createdTruck = builder.user.trucks.create(truckData)
+        val createdTruck = builder.manager.trucks.create(truckData)
         assertNotNull(createdTruck)
         assertEquals(truckData.plateNumber, createdTruck.plateNumber)
     }
 
     @Test
     fun testFindFail() = createTestBuilder().use { builder ->
-        val createdTruck = builder.user.trucks.create()
+        val createdTruck = builder.manager.trucks.create()
+
+        builder.user.trucks.assertFindFail(403, createdTruck.id!!)
+        assertNotNull(builder.driver.trucks.find(createdTruck.id))
 
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}",
             method = Method.GET,
-            token = builder.user.accessTokenProvider.accessToken,
+            token = builder.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .path(
@@ -120,23 +137,23 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdate() = createTestBuilder().use { builder ->
-        val truck1 = builder.user.trucks.create(Truck(plateNumber = "0111", type = Truck.Type.SEMI_TRUCK, vin = "vin1"))
-        val truck2 = builder.user.trucks.create(Truck(plateNumber = "0222", type = Truck.Type.SEMI_TRUCK, vin = "vin2"))
+        val truck1 = builder.manager.trucks.create(Truck(plateNumber = "0111", type = Truck.Type.SEMI_TRUCK, vin = "vin1"))
+        val truck2 = builder.manager.trucks.create(Truck(plateNumber = "0222", type = Truck.Type.SEMI_TRUCK, vin = "vin2"))
 
         val updateData = Truck(plateNumber = "DEF-456", type = Truck.Type.SEMI_TRUCK, vin = "someVinNumber")
-        val updatedTruck = builder.user.trucks.update(truck1.id!!, updateData)
+        val updatedTruck = builder.manager.trucks.update(truck1.id!!, updateData)
         assertNotNull(updatedTruck)
         assertEquals(updateData.plateNumber, updatedTruck.plateNumber)
         assertEquals(updateData.type, updatedTruck.type)
         assertEquals(updateData.vin, updatedTruck.vin)
 
         // Truck updates check for the plate number duplicates (ignoring own number)
-        builder.user.trucks.update(truck1.id, updatedTruck)
-        builder.user.trucks.assertUpdateFail(400, truck1.id, truck2)
+        builder.manager.trucks.update(truck1.id, updatedTruck)
+        builder.manager.trucks.assertUpdateFail(400, truck1.id, truck2)
 
         // Trailer updates check for plate number duplicates too
-        val towable = builder.user.towables.create(Towable("trailerNumber", vin = "001", type =   Towable.Type.TRAILER))
-        builder.user.towables.assertUpdateFail(
+        val towable = builder.manager.towables.create(Towable("trailerNumber", vin = "001", type =   Towable.Type.TRAILER))
+        builder.manager.towables.assertUpdateFail(
             400,
             towable.id!!,
             Towable(plateNumber = updatedTruck.plateNumber, vin = "001", type = Towable.Type.TRAILER)
@@ -144,12 +161,12 @@ class TruckTestIT : AbstractFunctionalTest() {
 
         // Same checks for vin
         val someNewNumber = "someNewNumber"
-        builder.user.trucks.assertUpdateFail(
+        builder.manager.trucks.assertUpdateFail(
             400,
             truck1.id,
             Truck(plateNumber = someNewNumber, type = Truck.Type.SEMI_TRUCK, vin = truck2.vin)
         )
-        builder.user.towables.assertUpdateFail(
+        builder.manager.towables.assertUpdateFail(
             400,
             towable.id,
             Towable(plateNumber = someNewNumber, type = Towable.Type.TRAILER, vin = truck2.vin)
@@ -158,11 +175,15 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdateFail() = createTestBuilder().use { builder ->
-        val createdTruck = builder.user.trucks.create()
+        val createdTruck = builder.manager.trucks.create()
+
+        builder.user.trucks.assertUpdateFail(403, createdTruck.id!!, createdTruck)
+        builder.driver.trucks.assertUpdateFail(403, createdTruck.id, createdTruck)
+
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}",
             method = Method.PUT,
-            token = builder.user.accessTokenProvider.accessToken,
+            token = builder.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .path(
@@ -185,18 +206,22 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDelete() = createTestBuilder().use { builder ->
-        val createdTruck = builder.user.trucks.create()
-        builder.user.trucks.delete(createdTruck.id!!)
-        builder.user.trucks.assertFindFail(404, createdTruck.id)
+        val createdTruck = builder.manager.trucks.create()
+        builder.manager.trucks.delete(createdTruck.id!!)
+        builder.manager.trucks.assertFindFail(404, createdTruck.id)
     }
 
     @Test
     fun testDeleteFail() = createTestBuilder().use { builder ->
-        val createdTruck = builder.user.trucks.create()
+        val createdTruck = builder.manager.trucks.create()
+
+        builder.user.trucks.assertDeleteFail(403, createdTruck.id!!)
+        builder.driver.trucks.assertDeleteFail(403, createdTruck.id)
+
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}",
             method = Method.DELETE,
-            token = builder.user.accessTokenProvider.accessToken,
+            token = builder.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .path(

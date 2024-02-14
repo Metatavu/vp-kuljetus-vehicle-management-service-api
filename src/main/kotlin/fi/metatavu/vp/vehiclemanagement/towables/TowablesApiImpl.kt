@@ -9,6 +9,7 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asUni
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
+import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
@@ -37,6 +38,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
     @Inject
     lateinit var vertx: Vertx
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createTowable(towable: fi.metatavu.vp.api.model.Towable): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
@@ -61,6 +63,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
             createOk(towableTranslator.translate(createdTruck))
         }.asUni()
 
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun findTowable(towableId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val truck = towableController.findTowable(towableId) ?: return@async createNotFound(
             createNotFoundMessage(
@@ -72,12 +75,14 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
         createOk(towableTranslator.translate(truck))
     }.asUni()
 
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun listTowables(plateNumber: String?, first: Int?, max: Int?): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
             val (trucks, count) = towableController.listTowables(plateNumber, first, max)
             createOk(trucks.map { towableTranslator.translate(it) }, count)
         }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun updateTowable(towableId: UUID, towable: fi.metatavu.vp.api.model.Towable): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
@@ -109,6 +114,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
             createOk(towableTranslator.translate(updatedTowable))
         }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun deleteTowable(towableId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)

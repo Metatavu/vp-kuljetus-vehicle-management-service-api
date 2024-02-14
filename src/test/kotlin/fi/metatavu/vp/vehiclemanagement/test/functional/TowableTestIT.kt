@@ -7,7 +7,9 @@ import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.vehiclemanagement.test.functional.impl.InvalidTestValues
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
+import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -17,36 +19,44 @@ import org.junit.jupiter.api.Test
  * Test class for testing Towables API
  */
 @QuarkusTest
+@TestProfile(DefaultTestProfile::class)
 class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        builder.user.towables.create(Towable(plateNumber = plateNumber, vin= "001", type = Towable.Type.TRAILER))
-        builder.user.towables.create(Towable(plateNumber = "DEF-456", vin= "002", type = Towable.Type.TRAILER))
-        builder.user.towables.create(Towable(plateNumber = "GHI-789", vin = "003", type = Towable.Type.TRAILER))
-        val totalList = builder.user.towables.list()
+        builder.manager.towables.create(Towable(plateNumber = plateNumber, vin= "001", type = Towable.Type.TRAILER))
+        builder.manager.towables.create(Towable(plateNumber = "DEF-456", vin= "002", type = Towable.Type.TRAILER))
+        builder.manager.towables.create(Towable(plateNumber = "GHI-789", vin = "003", type = Towable.Type.TRAILER))
+        val totalList = builder.manager.towables.list()
         assertEquals(3, totalList.size)
 
-        val pagedList = builder.user.towables.list(firstResult = 1, maxResults = 1)
+        val pagedList = builder.manager.towables.list(firstResult = 1, maxResults = 1)
         assertEquals(1, pagedList.size)
 
-        val pagedList2 = builder.user.towables.list(firstResult = 0, maxResults = 3)
+        val pagedList2 = builder.manager.towables.list(firstResult = 0, maxResults = 3)
         assertEquals(3, pagedList2.size)
 
-        val pagedList3 = builder.user.towables.list(firstResult = 0, maxResults = 2)
+        val pagedList3 = builder.manager.towables.list(firstResult = 0, maxResults = 2)
         assertEquals(2, pagedList3.size)
 
-        val pagedList4 = builder.user.towables.list(firstResult = 0, maxResults = 0)
+        val pagedList4 = builder.manager.towables.list(firstResult = 0, maxResults = 0)
         assertEquals(0, pagedList4.size)
 
-        val filteredList = builder.user.towables.list(plateNumber = plateNumber)
+        val filteredList = builder.manager.towables.list(plateNumber = plateNumber)
         assertEquals(1, filteredList.size)
+    }
+
+    @Test
+    fun testListFail(): Unit = createTestBuilder().use {
+        it.user.towables.assertListFail(403)
+        assertNotNull(it.driver.towables.list())
+        assertNotNull(it.manager.towables.list())
     }
 
     @Test
     fun testCreate() = createTestBuilder().use { builder ->
         val towableData = Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER, vin = "someVinNumber")
-        val createdTowable = builder.user.towables.create(towableData)
+        val createdTowable = builder.manager.towables.create(towableData)
         assertNotNull(createdTowable)
         assertEquals(towableData.plateNumber, createdTowable.plateNumber)
         assertEquals(towableData.type, createdTowable.type)
@@ -57,10 +67,14 @@ class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreateFail() = createTestBuilder().use { builder ->
+        val towableData = Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER, vin = "someVinNumber")
+
+        builder.user.towables.assertCreateFail(403, towableData)
+        builder.driver.towables.assertCreateFail(403, towableData)
         InvalidValueTestScenarioBuilder(
             path = "v1/towables",
             method = Method.POST,
-            token = builder.user.accessTokenProvider.accessToken,
+            token = builder.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .body(
@@ -75,21 +89,23 @@ class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFind() = createTestBuilder().use { builder ->
-        val createdTowable = builder.user.towables.create()
-        val foundTowable = builder.user.towables.find(createdTowable.id!!)
+        val createdTowable = builder.manager.towables.create()
+        val foundTowable = builder.manager.towables.find(createdTowable.id!!)
         assertNotNull(foundTowable)
         assertEquals(plateNumber, foundTowable.plateNumber)
     }
 
     @Test
     fun testFindFail() = createTestBuilder().use { builder ->
-        val createdTowable =
-            builder.user.towables.create(Towable(plateNumber = plateNumber, vin = "001", type = Towable.Type.TRAILER))
+        val createdTowable = builder.manager.towables.create(Towable(plateNumber = plateNumber, vin = "001", type = Towable.Type.TRAILER))
+
+        builder.user.towables.assertFindFail(403, createdTowable.id!!)
+        assertNotNull(builder.driver.towables.find(createdTowable.id))
 
         InvalidValueTestScenarioBuilder(
             path = "v1/towables/{towableId}",
             method = Method.GET,
-            token = builder.user.accessTokenProvider.accessToken,
+            token = builder.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .path(
@@ -106,9 +122,9 @@ class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdate() = createTestBuilder().use { builder ->
-        val createdTowable = builder.user.towables.create()
+        val createdTowable = builder.manager.towables.create()
         val updateData = Towable(plateNumber = "DEF-456", type = Towable.Type.DOLLY, vin = "updatedVin")
-        val updatedTowable = builder.user.towables.update(createdTowable.id!!, updateData)
+        val updatedTowable = builder.manager.towables.update(createdTowable.id!!, updateData)
         assertEquals(updateData.plateNumber, updatedTowable.plateNumber)
         assertEquals(updateData.type, updatedTowable.type)
         assertEquals(updateData.vin, updatedTowable.vin)
@@ -116,11 +132,15 @@ class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdateFail() = createTestBuilder().use { builder ->
-        val createdTowable = builder.user.towables.create()
+        val createdTowable = builder.manager.towables.create()
+
+        builder.user.towables.assertUpdateFail(403, createdTowable.id!!, createdTowable)
+        builder.driver.towables.assertUpdateFail(403, createdTowable.id, createdTowable)
+
         InvalidValueTestScenarioBuilder(
             path = "v1/towables/{towableId}",
             method = Method.PUT,
-            token = builder.user.accessTokenProvider.accessToken,
+            token = builder.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .path(
@@ -143,18 +163,22 @@ class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDelete() = createTestBuilder().use { builder ->
-        val createdTowable = builder.user.towables.create()
-        builder.user.towables.delete(createdTowable.id!!)
-        builder.user.towables.assertFindFail(404, createdTowable.id)
+        val createdTowable = builder.manager.towables.create()
+        builder.manager.towables.delete(createdTowable.id!!)
+        builder.manager.towables.assertFindFail(404, createdTowable.id)
     }
 
     @Test
     fun testDeleteFail() = createTestBuilder().use { builder ->
-        val createdTowable = builder.user.towables.create()
+        val createdTowable = builder.manager.towables.create()
+
+        builder.user.towables.assertDeleteFail(403, createdTowable.id!!)
+        builder.driver.towables.assertDeleteFail(403, createdTowable.id)
+
         InvalidValueTestScenarioBuilder(
             path = "v1/towables/{towableId}",
             method = Method.DELETE,
-            token = builder.user.accessTokenProvider.accessToken,
+            token = builder.manager.accessTokenProvider.accessToken,
             basePath = ApiTestSettings.apiBasePath
         )
             .path(

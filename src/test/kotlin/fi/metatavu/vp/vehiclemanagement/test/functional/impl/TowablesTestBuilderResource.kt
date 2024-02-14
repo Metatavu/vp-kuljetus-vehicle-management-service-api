@@ -37,6 +37,13 @@ class TowablesTestBuilderResource(
         return create(Towable(plateNumber = "ABC-123", vin = "001", type = Towable.Type.TRAILER))
     }
 
+    /**
+     * Creates new towable
+     *
+     * @param plateNumber plate number
+     * @param vin VIN
+     * @return created towable
+     */
     fun create(plateNumber: String, vin: String): Towable {
         return create(Towable(plateNumber = plateNumber, vin = vin, type = Towable.Type.TRAILER))
     }

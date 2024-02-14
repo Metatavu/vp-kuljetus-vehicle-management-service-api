@@ -11,6 +11,7 @@ import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asUni
 import io.vertx.core.Vertx
 import io.vertx.kotlin.coroutines.dispatcher
+import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
@@ -42,6 +43,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
     @Inject
     lateinit var vertx: Vertx
 
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun listVehicles(truckId: UUID?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val truckFilter = if (truckId != null) {
             truckController.findTruck(truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, truckId))
@@ -53,6 +55,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         createOk(vehicleTranslator.translate(vehicles), count)
     }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createVehicle(vehicle: Vehicle): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
@@ -75,12 +78,14 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         createOk(vehicleTranslator.translate(createdVehicle))
     }.asUni()
 
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun findVehicle(vehicleId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val vehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
 
         createOk(vehicleTranslator.translate(vehicle))
     }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun updateVehicle(vehicleId: UUID, vehicle: Vehicle): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
@@ -106,6 +111,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         createOk(vehicleTranslator.translate(updatedVehicle))
     }.asUni()
 
+    @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun deleteVehicle(vehicleId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val vehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))

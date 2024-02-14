@@ -7,7 +7,9 @@ import fi.metatavu.invalid.InvalidValues
 import fi.metatavu.vp.test.client.models.TelematicData
 import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
+import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
+import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Test
 
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test
  * A test class for testing telematics
  */
 @QuarkusTest
+@TestProfile(DefaultTestProfile::class)
 class TruckTelematicDataTestIT : AbstractFunctionalTest() {
 
     private final val temelaticData = TelematicData(
@@ -27,11 +30,23 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreateTruckTelematicData() = createTestBuilder().use {
-        val truck = it.user.trucks.create(Truck(plateNumber = "ABC-124", type = Truck.Type.SEMI_TRUCK, vin = "0001"))
+        val truck = it.manager.trucks.create(Truck(plateNumber = "ABC-124", type = Truck.Type.SEMI_TRUCK, vin = "0001"))
 
-        it.user.telematics.receiveTelematicData(
-            vin = truck.vin!!,
+        it.setApiKey("test-api-key").telematics.receiveTelematicData(
+            vin = truck.vin,
             telematicData = temelaticData
+        )
+
+        it.setApiKey("invalid-api-key").telematics.assertReceiveDataFail(
+            vin = truck.vin,
+            telematicData = temelaticData,
+            expectedStatus = 403
+        )
+
+        it.setApiKey(null).telematics.assertReceiveDataFail(
+            vin = truck.vin,
+            telematicData = temelaticData,
+            expectedStatus = 403
         )
     }
 
@@ -40,7 +55,7 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
         InvalidValueTestScenarioBuilder(
             path = "v1/telematics/{vin}",
             method = Method.POST,
-            token = builder.user.accessTokenProvider.accessToken,
+            header = "X-API-Key" to "test-api-key",
             basePath = ApiTestSettings.apiBasePath,
             body = jacksonObjectMapper().writeValueAsString(temelaticData)
         )
