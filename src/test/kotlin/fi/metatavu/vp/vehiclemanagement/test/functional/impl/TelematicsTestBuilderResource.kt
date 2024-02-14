@@ -13,6 +13,7 @@ import org.junit.Assert
  */
 class TelematicsTestBuilderResource(
     testBuilder: TestBuilder,
+    private val apiKey: String?,
     apiClient: ApiClient
 ) : ApiTestBuilderResource<TelematicData, ApiClient>(testBuilder, apiClient) {
 
@@ -21,23 +22,10 @@ class TelematicsTestBuilderResource(
     }
 
     override fun getApi(): TelematicsApi {
+        if (apiKey != null) {
+            ApiClient.apiKey["X-API-Key"] = apiKey
+        }
         return TelematicsApi(ApiTestSettings.apiBasePath)
-    }
-
-    /**
-     * Sets api key
-     *
-     * @param key key
-     */
-    fun setKey(key: String) {
-        ApiClient.apiKey["X-API-Key"] = key
-    }
-
-    /**
-     * Removes api key
-     */
-    fun removeKey() {
-        ApiClient.apiKey.remove("X-API-Key")
     }
 
     /**

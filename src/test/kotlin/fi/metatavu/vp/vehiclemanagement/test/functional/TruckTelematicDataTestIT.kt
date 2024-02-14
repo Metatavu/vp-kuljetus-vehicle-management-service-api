@@ -32,20 +32,18 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
     fun testCreateTruckTelematicData() = createTestBuilder().use {
         val truck = it.manager.trucks.create(Truck(plateNumber = "ABC-124", type = Truck.Type.SEMI_TRUCK, vin = "0001"))
 
-        it.anon.telematics.setKey("test-api-key")
-        it.anon.telematics.receiveTelematicData(
+        it.setApiKey("test-api-key").telematics.receiveTelematicData(
             vin = truck.vin,
             telematicData = temelaticData
         )
 
-        it.anon.telematics.setKey("invalid-api-key")
-        it.anon.telematics.assertReceiveDataFail(
+        it.setApiKey("invalid-api-key").telematics.assertReceiveDataFail(
             vin = truck.vin,
             telematicData = temelaticData,
             expectedStatus = 403
         )
-        it.anon.telematics.removeKey()
-        it.anon.telematics.assertReceiveDataFail(
+
+        it.setApiKey(null).telematics.assertReceiveDataFail(
             vin = truck.vin,
             telematicData = temelaticData,
             expectedStatus = 403
