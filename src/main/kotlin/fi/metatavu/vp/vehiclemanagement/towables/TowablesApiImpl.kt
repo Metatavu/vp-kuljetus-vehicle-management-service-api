@@ -73,9 +73,9 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
     }.asUni()
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listTowables(plateNumber: String?, first: Int?, max: Int?): Uni<Response> =
+    override fun listTowables(plateNumber: String?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> =
         CoroutineScope(vertx.dispatcher()).async {
-            val (trucks, count) = towableController.listTowables(plateNumber, first, max)
+            val (trucks, count) = towableController.listTowables(plateNumber, archived, first, max)
             createOk(trucks.map { towableTranslator.translate(it) }, count)
         }.asUni()
 
@@ -96,6 +96,10 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 )
             )
 
+            if (existingTowable.archivedAt != null && towable.archivedAt != null) {
+                return@async createConflict("Archived towable cannot be updated")
+            }
+
             if (!vehicleController.isPlateNumberUnique(towable.plateNumber) && existingTowable.plateNumber != towable.plateNumber) {
                 return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
             }
@@ -112,7 +116,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
     @WithTransaction
     override fun deleteTowable(towableId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
-
+        if (isProduction) return@async createForbidden(FORBIDDEN)
         val existingTowable = towableController.findTowable(towableId) ?: return@async createNotFound(
             createNotFoundMessage(
                 TOWABLE,

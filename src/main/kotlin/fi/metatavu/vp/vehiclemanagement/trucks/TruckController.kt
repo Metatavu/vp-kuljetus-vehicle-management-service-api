@@ -61,12 +61,23 @@ class TruckController {
      * Lists trucks
      *
      * @param plateNumber plate number
+     * @param archived archived
      * @param firstResult first result
      * @param maxResults max results
      * @return list of trucks
      */
-    suspend fun listTrucks(plateNumber: String?, firstResult: Int?, maxResults: Int?): Pair<List<Truck>, Long> {
-        return truckRepository.list(plateNumber = plateNumber, firstResult = firstResult, maxResults = maxResults)
+    suspend fun listTrucks(
+        plateNumber: String?,
+        archived: Boolean?,
+        firstResult: Int?,
+        maxResults: Int?
+    ): Pair<List<Truck>, Long> {
+        return truckRepository.list(
+            plateNumber = plateNumber,
+            archived = archived,
+            firstResult = firstResult,
+            maxResults = maxResults
+        )
     }
 
     /**
@@ -79,6 +90,7 @@ class TruckController {
      */
     suspend fun updateTruck(existingTruck: Truck, newTruckData: fi.metatavu.vp.api.model.Truck, userId: UUID): Truck {
         existingTruck.plateNumber = newTruckData.plateNumber
+        existingTruck.archivedAt = newTruckData.archivedAt
         existingTruck.type = newTruckData.type
         existingTruck.vin = newTruckData.vin
         existingTruck.lastModifierId = userId

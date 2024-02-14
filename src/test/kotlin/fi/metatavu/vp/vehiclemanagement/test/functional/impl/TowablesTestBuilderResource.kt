@@ -62,6 +62,7 @@ class TowablesTestBuilderResource(
      * Lists towables
      *
      * @param plateNumber plate number
+     * @param archived archived
      * @param firstResult first result
      * @param maxResults max results
      * @return list of towables
@@ -69,10 +70,12 @@ class TowablesTestBuilderResource(
     fun list(
         plateNumber: String? = null,
         firstResult: Int? = null,
+        archived: Boolean? = null,
         maxResults: Int? = null
     ): Array<Towable> {
         return api.listTowables(
             plateNumber,
+            archived,
             firstResult,
             maxResults
         )
@@ -117,11 +120,12 @@ class TowablesTestBuilderResource(
     fun assertListFail(
         expectedStatus: Int,
         plateNumber: String? = null,
+        archived: Boolean? = null,
         firstResult: Int? = null,
         maxResults: Int? = null
     ) {
         try {
-            api.listTowables(plateNumber, firstResult, maxResults)
+            api.listTowables(plateNumber, archived, firstResult, maxResults)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)

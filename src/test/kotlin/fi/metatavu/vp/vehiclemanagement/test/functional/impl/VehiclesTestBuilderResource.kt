@@ -54,16 +54,18 @@ class VehiclesTestBuilderResource(
      * Lists vehicles
      *
      * @param truckId truck id
+     * @param archived archived
      * @param firstResult first result
      * @param maxResults max results
      * @return list of vehicles
      */
     fun list(
         truckId: UUID? = null,
+        archived: Boolean? = null,
         firstResult: Int? = null,
         maxResults: Int? = null
     ): Array<Vehicle> {
-        return api.listVehicles(truckId, firstResult, maxResults)
+        return api.listVehicles(truckId, archived, firstResult, maxResults)
     }
 
     /**
@@ -116,17 +118,19 @@ class VehiclesTestBuilderResource(
      *
      * @param expectedStatus expected status
      * @param vehicleId vehicle id
+     * @param archived archived
      * @param firstResult first result
      * @param maxResults max results
      */
     fun assertListFail(
         expectedStatus: Int,
         vehicleId: UUID? = null,
+        archived: Boolean? = null,
         firstResult: Int? = null,
         maxResults: Int? = null
     ) {
         try {
-            api.listVehicles(vehicleId, firstResult, maxResults)
+            api.listVehicles(vehicleId, archived, firstResult, maxResults)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)

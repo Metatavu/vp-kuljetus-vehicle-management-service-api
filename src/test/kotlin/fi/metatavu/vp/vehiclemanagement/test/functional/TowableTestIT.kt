@@ -11,8 +11,7 @@ import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProf
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 /**
@@ -128,6 +127,42 @@ class TowableTestIT : AbstractFunctionalTest() {
         assertEquals(updateData.plateNumber, updatedTowable.plateNumber)
         assertEquals(updateData.type, updatedTowable.type)
         assertEquals(updateData.vin, updatedTowable.vin)
+    }
+
+    @Test
+    fun testArchiving() = createTestBuilder().use { builder ->
+        val createdTowable = builder.manager.towables.create()
+        var total = builder.manager.towables.list()
+        assertEquals(1, total.size)
+
+        //archiving
+        val archived = builder.manager.towables.update(
+            towableId = createdTowable.id!!,
+            updateData = createdTowable.copy(archivedAt = createdTowable.createdAt)
+        )
+        assertNotNull(archived.archivedAt)
+        total = builder.manager.towables.list()
+        assertEquals(0, total.size)
+        val totalUnarchived = builder.manager.towables.list(archived = false)
+        assertEquals(0, totalUnarchived.size)
+        val totalArchived = builder.manager.towables.list(archived = true)
+        assertEquals(1, totalArchived.size)
+
+        //cannot update archived data
+        builder.manager.towables.assertUpdateFail(
+            409,
+            createdTowable.id,
+            archived
+        )
+
+        //can un-archive towable
+        val unarchived = builder.manager.towables.update(
+            towableId = createdTowable.id,
+            updateData = archived.copy(archivedAt = null)
+        )
+        assertNull(unarchived.archivedAt)
+        total = builder.manager.towables.list()
+        assertEquals(1, total.size)
     }
 
     @Test

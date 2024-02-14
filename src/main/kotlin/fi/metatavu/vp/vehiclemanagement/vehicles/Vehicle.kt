@@ -2,9 +2,11 @@ package fi.metatavu.vp.vehiclemanagement.vehicles
 
 import fi.metatavu.vp.vehiclemanagement.persistence.Metadata
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -19,6 +21,9 @@ class Vehicle: Metadata() {
 
     @ManyToOne
     lateinit var truck: Truck
+
+    @Column
+    var archivedAt: OffsetDateTime? = null
 
     override lateinit var creatorId: UUID
 

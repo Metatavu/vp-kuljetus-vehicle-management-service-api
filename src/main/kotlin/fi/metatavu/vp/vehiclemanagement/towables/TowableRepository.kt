@@ -45,17 +45,24 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
      * Lists towables
      *
      * @param plateNumber plate number
+     * @param archived archived
      * @param firstResult first result
      * @param maxResults max results
      * @return list of towables and the total count
      */
-    suspend fun list(plateNumber: String?, firstResult: Int?, maxResults: Int?): Pair<List<Towable>, Long> {
+    suspend fun list(plateNumber: String?, archived: Boolean?, firstResult: Int?, maxResults: Int?): Pair<List<Towable>, Long> {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
 
         if (plateNumber != null) {
             addCondition(stringBuilder, "plateNumber = :plateNumber")
             parameters.and("plateNumber", plateNumber)
+        }
+
+        if (archived == null || archived == false) {
+            addCondition(stringBuilder, "archivedAt IS NULL")
+        } else if (archived == true) {
+            addCondition(stringBuilder, "archivedAt IS NOT NULL")
         }
 
         return applyFirstMaxToQuery(
