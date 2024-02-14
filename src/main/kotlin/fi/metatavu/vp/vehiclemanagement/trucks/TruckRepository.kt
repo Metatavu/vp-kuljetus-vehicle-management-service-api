@@ -61,8 +61,6 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
 
         if (archived == null || archived == false) {
             addCondition(sb, "archivedAt IS NULL")
-        } else if (archived == true) {
-            addCondition(sb, "archivedAt IS NOT NULL")
         }
 
         return applyFirstMaxToQuery(

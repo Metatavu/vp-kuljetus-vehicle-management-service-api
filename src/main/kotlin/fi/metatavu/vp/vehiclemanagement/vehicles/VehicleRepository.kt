@@ -54,8 +54,6 @@ class VehicleRepository: AbstractRepository<Vehicle, UUID>() {
 
         if (archived == null || archived == false) {
             addCondition(stringBuilder, "archivedAt IS NULL")
-        } else if (archived == true) {
-            addCondition(stringBuilder, "archivedAt IS NOT NULL")
         }
 
         return applyFirstMaxToQuery(

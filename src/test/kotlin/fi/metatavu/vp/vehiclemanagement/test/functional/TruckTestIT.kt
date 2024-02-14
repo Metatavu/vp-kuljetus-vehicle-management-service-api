@@ -177,8 +177,10 @@ class TruckTestIT : AbstractFunctionalTest() {
     @Test
     fun testArchiving() = createTestBuilder().use { builder ->
         val createdTruck = builder.manager.trucks.create()
+        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002")
+
         var total = builder.manager.trucks.list()
-        assertEquals(1, total.size)
+        assertEquals(2, total.size)
 
         //archiving
         val archived = builder.manager.trucks.update(
@@ -187,11 +189,11 @@ class TruckTestIT : AbstractFunctionalTest() {
         )
         assertNotNull(archived.archivedAt)
         total = builder.manager.trucks.list()
-        assertEquals(0, total.size)
+        assertEquals(1, total.size)
         val totalUnarchived = builder.manager.trucks.list(archived = false)
-        assertEquals(0, totalUnarchived.size)
+        assertEquals(1, totalUnarchived.size)
         val totalArchived = builder.manager.trucks.list(archived = true)
-        assertEquals(1, totalArchived.size)
+        assertEquals(2, totalArchived.size)
 
         //cannot update archived data
         builder.manager.trucks.assertUpdateFail(
@@ -207,7 +209,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         )
         Assertions.assertNull(unarchived.archivedAt)
         total = builder.manager.trucks.list()
-        assertEquals(1, total.size)
+        assertEquals(2, total.size)
     }
 
     @Test
