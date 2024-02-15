@@ -12,6 +12,7 @@ import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Test
+import java.util.*
 
 /**
  * A test class for testing telematics
@@ -30,7 +31,14 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreateTruckTelematicData() = createTestBuilder().use {
-        val truck = it.manager.trucks.create(Truck(plateNumber = "ABC-124", type = Truck.Type.SEMI_TRUCK, vin = "0001"))
+        val truck = it.manager.trucks.create(
+            Truck(
+                plateNumber = "ABC-124",
+                type = Truck.Type.SEMI_TRUCK,
+                vin = "0001",
+                activeVehicleId = UUID.randomUUID()),
+            it.manager.vehicles
+        )
 
         it.setApiKey("test-api-key").telematics.receiveTelematicData(
             vin = truck.vin,

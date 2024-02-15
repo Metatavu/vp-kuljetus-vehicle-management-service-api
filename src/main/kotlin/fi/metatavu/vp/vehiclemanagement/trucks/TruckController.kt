@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicDataRepository
+import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -17,8 +18,11 @@ class TruckController {
     @Inject
     lateinit var truckTelematicDataRepository: TruckTelematicDataRepository
 
+    @Inject
+    lateinit var vehicleController: VehicleController
+
     /**
-     * Creates new truck
+     * Creates new truck and a vehicle that is attached to it.
      *
      * @param plateNumber plate number
      * @param type truck type
@@ -27,7 +31,7 @@ class TruckController {
      * @return created truck
      */
     suspend fun createTruck(plateNumber: String, type: fi.metatavu.vp.api.model.Truck.Type, vin: String, userId: UUID): Truck {
-        return truckRepository.create(
+        val truck = truckRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,
             type = type,
@@ -35,6 +39,8 @@ class TruckController {
             creatorId = userId,
             lastModifierId = userId
         )
+        vehicleController.create(truck, emptyList(), userId)
+        return truck
     }
 
     /**

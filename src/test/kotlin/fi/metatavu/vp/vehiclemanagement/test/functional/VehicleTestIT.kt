@@ -21,8 +21,8 @@ class VehicleTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        val truck1 = builder.manager.trucks.create()
-        val truck2 = builder.manager.trucks.create("DEF-457", "002")
+        val truck1 = builder.manager.trucks.create(builder.manager.vehicles)
+        val truck2 = builder.manager.trucks.create("DEF-457", "002", builder.manager.vehicles)
 
         val towable1 = builder.manager.towables.create(plateNumber = "DEF-456", vin = "003")
         val towable2 = builder.manager.towables.create(plateNumber = "GHI-789", vin = "004")
@@ -64,7 +64,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreate() = createTestBuilder().use {
-        val truck = it.manager.trucks.create()
+        val truck = it.manager.trucks.create(it.manager.vehicles)
         val towable1 = it.manager.towables.create(plateNumber = "DEF-456", vin = "002")
         val towable2 = it.manager.towables.create(plateNumber = "GHI-789", vin = "003")
 
@@ -84,6 +84,13 @@ class VehicleTestIT : AbstractFunctionalTest() {
         it.manager.trucks.assertDeleteFail(400, truck.id)
         it.manager.towables.assertDeleteFail(400, towable1.id)
         it.manager.towables.assertDeleteFail(400, towable2.id)
+
+        // Check that drivers can create vehicles but not delete them
+        val created2 = it.driver.vehicles.create(
+            truckId = truck.id,
+            towableIds = emptyArray()
+        )
+        it.manager.vehicles.delete(created2.id!!)
     }
 
     /**
@@ -91,7 +98,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
      */
     @Test
     fun testCreateFail() = createTestBuilder().use {
-        val truck1 = it.manager.trucks.create()
+        val truck1 = it.manager.trucks.create(it.manager.vehicles)
         val towable1 = it.manager.towables.create(plateNumber = "DEF-456", vin = "002")
         val towable2 = it.manager.towables.create(plateNumber = "GHI-789", vin = "003")
 
@@ -100,7 +107,6 @@ class VehicleTestIT : AbstractFunctionalTest() {
             towableIds = arrayOf(towable1.id!!, towable2.id!!)
         )
         it.user.vehicles.assertCreateFail(403, vehicleData)
-        it.driver.vehicles.assertCreateFail(403, vehicleData)
 
         InvalidValueTestScenarioBuilder(
             path = "v1/vehicles",
@@ -136,7 +142,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFind() = createTestBuilder().use { builder ->
-        val truck = builder.manager.trucks.create()
+        val truck = builder.manager.trucks.create(builder.manager.vehicles)
         val towable1 = builder.manager.towables.create(plateNumber = "DEF-456", vin = "002")
         val towable2 = builder.manager.towables.create(plateNumber = "GHI-789", vin = "003")
         val createdVehicle = builder.manager.vehicles.create(
@@ -154,7 +160,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFindFail() = createTestBuilder().use { builder ->
-        val truck = builder.manager.trucks.create()
+        val truck = builder.manager.trucks.create(builder.manager.vehicles)
         val towable1 = builder.manager.towables.create(plateNumber = "DEF-456", vin = "002")
         val createdVehicle = builder.manager.vehicles.create(
             towableIds = arrayOf(towable1.id!!),
@@ -183,144 +189,37 @@ class VehicleTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testUpdate() = createTestBuilder().use {
-        val truck = it.manager.trucks.create()
-        val towable1 = it.manager.towables.create(plateNumber = "DEF-456", vin = "002")
-        val towable2 = it.manager.towables.create(plateNumber = "GHI-789", vin = "003")
-        val towable3 = it.manager.towables.create(plateNumber = "JKL-012", vin = "004")
-
-        val createdVehicle = it.manager.vehicles.create(
-            towableIds = arrayOf(towable1.id!!, towable2.id!!),
-            truckId = truck.id!!
-        )
-
-        val reorderedTowables = it.manager.vehicles.update(
-            existingVehicle = createdVehicle,
-            newVehicleData = Vehicle(
-                towableIds = arrayOf(towable2.id, towable1.id),
-                truckId = truck.id
-            )
-        )
-        assertEquals(2, reorderedTowables.towableIds.size)
-        assertEquals(towable2.id, reorderedTowables.towableIds[0])
-        assertEquals(towable1.id, reorderedTowables.towableIds[1])
-
-        val removedTowable = it.manager.vehicles.update(
-            existingVehicle = reorderedTowables,
-            newVehicleData = Vehicle(
-                towableIds = arrayOf(towable2.id),
-                truckId = truck.id
-            )
-        )
-        assertEquals(1, removedTowable.towableIds.size)
-        assertEquals(towable2.id, removedTowable.towableIds[0])
-
-        val differentTowables = it.manager.vehicles.update(
-            existingVehicle = removedTowable,
-            newVehicleData = Vehicle(
-                towableIds = arrayOf(towable3.id!!),
-                truckId = truck.id
-            )
-        )
-
-        assertEquals(1, differentTowables.towableIds.size)
-        assertEquals(towable3.id, differentTowables.towableIds[0])
-    }
-
-    @Test
     fun testArchiving() = createTestBuilder().use { builder ->
-        val createdTruck = builder.manager.trucks.create()
-        val createdVehicle = builder.manager.vehicles.create(
+        val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
+        val total = builder.manager.vehicles.list()
+        assertEquals(1, total.size)
+        val totalUnarchived = builder.manager.vehicles.list(archived = false)
+        assertEquals(1, totalUnarchived.size)
+
+        // Assign the truck to new vehicle
+        val newVehicle = builder.manager.vehicles.create(
             towableIds = emptyArray(),
             truckId = createdTruck.id!!
         )
-        var total = builder.manager.vehicles.list()
-        assertEquals(1, total.size)
+        assertNull(newVehicle.archivedAt)
 
-        //archiving
-        val archived = builder.manager.vehicles.update(
-            existingVehicle = createdVehicle,
-            newVehicleData = createdVehicle.copy(archivedAt = createdTruck.createdAt)
-        )
-        assertNotNull(archived.archivedAt)
-        total = builder.manager.vehicles.list()
-        assertEquals(0, total.size)
-        val totalUnarchived = builder.manager.vehicles.list(archived = false)
-        assertEquals(0, totalUnarchived.size)
+        // Check that truck is assigned to new vehicle
+        val foundReAssignedTruck = builder.manager.trucks.find(createdTruck.id)
+        assertEquals(newVehicle.id, foundReAssignedTruck.activeVehicleId)
+
+        // Check that we still have 1 active vehicle
+        val totalUnarchived1 = builder.manager.vehicles.list()
+        assertEquals(1, totalUnarchived1.size)
+
+        // Check that original vehicle assigned to truck got archived
         val totalArchived = builder.manager.vehicles.list(archived = true)
         assertEquals(1, totalArchived.size)
-
-        //cannot update archived data
-        builder.manager.vehicles.assertUpdateFail(
-            409,
-            createdVehicle.id!!,
-            archived
-        )
-
-        //can un-archive vehicle
-        val unarchived = builder.manager.vehicles.update(
-            existingVehicle = createdVehicle,
-            newVehicleData = createdVehicle.copy(archivedAt = null)
-        )
-        assertNull(unarchived.archivedAt)
-        total = builder.manager.vehicles.list()
-        assertEquals(1, total.size)
-    }
-
-    @Test
-    fun testUpdateFail() = createTestBuilder().use {
-        val truck = it.manager.trucks.create()
-        val towable1 = it.manager.towables.create(plateNumber = "DEF-456", vin = "002")
-        it.manager.towables.create(plateNumber = "GHI-789", vin = "003")
-        it.manager.towables.create(plateNumber = "JKL-012", vin = "004")
-
-        val createdVehicle = it.manager.vehicles.create(
-            towableIds = arrayOf(towable1.id!!),
-            truckId = truck.id!!
-        )
-
-        it.user.vehicles.assertUpdateFail(403, createdVehicle.id!!, Vehicle(truckId = truck.id, towableIds = arrayOf(towable1.id)))
-        it.driver.vehicles.assertUpdateFail(403, createdVehicle.id, Vehicle(truckId = truck.id, towableIds = arrayOf(towable1.id)))
-        assertNotNull(it.manager.vehicles.update(createdVehicle, Vehicle(truckId = truck.id, towableIds = arrayOf(towable1.id))))
-
-        InvalidValueTestScenarioBuilder(
-            path = "v1/vehicles/{vehicleId}",
-            method = Method.PUT,
-            token = it.manager.accessTokenProvider.accessToken,
-            basePath = ApiTestSettings.apiBasePath
-        )
-            .path(
-                InvalidValueTestScenarioPath(
-                    name = "vehicleId",
-                    values = InvalidValues.STRING_NOT_NULL,
-                    default = createdVehicle.id,
-                    expectedStatus = 404
-                )
-            )
-            .body(
-                InvalidValueTestScenarioBody(
-                    values = listOf(
-                        // invalid truck id
-                        InvalidTestValues.Vehicles.createVehicle(
-                            truckId = UUID.randomUUID(),
-                            towableIds = arrayOf(towable1.id)
-                        ),
-                        // invalid towable id
-                        InvalidTestValues.Vehicles.createVehicle(
-                            truckId = truck.id,
-                            towableIds = arrayOf(UUID.randomUUID())
-                        ),
-                    ),
-                    expectedStatus = 400
-                )
-            )
-            .build()
-            .test()
+        assertEquals(createdTruck.activeVehicleId, totalArchived[0].id)
     }
 
     @Test
     fun testDelete() = createTestBuilder().use {
-        val truck = it.manager.trucks.create()
+        val truck = it.manager.trucks.create(it.manager.vehicles)
 
         val createdVehicle = it.manager.vehicles.create(
             truckId = truck.id!!,
@@ -334,7 +233,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDeleteFail() = createTestBuilder().use {
-        val truck = it.manager.trucks.create()
+        val truck = it.manager.trucks.create(it.manager.vehicles)
 
         val createdVehicle = it.manager.vehicles.create(
             truckId = truck.id!!,

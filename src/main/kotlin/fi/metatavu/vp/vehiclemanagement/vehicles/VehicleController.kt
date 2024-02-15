@@ -7,6 +7,7 @@ import fi.metatavu.vp.vehiclemanagement.trucks.TruckRepository
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -59,6 +60,10 @@ class VehicleController {
      * @return created vehicle
      */
     suspend fun create(truck: Truck, towables: List<Towable>, userId: UUID): Vehicle {
+        // Archive the vehicles that became archived because their truck got reserved for this newly created one
+        val invalidVehicles = vehicleRepository.listByTruck(truck)
+        invalidVehicles.forEach { it.archivedAt = OffsetDateTime.now() }
+
         val createdVehicle = vehicleRepository.create(
             id = UUID.randomUUID(),
             truck = truck,

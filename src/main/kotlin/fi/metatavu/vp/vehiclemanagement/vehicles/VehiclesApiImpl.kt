@@ -47,15 +47,13 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
     override fun listVehicles(truckId: UUID?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val truckFilter = if (truckId != null) {
             truckController.findTruck(truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, truckId))
-        } else {
-            null
-        }
+        } else null
 
         val ( vehicles, count ) = vehicleController.listVehicles(truckFilter, archived, first, max)
         createOk(vehicleTranslator.translate(vehicles), count)
     }.asUni()
 
-    @RolesAllowed(MANAGER_ROLE)
+    @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     @WithTransaction
     override fun createVehicle(vehicle: Vehicle): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
@@ -66,8 +64,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
 
         val truck = truckController.findTruck(vehicle.truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, vehicle.truckId))
         val towables = vehicle.towableIds.map {
-            val towable = towableController.findTowable(it) ?: return@async createBadRequest(createNotFoundMessage(TOWABLE, it))
-            towable
+            towableController.findTowable(it) ?: return@async createBadRequest(createNotFoundMessage(TOWABLE, it))
         }
         val createdVehicle = vehicleController.create(
             truck = truck,
@@ -83,37 +80,6 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         val vehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
 
         createOk(vehicleTranslator.translate(vehicle))
-    }.asUni()
-
-    @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun updateVehicle(vehicleId: UUID, vehicle: Vehicle): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
-
-        isInvalidVehicle(vehicle)?.let {
-            return@async it
-        }
-
-        val foundVehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
-        if (foundVehicle.archivedAt != null && vehicle.archivedAt != null) {
-            return@async createConflict("Archived vehicle cannot be updated")
-        }
-
-        val newTruck = truckController.findTruck(vehicle.truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, vehicle.truckId))
-        val newTowables = vehicle.towableIds.map {
-            val towable = towableController.findTowable(it) ?: return@async createBadRequest(createNotFoundMessage(TOWABLE, it))
-            towable
-        }
-
-        val updatedVehicle = vehicleController.update(
-            existingVehicle = foundVehicle,
-            vehicleUpdateData = vehicle,
-            newTruck = newTruck,
-            newTowables = newTowables,
-            userId = userId
-        )
-
-        createOk(vehicleTranslator.translate(updatedVehicle))
     }.asUni()
 
     @RolesAllowed(MANAGER_ROLE)
