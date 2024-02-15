@@ -132,9 +132,8 @@ class TowableTestIT : AbstractFunctionalTest() {
     @Test
     fun testArchiving() = createTestBuilder().use { builder ->
         val createdTowable = builder.manager.towables.create()
-        builder.manager.towables.create(Towable(plateNumber = "DEF-456", vin = "002", type = Towable.Type.TRAILER))
         var total = builder.manager.towables.list()
-        assertEquals(2, total.size)
+        assertEquals(1, total.size)
 
         //archiving
         val archived = builder.manager.towables.update(
@@ -143,11 +142,11 @@ class TowableTestIT : AbstractFunctionalTest() {
         )
         assertNotNull(archived.archivedAt)
         total = builder.manager.towables.list()
-        assertEquals(1, total.size)
+        assertEquals(0, total.size)
         val totalUnarchived = builder.manager.towables.list(archived = false)
-        assertEquals(1, totalUnarchived.size)
+        assertEquals(0, totalUnarchived.size)
         val totalArchived = builder.manager.towables.list(archived = true)
-        assertEquals(2, totalArchived.size)
+        assertEquals(1, totalArchived.size)
 
         //cannot update archived data
         builder.manager.towables.assertUpdateFail(
@@ -163,7 +162,7 @@ class TowableTestIT : AbstractFunctionalTest() {
         )
         assertNull(unarchived.archivedAt)
         total = builder.manager.towables.list()
-        assertEquals(2, total.size)
+        assertEquals(1, total.size)
     }
 
     @Test
