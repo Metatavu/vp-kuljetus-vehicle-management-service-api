@@ -12,6 +12,7 @@ import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProf
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
@@ -171,6 +172,42 @@ class TruckTestIT : AbstractFunctionalTest() {
             towable.id,
             Towable(plateNumber = someNewNumber, type = Towable.Type.TRAILER, vin = truck2.vin)
         )
+    }
+
+    @Test
+    fun testArchiving() = createTestBuilder().use { builder ->
+        val createdTruck = builder.manager.trucks.create()
+        var total = builder.manager.trucks.list()
+        assertEquals(1, total.size)
+
+        //archiving
+        val archived = builder.manager.trucks.update(
+            truckId = createdTruck.id!!,
+            updateData = createdTruck.copy(archivedAt = createdTruck.createdAt)
+        )
+        assertNotNull(archived.archivedAt)
+        total = builder.manager.trucks.list()
+        assertEquals(0, total.size)
+        val totalUnarchived = builder.manager.trucks.list(archived = false)
+        assertEquals(0, totalUnarchived.size)
+        val totalArchived = builder.manager.trucks.list(archived = true)
+        assertEquals(1, totalArchived.size)
+
+        //cannot update archived data
+        builder.manager.trucks.assertUpdateFail(
+            409,
+            createdTruck.id,
+            archived
+        )
+
+        //can un-archive truck
+        val unarchived = builder.manager.trucks.update(
+            truckId = createdTruck.id,
+            updateData = archived.copy(archivedAt = null)
+        )
+        Assertions.assertNull(unarchived.archivedAt)
+        total = builder.manager.trucks.list()
+        assertEquals(1, total.size)
     }
 
     @Test

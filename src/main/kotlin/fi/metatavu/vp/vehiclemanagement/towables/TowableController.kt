@@ -47,12 +47,23 @@ class TowableController {
      * Lists towables
      *
      * @param plateNumber plate number
+     * @param archived archived
      * @param firstResult first result
      * @param maxResults max results
      * @return list of towables
      */
-    suspend fun listTowables(plateNumber: String?, firstResult: Int?, maxResults: Int?): Pair<List<Towable>, Long> {
-        return towableRepository.list(plateNumber = plateNumber, firstResult = firstResult, maxResults = maxResults)
+    suspend fun listTowables(
+        plateNumber: String?,
+        archived: Boolean?,
+        firstResult: Int?,
+        maxResults: Int?
+    ): Pair<List<Towable>, Long> {
+        return towableRepository.list(
+            plateNumber = plateNumber,
+            archived = archived,
+            firstResult = firstResult,
+            maxResults = maxResults
+        )
     }
 
     /**
@@ -68,6 +79,7 @@ class TowableController {
         userId: UUID
     ): Towable {
         existingTowable.plateNumber = newTowableData.plateNumber
+        existingTowable.archivedAt = newTowableData.archivedAt
         existingTowable.type = newTowableData.type
         existingTowable.vin = newTowableData.vin
         existingTowable.lastModifierId = userId

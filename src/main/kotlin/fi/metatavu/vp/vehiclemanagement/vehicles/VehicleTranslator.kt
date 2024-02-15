@@ -18,6 +18,7 @@ class VehicleTranslator : AbstractTranslator<Vehicle, fi.metatavu.vp.api.model.V
             id = entity.id,
             truckId = entity.truck.id!!,
             towableIds = vehicleTowableRepository.listByVehicle(entity).map { it.towable.id!! },
+            archivedAt = entity.archivedAt,
             createdAt = entity.createdAt,
             modifiedAt = entity.modifiedAt,
             lastModifierId = entity.lastModifierId,

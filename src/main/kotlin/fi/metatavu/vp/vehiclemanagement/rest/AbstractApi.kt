@@ -4,6 +4,7 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
+import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.jwt.JsonWebToken
 import java.util.*
 
@@ -15,11 +16,20 @@ import java.util.*
 
 abstract class AbstractApi {
 
+    @ConfigProperty(name = "vp.env")
+    private lateinit var environment: String
+
     @Inject
     private lateinit var jsonWebToken: JsonWebToken
 
     @Context
     lateinit var headers: HttpHeaders
+
+    /**
+     * Returns if production environment
+     */
+    protected val isProduction: Boolean
+        get() = environment == "PRODUCTION"
 
     /**
      * Returns logged user id

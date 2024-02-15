@@ -31,10 +31,23 @@ class VehicleController {
      * Lists vehicles
      *
      * @param truck truck
+     * @param archived archived
+     * @param first first
+     * @param max max
      * @return list of vehicles that contains the truck
      */
-    suspend fun listVehicles(truck: Truck?, first: Int? = null, max: Int? = null): Pair<List<Vehicle>, Long> {
-        return vehicleRepository.list(truck, first, max)
+    suspend fun listVehicles(truck: Truck?, archived: Boolean?, first: Int? = null, max: Int? = null): Pair<List<Vehicle>, Long> {
+        return vehicleRepository.list(truck, archived, first, max)
+    }
+
+    /**
+     * Lists vehicles
+     *
+     * @param truck truck
+     * @return list of vehicles that contains the truck
+     */
+    suspend fun listVehicles(truck: Truck?): List<Vehicle> {
+        return vehicleRepository.listByTruck(truck)
     }
 
     /**
@@ -80,13 +93,21 @@ class VehicleController {
      * Updates a vehicle
      *
      * @param existingVehicle existing vehicle
+     * @param vehicleUpdateData vehicle rest data
      * @param newTruck new truck
      * @param newTowables new towables
      * @param userId user id
      * @return updated vehicle
      */
-    suspend fun update(existingVehicle: Vehicle, newTruck: Truck, newTowables: List<Towable>, userId: UUID): Vehicle {
+    suspend fun update(
+        existingVehicle: Vehicle,
+        vehicleUpdateData: fi.metatavu.vp.api.model.Vehicle,
+        newTruck: Truck,
+        newTowables: List<Towable>,
+        userId: UUID
+    ): Vehicle {
         existingVehicle.truck = newTruck
+        existingVehicle.archivedAt = vehicleUpdateData.archivedAt
         existingVehicle.lastModifierId = userId
 
         //remove connection to towables

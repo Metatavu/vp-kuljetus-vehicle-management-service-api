@@ -228,6 +228,46 @@ class VehicleTestIT : AbstractFunctionalTest() {
     }
 
     @Test
+    fun testArchiving() = createTestBuilder().use { builder ->
+        val createdTruck = builder.manager.trucks.create()
+        val createdVehicle = builder.manager.vehicles.create(
+            towableIds = emptyArray(),
+            truckId = createdTruck.id!!
+        )
+        var total = builder.manager.vehicles.list()
+        assertEquals(1, total.size)
+
+        //archiving
+        val archived = builder.manager.vehicles.update(
+            existingVehicle = createdVehicle,
+            newVehicleData = createdVehicle.copy(archivedAt = createdTruck.createdAt)
+        )
+        assertNotNull(archived.archivedAt)
+        total = builder.manager.vehicles.list()
+        assertEquals(0, total.size)
+        val totalUnarchived = builder.manager.vehicles.list(archived = false)
+        assertEquals(0, totalUnarchived.size)
+        val totalArchived = builder.manager.vehicles.list(archived = true)
+        assertEquals(1, totalArchived.size)
+
+        //cannot update archived data
+        builder.manager.vehicles.assertUpdateFail(
+            409,
+            createdVehicle.id!!,
+            archived
+        )
+
+        //can un-archive vehicle
+        val unarchived = builder.manager.vehicles.update(
+            existingVehicle = createdVehicle,
+            newVehicleData = createdVehicle.copy(archivedAt = null)
+        )
+        assertNull(unarchived.archivedAt)
+        total = builder.manager.vehicles.list()
+        assertEquals(1, total.size)
+    }
+
+    @Test
     fun testUpdateFail() = createTestBuilder().use {
         val truck = it.manager.trucks.create()
         val towable1 = it.manager.towables.create(plateNumber = "DEF-456", vin = "002")

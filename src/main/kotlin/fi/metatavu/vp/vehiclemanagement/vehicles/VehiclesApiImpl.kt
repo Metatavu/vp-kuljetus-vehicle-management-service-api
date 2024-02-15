@@ -44,14 +44,14 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
     lateinit var vertx: Vertx
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listVehicles(truckId: UUID?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+    override fun listVehicles(truckId: UUID?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val truckFilter = if (truckId != null) {
             truckController.findTruck(truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, truckId))
         } else {
             null
         }
 
-        val ( vehicles, count ) = vehicleController.listVehicles(truckFilter, first, max)
+        val ( vehicles, count ) = vehicleController.listVehicles(truckFilter, archived, first, max)
         createOk(vehicleTranslator.translate(vehicles), count)
     }.asUni()
 
@@ -95,6 +95,10 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         }
 
         val foundVehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
+        if (foundVehicle.archivedAt != null && vehicle.archivedAt != null) {
+            return@async createConflict("Archived vehicle cannot be updated")
+        }
+
         val newTruck = truckController.findTruck(vehicle.truckId) ?: return@async createBadRequest(createNotFoundMessage(TRUCK, vehicle.truckId))
         val newTowables = vehicle.towableIds.map {
             val towable = towableController.findTowable(it) ?: return@async createBadRequest(createNotFoundMessage(TOWABLE, it))
@@ -103,6 +107,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
 
         val updatedVehicle = vehicleController.update(
             existingVehicle = foundVehicle,
+            vehicleUpdateData = vehicle,
             newTruck = newTruck,
             newTowables = newTowables,
             userId = userId
@@ -114,6 +119,7 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun deleteVehicle(vehicleId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        if (isProduction) return@async createForbidden(FORBIDDEN)
         val vehicle = vehicleController.find(vehicleId) ?: return@async createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
         vehicleController.delete(vehicle)
         createNoContent()

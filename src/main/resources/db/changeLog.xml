@@ -148,4 +148,15 @@
         <addNotNullConstraint tableName="Truck" columnName="vin" columnDataType="varchar(191)"/>
     </changeSet>
 
+    <changeSet id="archiving" author="katja danilova">
+        <addColumn tableName="Vehicle">
+            <column name="archivedat" type="datetime(6)"/>
+        </addColumn>
+        <addColumn tableName="Truck">
+            <column name="archivedat" type="datetime(6)"/>
+        </addColumn>
+        <addColumn tableName="Towable">
+            <column name="archivedat" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

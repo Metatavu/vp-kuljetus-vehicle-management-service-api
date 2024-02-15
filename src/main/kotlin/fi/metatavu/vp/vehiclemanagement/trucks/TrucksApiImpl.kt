@@ -67,8 +67,8 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     }.asUni()
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listTrucks(plateNumber: String?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val ( trucks, count ) = truckController.listTrucks(plateNumber, first, max)
+    override fun listTrucks(plateNumber: String?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        val ( trucks, count ) = truckController.listTrucks(plateNumber, archived, first, max)
         createOk(trucks.map { truckTranslator.translate(it) }, count)
     }.asUni()
 
@@ -82,6 +82,10 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         }
 
         val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+
+        if (existingTruck.archivedAt != null && truck.archivedAt != null) {
+            return@async createConflict("Archived truck cannot be updated")
+        }
 
         if (!vehicleController.isPlateNumberUnique(truck.plateNumber) && existingTruck.plateNumber != truck.plateNumber) {
             return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
@@ -99,8 +103,8 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
    @WithTransaction
    override fun deleteTruck(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
        val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-
-       val partOfVehicles = vehicleController.listVehicles(existingTruck).first
+       if (isProduction) return@async createForbidden(FORBIDDEN)
+       val partOfVehicles = vehicleController.listVehicles(existingTruck)
        if (partOfVehicles.isNotEmpty()) {
            return@async createBadRequest("Truck is part of a vehicle")
        }
