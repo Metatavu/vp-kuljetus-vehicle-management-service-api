@@ -58,6 +58,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 plateNumber = towable.plateNumber,
                 type = towable.type,
                 vin = towable.vin,
+                name = towable.name,
                 userId = userId
             )
             createOk(towableTranslator.translate(createdTruck))

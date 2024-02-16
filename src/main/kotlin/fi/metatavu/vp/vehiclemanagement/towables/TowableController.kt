@@ -19,15 +19,23 @@ class TowableController {
      * @param plateNumber plate number
      * @param type type
      * @param vin vin
+     * @param name name
      * @param userId user id
      * @return created towable
      */
-    suspend fun createTowable(plateNumber: String, type: fi.metatavu.vp.api.model.Towable.Type, vin: String, userId: UUID): Towable {
+    suspend fun createTowable(
+        plateNumber: String,
+        type: fi.metatavu.vp.api.model.Towable.Type,
+        vin: String,
+        name: String?,
+        userId: UUID
+    ): Towable {
         return towableRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,
             type = type,
             vin = vin,
+            name = name,
             creatorId = userId,
             lastModifierId = userId
         )
@@ -82,6 +90,7 @@ class TowableController {
         existingTowable.archivedAt = newTowableData.archivedAt
         existingTowable.type = newTowableData.type
         existingTowable.vin = newTowableData.vin
+        existingTowable.name = newTowableData.name
         existingTowable.lastModifierId = userId
         return towableRepository.persistSuspending(existingTowable)
     }

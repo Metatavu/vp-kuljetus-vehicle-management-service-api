@@ -19,6 +19,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
      * @param plateNumber plate number
      * @param type truck type
      * @param vin vin
+     * @param name name
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created truck
@@ -28,6 +29,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         plateNumber: String,
         type: fi.metatavu.vp.api.model.Truck.Type,
         vin: String,
+        name: String?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Truck {
@@ -36,6 +38,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         truck.plateNumber = plateNumber
         truck.type = type
         truck.vin = vin
+        truck.name = name
         truck.creatorId = creatorId
         truck.lastModifierId = lastModifierId
         return persistSuspending(truck)

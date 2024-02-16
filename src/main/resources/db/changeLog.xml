@@ -159,4 +159,13 @@
             <column name="archivedat" type="datetime(6)"/>
         </addColumn>
     </changeSet>
+
+    <changeSet id="add_name_to_truck_and_towable" author="Ville Juutila">
+        <addColumn tableName="Truck">
+            <column name="name" type="varchar(191)"/>
+        </addColumn>
+        <addColumn tableName="Towable">
+            <column name="name" type="varchar(191)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

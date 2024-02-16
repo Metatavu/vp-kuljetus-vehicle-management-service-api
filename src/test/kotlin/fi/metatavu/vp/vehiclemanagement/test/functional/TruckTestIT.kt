@@ -58,7 +58,13 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreate() = createTestBuilder().use { builder ->
-        val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK, vin = "someVinNumber", activeVehicleId = UUID.randomUUID())
+        val truckData = Truck(
+            plateNumber = plateNumber,
+            type = Truck.Type.TRUCK,
+            vin = "someVinNumber",
+            activeVehicleId = UUID.randomUUID(),
+            name = "Some truck"
+        )
         val createdTruck = builder.manager.trucks.create(truckData, builder.manager.vehicles)
         assertNotNull(createdTruck)
         assertNotNull(createdTruck.id)
@@ -66,6 +72,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         assertEquals(truckData.plateNumber, createdTruck.plateNumber)
         assertEquals(truckData.type, createdTruck.type)
         assertEquals(truckData.vin, createdTruck.vin)
+        assertEquals(truckData.name, createdTruck.name)
         val allVehicles = builder.manager.vehicles.list()
         assertEquals(1, allVehicles.size)
         assertEquals(createdTruck.activeVehicleId, allVehicles[0].id)
@@ -168,10 +175,13 @@ class TruckTestIT : AbstractFunctionalTest() {
             plateNumber = "DEF-456",
             type = Truck.Type.SEMI_TRUCK,
             vin = "someVinNumber",
-            activeVehicleId = UUID.randomUUID()
+            activeVehicleId = UUID.randomUUID(),
+            name = "Some truck"
         )
         val updatedTruck = builder.manager.trucks.update(truck1.id!!, updateData)
+        assertEquals(truck1.name, null)
         assertNotNull(updatedTruck)
+        assertEquals(updatedTruck.name, "Some truck")
         assertEquals(updateData.plateNumber, updatedTruck.plateNumber)
         assertEquals(updateData.type, updatedTruck.type)
         assertEquals(updateData.vin, updatedTruck.vin)

@@ -27,6 +27,9 @@ class Truck: Metadata() {
     @NotEmpty
     lateinit var vin: String
 
+    @Column(nullable = true)
+    var name: String? = null
+
     @Column
     var archivedAt: OffsetDateTime? = null
 

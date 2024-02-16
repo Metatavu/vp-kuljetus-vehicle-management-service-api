@@ -54,12 +54,18 @@ class TowableTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreate() = createTestBuilder().use { builder ->
-        val towableData = Towable(plateNumber = plateNumber, type = Towable.Type.TRAILER, vin = "someVinNumber")
+        val towableData = Towable(
+            plateNumber = plateNumber,
+            type = Towable.Type.TRAILER,
+            vin = "someVinNumber",
+            name = "Some towable"
+        )
         val createdTowable = builder.manager.towables.create(towableData)
         assertNotNull(createdTowable)
         assertEquals(towableData.plateNumber, createdTowable.plateNumber)
         assertEquals(towableData.type, createdTowable.type)
         assertEquals(towableData.vin, createdTowable.vin)
+        assertEquals(towableData.name, "Some towable")
         assertNotNull(createdTowable.id)
         assertNotNull(createdTowable.createdAt)
     }
@@ -122,8 +128,10 @@ class TowableTestIT : AbstractFunctionalTest() {
     @Test
     fun testUpdate() = createTestBuilder().use { builder ->
         val createdTowable = builder.manager.towables.create()
-        val updateData = Towable(plateNumber = "DEF-456", type = Towable.Type.DOLLY, vin = "updatedVin")
+        val updateData = Towable(plateNumber = "DEF-456", type = Towable.Type.DOLLY, vin = "updatedVin", name = "Updated towable name")
         val updatedTowable = builder.manager.towables.update(createdTowable.id!!, updateData)
+        assertNull(createdTowable.name)
+        assertEquals(updateData.name, "Updated towable name")
         assertEquals(updateData.plateNumber, updatedTowable.plateNumber)
         assertEquals(updateData.type, updatedTowable.type)
         assertEquals(updateData.vin, updatedTowable.vin)

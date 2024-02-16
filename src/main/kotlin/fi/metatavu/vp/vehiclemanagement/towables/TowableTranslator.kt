@@ -15,6 +15,7 @@ class TowableTranslator : AbstractTranslator<Towable, fi.metatavu.vp.api.model.T
             plateNumber = entity.plateNumber,
             vin = entity.vin,
             type = entity.type,
+            name = entity.name,
             archivedAt = entity.archivedAt,
             createdAt = entity.createdAt,
             modifiedAt = entity.modifiedAt,
