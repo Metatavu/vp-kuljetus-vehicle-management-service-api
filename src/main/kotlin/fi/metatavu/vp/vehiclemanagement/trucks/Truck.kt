@@ -27,7 +27,7 @@ class Truck: Metadata() {
     @NotEmpty
     lateinit var vin: String
 
-    @Column(nullable = true)
+    @Column
     var name: String? = null
 
     @Column
