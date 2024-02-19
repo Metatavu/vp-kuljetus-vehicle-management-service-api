@@ -28,6 +28,9 @@ class Towable : Metadata() {
     lateinit var vin: String
 
     @Column
+    var name: String? = null
+
+    @Column
     var archivedAt: OffsetDateTime? = null
 
     override lateinit var creatorId: UUID

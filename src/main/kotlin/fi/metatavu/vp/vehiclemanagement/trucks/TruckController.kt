@@ -27,15 +27,23 @@ class TruckController {
      * @param plateNumber plate number
      * @param type truck type
      * @param vin vin
+     * @param name name
      * @param userId user id
      * @return created truck
      */
-    suspend fun createTruck(plateNumber: String, type: fi.metatavu.vp.api.model.Truck.Type, vin: String, userId: UUID): Truck {
+    suspend fun createTruck(
+        plateNumber: String,
+        type: fi.metatavu.vp.api.model.Truck.Type,
+        vin: String,
+        name: String?,
+        userId: UUID
+    ): Truck {
         val truck = truckRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,
             type = type,
             vin = vin,
+            name = name,
             creatorId = userId,
             lastModifierId = userId
         )
@@ -99,6 +107,7 @@ class TruckController {
         existingTruck.archivedAt = newTruckData.archivedAt
         existingTruck.type = newTruckData.type
         existingTruck.vin = newTruckData.vin
+        existingTruck.name = newTruckData.name
         existingTruck.lastModifierId = userId
         return truckRepository.persistSuspending(existingTruck)
     }

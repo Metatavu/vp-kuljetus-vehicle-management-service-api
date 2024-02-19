@@ -28,6 +28,7 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
         plateNumber: String,
         type: fi.metatavu.vp.api.model.Towable.Type,
         vin: String,
+        name: String?,
         creatorId: UUID,
         lastModifierId: UUID
     ): Towable {
@@ -36,6 +37,7 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
         towable.plateNumber = plateNumber
         towable.type = type
         towable.vin = vin
+        towable.name = name
         towable.creatorId = creatorId
         towable.lastModifierId = lastModifierId
         return persistSuspending(towable)

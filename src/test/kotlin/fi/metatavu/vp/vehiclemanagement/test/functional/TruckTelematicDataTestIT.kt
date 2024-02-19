@@ -59,7 +59,7 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
     }
 
     @Test
-    fun testCreateFail() = createTestBuilder().use { builder ->
+    fun testCreateFail() = createTestBuilder().use {
         InvalidValueTestScenarioBuilder(
             path = "v1/telematics/{vin}",
             method = Method.POST,

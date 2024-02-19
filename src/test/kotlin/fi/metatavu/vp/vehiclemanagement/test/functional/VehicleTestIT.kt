@@ -120,11 +120,11 @@ class VehicleTestIT : AbstractFunctionalTest() {
                         // invalid truck id
                         InvalidTestValues.Vehicles.createVehicle(
                             truckId = UUID.randomUUID(),
-                            towableIds = arrayOf(towable1.id!!, towable2.id!!)
+                            towableIds = arrayOf(towable1.id, towable2.id)
                         ),
                         // invalid towable id
                         InvalidTestValues.Vehicles.createVehicle(
-                            truckId = truck1.id!!,
+                            truckId = truck1.id,
                             towableIds = arrayOf(UUID.randomUUID(), towable2.id)
                         ),
                         // duplicate towable id

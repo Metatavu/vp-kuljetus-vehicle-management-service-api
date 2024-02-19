@@ -54,6 +54,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             plateNumber = truck.plateNumber,
             type = truck.type,
             vin = truck.vin,
+            name = truck.name,
             userId = userId
         )
         createOk(truckTranslator.translate(createdTruck))
