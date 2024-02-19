@@ -54,15 +54,18 @@ class VehicleController {
     /**
      * Creates a new vehicle
      *
-     * @param truck truck
+     * @param truck truck for which vehicle is created
      * @param towables towables
      * @param userId user id
      * @return created vehicle
      */
     suspend fun create(truck: Truck, towables: List<Towable>, userId: UUID): Vehicle {
-        // Archive the vehicles that became archived because their truck got reserved for this newly created one
-        val invalidVehicles = vehicleRepository.listByTruck(truck)
-        invalidVehicles.forEach { it.archivedAt = OffsetDateTime.now() }
+        // Archive the vehicles that if their truck got reserved for this newly created one
+        val truckVehicles = vehicleRepository.listByTruck(truck)
+        truckVehicles.forEach {
+            it.archivedAt = OffsetDateTime.now()
+            vehicleRepository.persistSuspending(it)
+        }
 
         val createdVehicle = vehicleRepository.create(
             id = UUID.randomUUID(),
@@ -79,7 +82,6 @@ class VehicleController {
                 userId = userId
             )
         }
-        vehicleTowableRepository.flush().awaitSuspending()
 
         return createdVehicle
     }
