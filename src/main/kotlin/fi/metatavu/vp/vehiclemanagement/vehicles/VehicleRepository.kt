@@ -66,6 +66,19 @@ class VehicleRepository: AbstractRepository<Vehicle, UUID>() {
     }
 
     /**
+     * Finds the active vehicle for a truck
+     *
+     * @param truck truck
+     * @return active vehicle for the truck
+     */
+    suspend fun findActiveForTruck(truck: Truck): Vehicle? {
+        val query = "truck = :truck AND archivedAt IS NULL"
+        val parameters = Parameters()
+        parameters.and("truck", truck)
+        return find(query, parameters).firstResult<Vehicle>().awaitSuspending()
+    }
+
+    /**
      * Lists vehicles
      *
      * @param truck truck

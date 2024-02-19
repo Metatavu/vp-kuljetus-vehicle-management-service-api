@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
+import java.util.*
 
 /**
  * Test class for testing Trucks API
@@ -26,9 +27,9 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        builder.manager.trucks.create(plateNumber = plateNumber, vin = "001")
-        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002")
-        builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003")
+        builder.manager.trucks.create(plateNumber = plateNumber, vin = "001", builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002", builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003", builder.manager.vehicles)
         val totalList = builder.manager.trucks.list()
         assertEquals(3, totalList.size)
 
@@ -57,14 +58,17 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreate() = createTestBuilder().use { builder ->
-        val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK, vin = "someVinNumber")
-        val createdTruck = builder.manager.trucks.create(truckData)
+        val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK, vin = "someVinNumber", activeVehicleId = UUID.randomUUID())
+        val createdTruck = builder.manager.trucks.create(truckData, builder.manager.vehicles)
         assertNotNull(createdTruck)
         assertNotNull(createdTruck.id)
         assertNotNull(createdTruck.createdAt)
         assertEquals(truckData.plateNumber, createdTruck.plateNumber)
         assertEquals(truckData.type, createdTruck.type)
         assertEquals(truckData.vin, createdTruck.vin)
+        val allVehicles = builder.manager.vehicles.list()
+        assertEquals(1, allVehicles.size)
+        assertEquals(createdTruck.activeVehicleId, allVehicles[0].id)
 
         // We cannot create trucks or towables with already existing plate number
         builder.manager.trucks.assertCreateFail(400, createdTruck)
@@ -72,7 +76,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         // Same check for vin
         builder.manager.trucks.assertCreateFail(
             400,
-            Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin)
+            Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin, activeVehicleId = UUID.randomUUID())
         )
         builder.manager.towables.assertCreateFail(
             400,
@@ -82,7 +86,12 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testCreateFail() = createTestBuilder().use { builder ->
-        val truckData = Truck(plateNumber = plateNumber, type = Truck.Type.TRUCK, vin = "someVinNumber")
+        val truckData = Truck(
+            plateNumber = plateNumber,
+            type = Truck.Type.TRUCK,
+            vin = "someVinNumber",
+            activeVehicleId = UUID.randomUUID())
+
 
         builder.user.trucks.assertCreateFail(403, truckData)
         builder.driver.trucks.assertCreateFail(403, truckData)
@@ -105,15 +114,15 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFind() = createTestBuilder().use { builder ->
-        val truckData = Truck(plateNumber = plateNumber, vin = "001", type = Truck.Type.TRUCK)
-        val createdTruck = builder.manager.trucks.create(truckData)
+        val truckData = Truck(plateNumber = plateNumber, vin = "001", type = Truck.Type.TRUCK, activeVehicleId = UUID.randomUUID())
+        val createdTruck = builder.manager.trucks.create(truckData, builder.manager.vehicles)
         assertNotNull(createdTruck)
         assertEquals(truckData.plateNumber, createdTruck.plateNumber)
     }
 
     @Test
     fun testFindFail() = createTestBuilder().use { builder ->
-        val createdTruck = builder.manager.trucks.create()
+        val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
 
         builder.user.trucks.assertFindFail(403, createdTruck.id!!)
         assertNotNull(builder.driver.trucks.find(createdTruck.id))
@@ -138,10 +147,29 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdate() = createTestBuilder().use { builder ->
-        val truck1 = builder.manager.trucks.create(Truck(plateNumber = "0111", type = Truck.Type.SEMI_TRUCK, vin = "vin1"))
-        val truck2 = builder.manager.trucks.create(Truck(plateNumber = "0222", type = Truck.Type.SEMI_TRUCK, vin = "vin2"))
+        val truck1 = builder.manager.trucks.create(
+            Truck(
+                plateNumber = "0111",
+                type = Truck.Type.SEMI_TRUCK,
+                vin = "vin1",
+                activeVehicleId = UUID.randomUUID()
+            ), builder.manager.vehicles
+        )
+        val truck2 = builder.manager.trucks.create(
+            Truck(
+                plateNumber = "0222",
+                type = Truck.Type.SEMI_TRUCK,
+                vin = "vin2",
+                activeVehicleId = UUID.randomUUID()
+            ), builder.manager.vehicles
+        )
 
-        val updateData = Truck(plateNumber = "DEF-456", type = Truck.Type.SEMI_TRUCK, vin = "someVinNumber")
+        val updateData = Truck(
+            plateNumber = "DEF-456",
+            type = Truck.Type.SEMI_TRUCK,
+            vin = "someVinNumber",
+            activeVehicleId = UUID.randomUUID()
+        )
         val updatedTruck = builder.manager.trucks.update(truck1.id!!, updateData)
         assertNotNull(updatedTruck)
         assertEquals(updateData.plateNumber, updatedTruck.plateNumber)
@@ -165,7 +193,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         builder.manager.trucks.assertUpdateFail(
             400,
             truck1.id,
-            Truck(plateNumber = someNewNumber, type = Truck.Type.SEMI_TRUCK, vin = truck2.vin)
+            Truck(plateNumber = someNewNumber, type = Truck.Type.SEMI_TRUCK, vin = truck2.vin, activeVehicleId = UUID.randomUUID())
         )
         builder.manager.towables.assertUpdateFail(
             400,
@@ -176,7 +204,7 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testArchiving() = createTestBuilder().use { builder ->
-        val createdTruck = builder.manager.trucks.create()
+        val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
         var total = builder.manager.trucks.list()
         assertEquals(1, total.size)
 
@@ -212,7 +240,7 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testUpdateFail() = createTestBuilder().use { builder ->
-        val createdTruck = builder.manager.trucks.create()
+        val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
 
         builder.user.trucks.assertUpdateFail(403, createdTruck.id!!, createdTruck)
         builder.driver.trucks.assertUpdateFail(403, createdTruck.id, createdTruck)
@@ -243,14 +271,16 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testDelete() = createTestBuilder().use { builder ->
-        val createdTruck = builder.manager.trucks.create()
+        val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
+        builder.manager.vehicles.delete(createdTruck.activeVehicleId)
         builder.manager.trucks.delete(createdTruck.id!!)
         builder.manager.trucks.assertFindFail(404, createdTruck.id)
     }
 
     @Test
     fun testDeleteFail() = createTestBuilder().use { builder ->
-        val createdTruck = builder.manager.trucks.create()
+        val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
+        builder.manager.vehicles.delete(createdTruck.activeVehicleId)
 
         builder.user.trucks.assertDeleteFail(403, createdTruck.id!!)
         builder.driver.trucks.assertDeleteFail(403, createdTruck.id)

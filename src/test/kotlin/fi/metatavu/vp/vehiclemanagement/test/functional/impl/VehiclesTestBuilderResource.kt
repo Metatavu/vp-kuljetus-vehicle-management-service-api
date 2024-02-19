@@ -69,20 +69,6 @@ class VehiclesTestBuilderResource(
     }
 
     /**
-     * Updates vehicle
-     *
-     * @param existingVehicle existing vehicle
-     * @param newVehicleData new vehicle data
-     * @return updated vehicle
-     */
-    fun update(
-        existingVehicle: Vehicle,
-        newVehicleData: Vehicle
-    ): Vehicle {
-        return api.updateVehicle(existingVehicle.id!!, newVehicleData)
-    }
-
-    /**
      * Deletes a vehicle from the API
      *
      * @param vehicleId vehicle id
@@ -132,22 +118,6 @@ class VehiclesTestBuilderResource(
         try {
             api.listVehicles(vehicleId, archived, firstResult, maxResults)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
-        } catch (ex: ClientException) {
-            assertClientExceptionStatus(expectedStatus, ex)
-        }
-    }
-
-    /**
-     * Asserts that update operation fails with expected status
-     *
-     * @param expectedStatus expected status
-     * @param vehicleId vehicle id
-     * @param updateData update data
-     */
-    fun assertUpdateFail(expectedStatus: Int, vehicleId: UUID, updateData: Vehicle) {
-        try {
-            api.updateVehicle(vehicleId, updateData)
-            Assert.fail(String.format("Expected update to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }

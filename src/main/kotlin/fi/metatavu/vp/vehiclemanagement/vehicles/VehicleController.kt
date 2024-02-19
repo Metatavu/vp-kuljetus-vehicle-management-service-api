@@ -7,6 +7,7 @@ import fi.metatavu.vp.vehiclemanagement.trucks.TruckRepository
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -53,12 +54,19 @@ class VehicleController {
     /**
      * Creates a new vehicle
      *
-     * @param truck truck
+     * @param truck truck for which vehicle is created
      * @param towables towables
      * @param userId user id
      * @return created vehicle
      */
     suspend fun create(truck: Truck, towables: List<Towable>, userId: UUID): Vehicle {
+        // Archive the vehicles that if their truck got reserved for this newly created one
+        val truckVehicles = vehicleRepository.listByTruck(truck)
+        truckVehicles.forEach {
+            it.archivedAt = OffsetDateTime.now()
+            vehicleRepository.persistSuspending(it)
+        }
+
         val createdVehicle = vehicleRepository.create(
             id = UUID.randomUUID(),
             truck = truck,
@@ -74,7 +82,6 @@ class VehicleController {
                 userId = userId
             )
         }
-        vehicleTowableRepository.flush().awaitSuspending()
 
         return createdVehicle
     }
