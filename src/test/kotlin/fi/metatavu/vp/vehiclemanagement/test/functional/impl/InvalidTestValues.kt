@@ -30,10 +30,10 @@ class InvalidTestValues: InvalidValues() {
     class Trucks {
         companion object {
             val INVALID_TRUCKS = listOf(
-                Truck(plateNumber = "3", vin = "001", type = Truck.Type.TRUCK, activeVehicleId = UUID.randomUUID()),
-                Truck(plateNumber = "", vin = "001", type = Truck.Type.TRUCK, activeVehicleId = UUID.randomUUID()),
-                Truck(plateNumber = "hello*", vin = "001", type = Truck.Type.TRUCK, activeVehicleId = UUID.randomUUID()),
-                Truck(plateNumber = "platenumber", vin = "", type = Truck.Type.TRUCK, activeVehicleId = UUID.randomUUID())
+                Truck(plateNumber = "3", vin = "001", type = Truck.Type.TRUCK),
+                Truck(plateNumber = "", vin = "001", type = Truck.Type.TRUCK),
+                Truck(plateNumber = "hello*", vin = "001", type = Truck.Type.TRUCK),
+                Truck(plateNumber = "platenumber", vin = "", type = Truck.Type.TRUCK)
             ).map { jacksonObjectMapper().writeValueAsString(it) }.map { SimpleInvalidValueProvider(it) }
         }
     }

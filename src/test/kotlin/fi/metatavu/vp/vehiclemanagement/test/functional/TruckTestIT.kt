@@ -62,7 +62,6 @@ class TruckTestIT : AbstractFunctionalTest() {
             plateNumber = plateNumber,
             type = Truck.Type.TRUCK,
             vin = "someVinNumber",
-            activeVehicleId = UUID.randomUUID(),
             name = "Some truck"
         )
         val createdTruck = builder.manager.trucks.create(truckData, builder.manager.vehicles)
@@ -83,7 +82,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         // Same check for vin
         builder.manager.trucks.assertCreateFail(
             400,
-            Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin, activeVehicleId = UUID.randomUUID())
+            Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin)
         )
         builder.manager.towables.assertCreateFail(
             400,
@@ -96,8 +95,8 @@ class TruckTestIT : AbstractFunctionalTest() {
         val truckData = Truck(
             plateNumber = plateNumber,
             type = Truck.Type.TRUCK,
-            vin = "someVinNumber",
-            activeVehicleId = UUID.randomUUID())
+            vin = "someVinNumber"
+        )
 
 
         builder.user.trucks.assertCreateFail(403, truckData)
@@ -121,7 +120,7 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testFind() = createTestBuilder().use { builder ->
-        val truckData = Truck(plateNumber = plateNumber, vin = "001", type = Truck.Type.TRUCK, activeVehicleId = UUID.randomUUID())
+        val truckData = Truck(plateNumber = plateNumber, vin = "001", type = Truck.Type.TRUCK)
         val createdTruck = builder.manager.trucks.create(truckData, builder.manager.vehicles)
         assertNotNull(createdTruck)
         assertEquals(truckData.plateNumber, createdTruck.plateNumber)
@@ -158,16 +157,14 @@ class TruckTestIT : AbstractFunctionalTest() {
             Truck(
                 plateNumber = "0111",
                 type = Truck.Type.SEMI_TRUCK,
-                vin = "vin1",
-                activeVehicleId = UUID.randomUUID()
+                vin = "vin1"
             ), builder.manager.vehicles
         )
         val truck2 = builder.manager.trucks.create(
             Truck(
                 plateNumber = "0222",
                 type = Truck.Type.SEMI_TRUCK,
-                vin = "vin2",
-                activeVehicleId = UUID.randomUUID()
+                vin = "vin2"
             ), builder.manager.vehicles
         )
 
@@ -175,7 +172,6 @@ class TruckTestIT : AbstractFunctionalTest() {
             plateNumber = "DEF-456",
             type = Truck.Type.SEMI_TRUCK,
             vin = "someVinNumber",
-            activeVehicleId = UUID.randomUUID(),
             name = "Some truck"
         )
         val updatedTruck = builder.manager.trucks.update(truck1.id!!, updateData)
@@ -203,7 +199,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         builder.manager.trucks.assertUpdateFail(
             400,
             truck1.id,
-            Truck(plateNumber = someNewNumber, type = Truck.Type.SEMI_TRUCK, vin = truck2.vin, activeVehicleId = UUID.randomUUID())
+            Truck(plateNumber = someNewNumber, type = Truck.Type.SEMI_TRUCK, vin = truck2.vin)
         )
         builder.manager.towables.assertUpdateFail(
             400,
@@ -282,7 +278,7 @@ class TruckTestIT : AbstractFunctionalTest() {
     @Test
     fun testDelete() = createTestBuilder().use { builder ->
         val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
-        builder.manager.vehicles.delete(createdTruck.activeVehicleId)
+        builder.manager.vehicles.delete(createdTruck.activeVehicleId!!)
         builder.manager.trucks.delete(createdTruck.id!!)
         builder.manager.trucks.assertFindFail(404, createdTruck.id)
     }
@@ -290,7 +286,7 @@ class TruckTestIT : AbstractFunctionalTest() {
     @Test
     fun testDeleteFail() = createTestBuilder().use { builder ->
         val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
-        builder.manager.vehicles.delete(createdTruck.activeVehicleId)
+        builder.manager.vehicles.delete(createdTruck.activeVehicleId!!)
 
         builder.user.trucks.assertDeleteFail(403, createdTruck.id!!)
         builder.driver.trucks.assertDeleteFail(403, createdTruck.id)
