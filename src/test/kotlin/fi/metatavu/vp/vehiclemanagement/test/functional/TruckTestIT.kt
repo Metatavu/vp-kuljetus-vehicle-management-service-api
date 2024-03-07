@@ -282,7 +282,7 @@ class TruckTestIT : AbstractFunctionalTest() {
     @Test
     fun testDelete() = createTestBuilder().use { builder ->
         val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
-        builder.manager.vehicles.delete(createdTruck.activeVehicleId)
+        builder.manager.vehicles.delete(createdTruck.activeVehicleId!!)
         builder.manager.trucks.delete(createdTruck.id!!)
         builder.manager.trucks.assertFindFail(404, createdTruck.id)
     }
@@ -290,7 +290,7 @@ class TruckTestIT : AbstractFunctionalTest() {
     @Test
     fun testDeleteFail() = createTestBuilder().use { builder ->
         val createdTruck = builder.manager.trucks.create(builder.manager.vehicles)
-        builder.manager.vehicles.delete(createdTruck.activeVehicleId)
+        builder.manager.vehicles.delete(createdTruck.activeVehicleId!!)
 
         builder.user.trucks.assertDeleteFail(403, createdTruck.id!!)
         builder.driver.trucks.assertDeleteFail(403, createdTruck.id)

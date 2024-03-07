@@ -20,7 +20,7 @@ class TruckTranslator : AbstractTranslator<Truck, fi.metatavu.vp.api.model.Truck
             plateNumber = entity.plateNumber,
             vin = entity.vin,
             type = entity.type,
-            activeVehicleId = vehicleRepository.findActiveForTruck(entity)!!.id!!,
+            activeVehicleId = vehicleRepository.findActiveForTruck(entity)?.id,
             name = entity.name,
             archivedAt = entity.archivedAt,
             createdAt = entity.createdAt,
