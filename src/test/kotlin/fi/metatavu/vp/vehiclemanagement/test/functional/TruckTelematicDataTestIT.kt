@@ -35,8 +35,8 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
             Truck(
                 plateNumber = "ABC-124",
                 type = Truck.Type.SEMI_TRUCK,
-                vin = "0001",
-                activeVehicleId = UUID.randomUUID()),
+                vin = "0001"
+            ),
             it.manager.vehicles
         )
 

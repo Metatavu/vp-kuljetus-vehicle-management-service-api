@@ -34,6 +34,7 @@ class TrucksTestBuilderResource(
         val createdTruck = api.createTruck(truck)
         // Create "fake" vehicle with the id of the one that got
         // auto-created by the truck and mark it as closable resource
+        // (since vehicle is automatically created for a new truck in the API)
         val createdVehicle = Vehicle(
             id = createdTruck.activeVehicleId,
             truckId = createdTruck.id!!,
@@ -52,8 +53,7 @@ class TrucksTestBuilderResource(
         return create(Truck(
             plateNumber = plateNumber,
             vin = vin,
-            type = Truck.Type.TRUCK,
-            activeVehicleId = UUID.randomUUID()
+            type = Truck.Type.TRUCK
         ), vehiclesTestBuilderResource)
     }
 
