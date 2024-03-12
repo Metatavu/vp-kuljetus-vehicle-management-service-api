@@ -68,6 +68,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
             addCondition(sb, "archivedAt IS NOT NULL")
         }
 
+        sb.append("ORDER BY createdAt DESC")
         return applyFirstMaxToQuery(
             query = find(sb.toString(), parameters),
             firstIndex = firstResult,

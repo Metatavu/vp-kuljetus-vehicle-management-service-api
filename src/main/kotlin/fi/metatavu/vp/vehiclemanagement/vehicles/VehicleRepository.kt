@@ -58,6 +58,7 @@ class VehicleRepository: AbstractRepository<Vehicle, UUID>() {
             addCondition(stringBuilder, "archivedAt IS NOT NULL")
         }
 
+        stringBuilder.append("ORDER BY createdAt DESC")
         return applyFirstMaxToQuery(
             query = find(stringBuilder.toString(), parameters),
             firstIndex = first,
@@ -93,6 +94,7 @@ class VehicleRepository: AbstractRepository<Vehicle, UUID>() {
             parameters.and("truck", truck)
         }
 
+        stringBuilder.append("ORDER BY createdAt DESC")
         return find(stringBuilder.toString(), parameters).list<Vehicle>().awaitSuspending()
     }
 
