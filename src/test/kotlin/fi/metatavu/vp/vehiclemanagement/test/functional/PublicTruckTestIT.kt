@@ -15,26 +15,26 @@ class PublicTruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        val createdTruck = builder.anon.trucks.create(plateNumber = plateNumber, vin = "001", builder.manager.vehicles)
-        builder.anon.trucks.create(plateNumber = "DEF-456", vin = "002", builder.manager.vehicles)
-        builder.anon.trucks.create(plateNumber = "GHI-789", vin = "003", builder.manager.vehicles)
-        val totalList = builder.manager.publicTrucks.list()
+        val createdTruck = builder.manager.trucks.create(plateNumber = plateNumber, vin = "001", builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002", builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003", builder.manager.vehicles)
+        val totalList = builder.anon.publicTrucks.list()
         assertEquals(3, totalList.size)
         val truck1 = totalList.find { it.vin == "001" }
         assertEquals(createdTruck.plateNumber, truck1!!.plateNumber)
         assertEquals(createdTruck.vin, truck1.vin)
         assertEquals(createdTruck.name, truck1.name)
 
-        val pagedList = builder.manager.publicTrucks.list(first = 1, max = 1)
+        val pagedList = builder.anon.publicTrucks.list(first = 1, max = 1)
         assertEquals(1, pagedList.size)
 
-        val pagedList2 = builder.manager.publicTrucks.list(first = 0, max = 3)
+        val pagedList2 = builder.anon.publicTrucks.list(first = 0, max = 3)
         assertEquals(3, pagedList2.size)
 
-        val pagedList3 = builder.manager.publicTrucks.list(first = 0, max = 2)
+        val pagedList3 = builder.anon.publicTrucks.list(first = 0, max = 2)
         assertEquals(2, pagedList3.size)
 
-        val pagedList4 = builder.manager.publicTrucks.list(first = 0, max = 0)
+        val pagedList4 = builder.anon.publicTrucks.list(first = 0, max = 0)
         assertEquals(0, pagedList4.size)
 
     }
