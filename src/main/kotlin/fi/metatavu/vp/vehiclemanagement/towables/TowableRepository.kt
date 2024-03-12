@@ -67,6 +67,7 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
             addCondition(stringBuilder, "archivedAt IS NOT NULL")
         }
 
+        stringBuilder.append("ORDER BY createdAt DESC")
         return applyFirstMaxToQuery(
             query = find(stringBuilder.toString(), parameters),
             firstIndex = firstResult,
