@@ -36,8 +36,9 @@ class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenT
      * @param apiKey device key
      * @return authorized client
      */
-    fun setApiKey(apiKey: String?): TestBuilderAuthentication {
-        return TestBuilderAuthentication(this, NullAccessTokenProvider(), apiKey)
+    fun setApiKey(apiKey: String? = null): TestBuilderAuthentication {
+        val key = apiKey ?: "test-api-key"
+        return TestBuilderAuthentication(this, NullAccessTokenProvider(), key)
     }
     
     /**

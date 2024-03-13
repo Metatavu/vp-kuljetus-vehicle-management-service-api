@@ -19,6 +19,9 @@ abstract class AbstractApi {
     @ConfigProperty(name = "vp.env")
     private lateinit var environment: String
 
+    @ConfigProperty(name = "vp.vehiclemanagement.telematics.apiKey")
+    lateinit var apiKey: String
+
     @Inject
     private lateinit var jsonWebToken: JsonWebToken
 

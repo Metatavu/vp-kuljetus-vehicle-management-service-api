@@ -168,4 +168,18 @@
             <column name="name" type="varchar(191)"/>
         </addColumn>
     </changeSet>
+
+    <changeSet id="driver_cards" author="katja danilova">
+        <createTable tableName="DriverCard">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="drivercardid" type="varchar(191)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="truckvin" type="varchar(191)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
