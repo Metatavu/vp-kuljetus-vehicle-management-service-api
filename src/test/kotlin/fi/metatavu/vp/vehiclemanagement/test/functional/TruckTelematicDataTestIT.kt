@@ -40,7 +40,7 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
             it.manager.vehicles
         )
 
-        it.setApiKey("test-api-key").telematics.receiveTelematicData(
+        it.setApiKey().telematics.receiveTelematicData(
             vin = truck.vin,
             telematicData = temelaticData
         )
@@ -51,7 +51,7 @@ class TruckTelematicDataTestIT : AbstractFunctionalTest() {
             expectedStatus = 403
         )
 
-        it.setApiKey(null).telematics.assertReceiveDataFail(
+        it.setApiKey("").telematics.assertReceiveDataFail(
             vin = truck.vin,
             telematicData = temelaticData,
             expectedStatus = 403

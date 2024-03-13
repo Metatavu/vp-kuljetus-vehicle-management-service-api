@@ -25,9 +25,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 @WithSession
 class TelematicsApiImpl : TelematicsApi, AbstractApi() {
 
-    @ConfigProperty(name = "vp.vehiclemanagement.telematics.apiKey")
-    lateinit var apiKey: String
-
     @Inject
     lateinit var telematicsController: TelematicsController
 
