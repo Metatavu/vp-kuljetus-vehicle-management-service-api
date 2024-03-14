@@ -4,6 +4,7 @@ import fi.metatavu.vp.api.model.DriverCard
 import fi.metatavu.vp.api.spec.DriverCardsApi
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckController
+import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asUni
@@ -18,6 +19,7 @@ import kotlinx.coroutines.async
  * Driver card API implementation, implements inserting the cards into the truck device
  */
 @RequestScoped
+@WithSession
 class DriverCardApiImpl: DriverCardsApi, AbstractApi() {
 
     @Inject
@@ -31,6 +33,15 @@ class DriverCardApiImpl: DriverCardsApi, AbstractApi() {
 
     @Inject
     lateinit var vertx: io.vertx.core.Vertx
+    override fun listDriverCards(truckVin: String): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        if (requestApiKey != apiKey) {
+            return@async createForbidden("Invalid api key")
+        }
+
+        val cards = driverCardController.listDriverCards(truckVin)
+
+        createOk(cards.map { driverCardTranslator.translate(it) })
+    }.asUni()
 
     @WithTransaction
     override fun updateDriverCard(driverCardId: String, driverCard: DriverCard): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
