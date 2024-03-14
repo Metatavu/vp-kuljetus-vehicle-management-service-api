@@ -1,32 +1,185 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
-
-    <changeSet id="examples" author="jari.nykanen">
-        <createTable tableName="example">
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+		http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+    <changeSet id="truck" author="katja.danilova">
+        <createTable tableName="Truck">
             <column name="id" type="binary(16)">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="name" type="varchar(191)">
+            <column name="platenumber" type="varchar(191)">
                 <constraints nullable="false"/>
             </column>
-            <column name="amount" type="int">
+
+            <column name="creatorId" type="binary(16)">
                 <constraints nullable="false"/>
             </column>
-            <column name="createdat" type="datetime(6)">
+            <column name="createdAt" type="datetime(6)">
                 <constraints nullable="false"/>
             </column>
-            <column name="modifiedat" type="datetime(6)">
+            <column name="lastModifierId" type="binary(16)">
                 <constraints nullable="false"/>
             </column>
-            <column name="creatorid" type="binary(16)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="lastmodifierid" type="binary(16)">
+            <column name="modifiedAt" type="datetime(6)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
     </changeSet>
 
+    <changeSet id="towables" author="katja.danilova">
+        <createTable tableName="Towable">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="platenumber" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="creatorId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastModifierId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="vehicles" author="katja danilova">
+        <createTable tableName="Vehicle">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="truck_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_VEHICLE_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
+            </column>
+
+            <column name="creatorId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="createdAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lastModifierId" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="VehicleTowable">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+           <column name="vehicle_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TOWAVLETOVEHICLE_VEHICLE_ID" referencedColumnNames="id" referencedTableName="Vehicle"/>
+            </column>
+            <column name="towable_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TOWBLETORVEHICLE_TOWABLE_ID" referencedColumnNames="id" referencedTableName="Towable"/>
+            </column>
+            <column name="ordernumber" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="truck_type" author="katja_danilova">
+        <addColumn tableName="Truck">
+            <column name="type" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="unique_plate_numbers" author="katja_danilova">
+        <addUniqueConstraint tableName="Towable" columnNames="platenumber"/>
+        <addUniqueConstraint tableName="Truck" columnNames="platenumber"/>
+    </changeSet>
+
+    <changeSet id="telematics" author="katja danilova">
+        <addColumn tableName="Towable">
+            <column name="vin" type="varchar(191)"/>
+        </addColumn>
+        <addColumn tableName="Truck">
+            <column name="vin" type="varchar(191)"/>
+        </addColumn>
+
+        <createTable tableName="TruckTelematicData">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="truck_id" type="binary(16)">
+                <constraints foreignKeyName="FK_TELEMATICS_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
+            </column>
+            <column name="towable_id" type="binary(16)">
+                <constraints foreignKeyName="FK_TELEMATICS_TOWABLE_ID" referencedColumnNames="id" referencedTableName="Towable"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="imei" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="speed" type="float">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+   <changeSet id="required_vin" author="katja danilova">
+        <addNotNullConstraint tableName="Towable" columnName="vin" columnDataType="varchar(191)"/>
+        <addNotNullConstraint tableName="Truck" columnName="vin" columnDataType="varchar(191)"/>
+    </changeSet>
+
+    <changeSet id="archiving" author="katja danilova">
+        <addColumn tableName="Vehicle">
+            <column name="archivedat" type="datetime(6)"/>
+        </addColumn>
+        <addColumn tableName="Truck">
+            <column name="archivedat" type="datetime(6)"/>
+        </addColumn>
+        <addColumn tableName="Towable">
+            <column name="archivedat" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="add_name_to_truck_and_towable" author="Ville Juutila">
+        <addColumn tableName="Truck">
+            <column name="name" type="varchar(191)"/>
+        </addColumn>
+        <addColumn tableName="Towable">
+            <column name="name" type="varchar(191)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="driver_cards" author="katja danilova">
+        <createTable tableName="DriverCard">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="drivercardid" type="varchar(191)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="truckvin" type="varchar(191)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+    </changeSet>
 </databaseChangeLog>
