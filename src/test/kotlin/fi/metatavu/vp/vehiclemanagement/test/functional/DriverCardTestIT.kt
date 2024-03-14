@@ -11,7 +11,7 @@ import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProf
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
-import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 
@@ -42,15 +42,15 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             driverCardId = driverCardData.driverCardId,
             driverCard = driverCardData
         )
-        Assertions.assertEquals(driverCardData.driverCardId, created.driverCardId)
-        Assertions.assertEquals(driverCardData.truckVin, created.truckVin)
+        assertEquals(driverCardData.driverCardId, created.driverCardId)
+        assertEquals(driverCardData.truckVin, created.truckVin)
 
         val updated = it.setApiKey().driverCards.updateDriverCard(
             driverCardId = driverCardData.driverCardId,
             driverCard = driverCardData.copy(truckVin = truck2.vin)
         )
-        Assertions.assertEquals(driverCardData.driverCardId, updated.driverCardId)
-        Assertions.assertEquals(truck2.vin, updated.truckVin)
+        assertEquals(driverCardData.driverCardId, updated.driverCardId)
+        assertEquals(truck2.vin, updated.truckVin)
 
         // Access rights
         it.setApiKey("invalid").driverCards.assertReceiveDataFail(
@@ -82,5 +82,61 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             )
             .build()
             .test()
+    }
+
+    @Test
+    fun listDriverCards() = createTestBuilder().use {
+        val truck = it.manager.trucks.create(
+            Truck(
+                plateNumber = "ABC-124",
+                type = Truck.Type.SEMI_TRUCK,
+                vin = "vin1"
+            ),
+            it.manager.vehicles)
+        val truck2 = it.manager.trucks.create(
+            Truck(
+                plateNumber = "ABC-125",
+                type = Truck.Type.SEMI_TRUCK,
+                vin = "vin2"
+            ),
+            it.manager.vehicles
+        )
+
+        val driverCardData = DriverCard(
+            driverCardId = "driverCardId",
+            truckVin = truck.vin
+        )
+        it.setApiKey().driverCards.updateDriverCard(
+            driverCardId = driverCardData.driverCardId,
+            driverCard = driverCardData
+        )
+
+        val driverCardData2 = DriverCard(
+            driverCardId = "driverCardId2",
+            truckVin = truck2.vin
+        )
+        it.setApiKey().driverCards.updateDriverCard(
+            driverCardId = driverCardData2.driverCardId,
+            driverCard = driverCardData2
+        )
+
+        val list = it.setApiKey().driverCards.listDriverCards(truck.vin)
+        assertEquals(1, list.size)
+        assertEquals(driverCardData.driverCardId, list[0].driverCardId)
+        assertEquals(driverCardData.truckVin, list[0].truckVin)
+
+        val list2 = it.setApiKey().driverCards.listDriverCards(truck2.vin)
+        assertEquals(1, list2.size)
+        assertEquals(driverCardData2.driverCardId, list2[0].driverCardId)
+        assertEquals(driverCardData2.truckVin, list2[0].truckVin)
+
+        val emptyList = it.setApiKey().driverCards.listDriverCards("invalid")
+        assertEquals(0, emptyList.size)
+
+        // Access rights
+        it.setApiKey("invalid").driverCards.assertListDriverCardsFail(
+            vin = truck.vin,
+            expectedStatus = 403
+        )
     }
 }

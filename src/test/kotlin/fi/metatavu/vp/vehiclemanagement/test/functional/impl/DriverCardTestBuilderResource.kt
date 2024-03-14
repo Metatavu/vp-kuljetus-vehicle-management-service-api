@@ -3,6 +3,7 @@ package fi.metatavu.vp.vehiclemanagement.test.functional.impl
 import fi.metatavu.vp.test.client.apis.DriverCardsApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
+import fi.metatavu.vp.test.client.models.DriverCard
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import org.junit.Assert
@@ -49,6 +50,31 @@ class DriverCardTestBuilderResource(
         try {
             api.updateDriverCard(driverCardId, driverCard)
             Assert.fail(String.format("Expected update to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Lists driver cards
+     *
+     * @param vin truck vin
+     * @return list of driver cards
+     */
+    fun listDriverCards(vin: String): Array<DriverCard> {
+        return api.listDriverCards(vin)
+    }
+
+    /**
+     * Asserts that the list of driver cards could not be retrieved
+     *
+     * @param vin truck vin
+     * @param expectedStatus expected status
+     */
+    fun assertListDriverCardsFail(vin: String, expectedStatus: Int) {
+        try {
+            api.listDriverCards(vin)
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }

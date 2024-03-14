@@ -14,6 +14,17 @@ class DriverCardController {
     lateinit var driverCardRepository: DriverCardRepository
 
     /**
+     * Lists driver cards
+     *
+     * @param truckVin truck vin
+     * @return list of driver cards
+     */
+    suspend fun listDriverCards(truckVin: String): List<DriverCard> {
+        return driverCardRepository.list("truckVin", truckVin)
+            .awaitSuspending()
+    }
+
+    /**
      * Creates driver card
      *
      * @param driverCardId driver card id
