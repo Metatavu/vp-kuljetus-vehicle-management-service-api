@@ -119,6 +119,19 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
     }
 
     /**
+     * Applies count to query
+     *
+     * @param query find query
+     * @return entities
+     */
+    open suspend fun applyCountToQuery(
+        query: PanacheQuery<Entity>,
+    ): Pair<List<Entity>, Long> {
+        val count = query.count().awaitSuspending()
+        return Pair(query.list<Entity>().awaitSuspending(), count)
+    }
+
+    /**
      * Finds entity by id
      *
      * @param id id
