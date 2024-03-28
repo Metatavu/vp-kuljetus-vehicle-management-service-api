@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicDataRepository
+import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -20,6 +21,9 @@ class TruckController {
 
     @Inject
     lateinit var vehicleController: VehicleController
+
+    @Inject
+    lateinit var driverCardController: DriverCardController
 
     /**
      * Creates new truck and a vehicle that is attached to it.
@@ -118,6 +122,9 @@ class TruckController {
      * @param truck truck to be deleted
      */
     suspend fun deleteTruck(truck: Truck) {
+        driverCardController.listDriverCards(truck).first.forEach {
+            driverCardController.deleteDriverCard(it)
+        }
         truckTelematicDataRepository.listByTruck(truck).forEach {
             truckTelematicDataRepository.deleteSuspending(it)
         }

@@ -182,4 +182,13 @@
             </column>
         </createTable>
     </changeSet>
+
+    <changeSet id="driver_card_changes" author="katja danilova">
+        <dropColumn tableName="DriverCard" columnName="truckvin"/>
+        <addColumn tableName="DriverCard">
+            <column name="truck_id" type="binary(16)">
+                <constraints foreignKeyName="FK_DRIVERCARD_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

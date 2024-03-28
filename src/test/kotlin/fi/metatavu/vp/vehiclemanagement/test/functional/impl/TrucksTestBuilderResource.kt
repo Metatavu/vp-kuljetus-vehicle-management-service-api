@@ -5,6 +5,7 @@ import fi.metatavu.vp.test.client.apis.TrucksApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.models.Truck
+import fi.metatavu.vp.test.client.models.TruckDriverCard
 import fi.metatavu.vp.test.client.models.Vehicle
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
@@ -17,6 +18,7 @@ import java.util.*
 class TrucksTestBuilderResource(
     testBuilder: TestBuilder,
     private val accessTokenProvider: AccessTokenProvider?,
+    private val apiKey: String?,
     apiClient: ApiClient
 ) : ApiTestBuilderResource<Truck, ApiClient>(testBuilder, apiClient) {
 
@@ -177,11 +179,92 @@ class TrucksTestBuilderResource(
         }
     }
 
+    /**
+     * Creates driver card
+     *
+     * @param truckId truck id
+     * @param truckDriverCard driver card data
+     * @return created driver card
+     */
+    fun createDriverCard(truckId: UUID, truckDriverCard: TruckDriverCard): TruckDriverCard {
+        return api.createTruckDriverCard(truckId, truckDriverCard)
+    }
+
+    /**
+     * Asserts that the driver card could not be created
+     *
+     * @param truckId truck id
+     * @param truckDriverCard driver card data
+     * @param expectedStatus expected status
+     */
+    fun assertCreateDriverCardFail(truckId: UUID, truckDriverCard: TruckDriverCard, expectedStatus: Int) {
+        try {
+            api.createTruckDriverCard(truckId, truckDriverCard)
+            Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Deletes driver card
+     *
+     * @param truckId truck id
+     * @param driverCardId driver card id
+     */
+    fun deleteTruckDriverCard(truckId: UUID, driverCardId: String) {
+        api.deleteTruckDriverCard(truckId, driverCardId)
+    }
+
+    /**
+     * Asserts that the driver card could not be deleted
+     *
+     * @param truckId truck id
+     * @param driverCardId driver card id
+     * @param expectedStatus expected status
+     */
+    fun assertDeleteDriverCardFail(truckId: UUID, driverCardId: String, expectedStatus: Int) {
+        try {
+            api.deleteTruckDriverCard(truckId, driverCardId)
+            Assert.fail(String.format("Expected delete to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Lists driver cards
+     *
+     * @param truckId truck id
+     * @return list of driver cards
+     */
+    fun listDriverCards(truckId: UUID): Array<TruckDriverCard> {
+        return api.listTruckDriverCards(truckId)
+    }
+
+    /**
+     * Asserts that the list of driver cards could not be retrieved
+     *
+     * @param truckId truck id
+     * @param expectedStatus expected status
+     */
+    fun assertListDriverCardsFail(truckId: UUID, expectedStatus: Int) {
+        try {
+            api.listTruckDriverCards(truckId)
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
     override fun clean(p0: Truck?) {
         api.deleteTruck(p0?.id!!)
     }
 
     override fun getApi(): TrucksApi {
+        if (apiKey != null) {
+            ApiClient.apiKey["X-API-Key"] = apiKey
+        }
         ApiClient.accessToken = accessTokenProvider?.accessToken
         return TrucksApi(ApiTestSettings.apiBasePath)
     }

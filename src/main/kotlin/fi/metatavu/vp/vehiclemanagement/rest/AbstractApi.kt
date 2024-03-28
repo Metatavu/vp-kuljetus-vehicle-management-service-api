@@ -226,6 +226,11 @@ abstract class AbstractApi {
         return "$entity with id $id not found"
     }
 
+    fun createNotFoundMessage(entity: String, id: String): String {
+        return "$entity with id $id not found"
+    }
+
+
     companion object {
         const val NOT_FOUND_MESSAGE = "Not found"
         const val UNAUTHORIZED = "Unauthorized"
@@ -235,10 +240,12 @@ abstract class AbstractApi {
         const val INVALID_VIN = "Invalid vin"
         const val NOT_UNIQUE_PLATE_NUMBER = "Plate number is not unique"
         const val NOT_UNIQUE_VIN = "vin is not unique"
+        const val INVALID_API_KEY = "Invalid API key"
 
         const val TRUCK = "Truck"
         const val TOWABLE = "Towable"
         const val VEHICLE = "Vehicle"
+        const val DRIVER_CARD = "Driver card"
 
         const val DRIVER_ROLE = "driver"
         const val MANAGER_ROLE = "manager"
