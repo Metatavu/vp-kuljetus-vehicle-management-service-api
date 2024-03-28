@@ -1,5 +1,6 @@
-package fi.metatavu.vp.vehiclemanagement.drivercards
+package fi.metatavu.vp.vehiclemanagement.trucks.drivercards
 
+import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -16,25 +17,24 @@ class DriverCardController {
     /**
      * Lists driver cards
      *
-     * @param truckVin truck vin
+     * @param truck truck
      * @return list of driver cards
      */
-    suspend fun listDriverCards(truckVin: String): List<DriverCard> {
-        return driverCardRepository.list("truckVin", truckVin)
-            .awaitSuspending()
+    suspend fun listDriverCards(truck: Truck): Pair<List<DriverCard>, Long> {
+        return driverCardRepository.list(truck)
     }
 
     /**
      * Creates driver card
      *
      * @param driverCardId driver card id
-     * @param driverCard driver card data
+     * @param truck truck
      * @return created driver card
      */
-    suspend fun createDriverCard(driverCardId: String, driverCard: fi.metatavu.vp.api.model.DriverCard): DriverCard {
+    suspend fun createDriverCard(driverCardId: String, truck: Truck): DriverCard {
         return driverCardRepository.create(
             driverCardId = driverCardId,
-            truckVin = driverCard.truckVin
+            truck = truck
         )
     }
 
@@ -51,15 +51,13 @@ class DriverCardController {
     }
 
     /**
-     * Updates driver card
+     * Deletes driver card
      *
-     * @param existingCard existing driver card
-     * @param driverCard driver card data
-     * @return updated driver card
+     * @param driverCard driver card to delete
+     * @return deleted driver card
      */
-    suspend fun updateDriverCard(existingCard: DriverCard, driverCard: fi.metatavu.vp.api.model.DriverCard): DriverCard {
-        existingCard.truckVin = driverCard.truckVin
-        return driverCardRepository.persist(existingCard).awaitSuspending()
+    suspend fun deleteDriverCard(driverCard: DriverCard) {
+        driverCardRepository.deleteSuspending(driverCard)
     }
 
 }

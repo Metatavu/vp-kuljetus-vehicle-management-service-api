@@ -1,6 +1,9 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
+import fi.metatavu.vp.api.model.TruckDriverCard
 import fi.metatavu.vp.api.spec.TrucksApi
+import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
+import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
@@ -34,6 +37,12 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var vehicleController: VehicleController
+
+    @Inject
+    lateinit var driverCardController: DriverCardController
+
+    @Inject
+    lateinit var driverCardTranslator: DriverCardTranslator
 
     @Inject
     lateinit var vertx: Vertx
@@ -112,4 +121,50 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
        truckController.deleteTruck(existingTruck)
        createNoContent()
    }.asUni()
+
+    // Driver cards
+
+    override fun listTruckDriverCards(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val (cards, count) = driverCardController.listDriverCards(truck)
+        createOk(driverCardTranslator.translate(cards), count)
+    }.asUni()
+
+    @WithTransaction
+    override fun createTruckDriverCard(truckId: UUID, truckDriverCard: TruckDriverCard): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+
+        val driverCardWithId = driverCardController.findDriverCard(truckDriverCard.id)
+        if (driverCardWithId != null) {
+            return@async createConflict("Driver card already exists")
+        }
+
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        if (driverCardController.listDriverCards(truck).second > 0) {
+            return@async createConflict("Truck already contains driver's card")
+        }
+
+        val insertedCard = driverCardController.createDriverCard(
+            driverCardId = truckDriverCard.id,
+            truck = truck
+        )
+        createOk(driverCardTranslator.translate(insertedCard))
+    }.asUni()
+
+    @WithTransaction
+    override fun deleteTruckDriverCard(
+        truckId: UUID,
+        driverCardId: String
+    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val insertedDriverCard = driverCardController.findDriverCard(driverCardId) ?: return@async createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
+        if (insertedDriverCard.truck.id != truck.id) {
+            return@async createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
+        }
+
+        driverCardController.deleteDriverCard(insertedDriverCard)
+        createNoContent()
+    }.asUni()
 }
