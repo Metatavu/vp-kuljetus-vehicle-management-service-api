@@ -6,6 +6,7 @@ import fi.metatavu.vp.api.spec.TrucksApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
+import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
@@ -45,6 +46,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var driverCardTranslator: DriverCardTranslator
+
+    @Inject
+    lateinit var truckLocationController: TruckLocationController
 
     @Inject
     lateinit var vertx: Vertx
@@ -179,14 +183,15 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         first: Int?,
         max: Int?
     ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        TODO("Not yet implemented")
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val (locations, count) = truckLocationController.listTruckLocations(truck, after, before, first, max)
     }.asUni()
 
     @WithTransaction
     override fun createTruckLocation(truckId: UUID, truckLocation: TruckLocation): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-        val insertedLocation = truckController.createTruckLocation(truck, truckLocation)
-        createAccepted(insertedLocation)
+        truckLocationController.createTruckLocation(truck, truckLocation)
+        createCreated()
     }.asUni()
 }

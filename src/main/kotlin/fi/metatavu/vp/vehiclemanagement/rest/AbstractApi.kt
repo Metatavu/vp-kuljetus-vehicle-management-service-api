@@ -112,6 +112,17 @@ abstract class AbstractApi {
     }
 
     /**
+     * Constructs created response
+     *
+     * @return response
+     */
+    fun createCreated(): Response {
+        return Response
+            .status(Response.Status.CREATED)
+            .build()
+    }
+
+    /**
      * Constructs no content response
      *
      * @return response
