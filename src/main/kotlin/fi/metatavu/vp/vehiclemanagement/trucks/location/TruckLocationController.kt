@@ -37,7 +37,29 @@ class TruckLocationController {
         )
     }
 
-    fun listTruckLocations(truck: Truck, after: OffsetDateTime?, before: OffsetDateTime?, first: Int?, max: Int?) {
-        return truckLocationRepository.listTruckLocations(truck, after, before, first, max)
+    /**
+     * Lists truck locations
+     *
+     * @param truck truck
+     * @param after after
+     * @param before before
+     * @param first first
+     * @param max max
+     * @return truck locations
+     */
+    suspend fun listTruckLocations(
+        truck: Truck,
+        after: OffsetDateTime?,
+        before: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ): Pair<List<fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocation>, Long> {
+        return truckLocationRepository.listTruckLocations(
+            truck = truck,
+            after = after,
+            before = before,
+            first = first,
+            max = max
+        )
     }
 }

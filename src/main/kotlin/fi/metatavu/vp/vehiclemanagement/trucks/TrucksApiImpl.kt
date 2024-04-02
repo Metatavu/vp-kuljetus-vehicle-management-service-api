@@ -7,6 +7,7 @@ import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
+import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationTranslator
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
@@ -49,6 +50,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckLocationController: TruckLocationController
+
+    @Inject
+    lateinit var truckLocationTranslator: TruckLocationTranslator
 
     @Inject
     lateinit var vertx: Vertx
@@ -185,6 +189,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
         val (locations, count) = truckLocationController.listTruckLocations(truck, after, before, first, max)
+        createOk(truckLocationTranslator.translate(locations), count)
     }.asUni()
 
     @WithTransaction

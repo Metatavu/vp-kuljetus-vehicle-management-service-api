@@ -6,6 +6,7 @@ import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.test.client.models.TruckDriverCard
+import fi.metatavu.vp.test.client.models.TruckLocation
 import fi.metatavu.vp.test.client.models.Vehicle
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
@@ -252,6 +253,32 @@ class TrucksTestBuilderResource(
         try {
             api.listTruckDriverCards(truckId)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    fun listTruckLocations(truckId: UUID): Array<TruckLocation> {
+        return api.listTruckLocations(truckId)
+    }
+
+    fun assertListTruckLocationsFail(truckId: UUID, expectedStatus: Int) {
+        try {
+            api.listTruckLocations(truckId)
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    fun createTruckLocation(truckId: UUID, truckLocation: TruckLocation) {
+        api.createTruckLocation(truckId, truckLocation)
+    }
+
+    fun assertCreateTruckLocationFail(truckId: UUID, truckLocation: TruckLocation, expectedStatus: Int) {
+        try {
+            api.createTruckLocation(truckId, truckLocation)
+            Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }

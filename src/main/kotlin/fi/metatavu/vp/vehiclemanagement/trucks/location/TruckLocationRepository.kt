@@ -3,12 +3,13 @@ package fi.metatavu.vp.vehiclemanagement.trucks.location
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.quarkus.panache.common.Parameters
+import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @ApplicationScoped
-class TruckLocationRepository: AbstractRepository<TruckLocation, UUID>() {
+class TruckLocationRepository : AbstractRepository<TruckLocation, UUID>() {
 
     suspend fun create(
         id: UUID,
@@ -28,7 +29,23 @@ class TruckLocationRepository: AbstractRepository<TruckLocation, UUID>() {
         return persistSuspending(truckLocation)
     }
 
-    fun listTruckLocations(truck: Truck, after: OffsetDateTime?, before: OffsetDateTime?, first: Int?, max: Int?) {
+    /**
+     * Lists truck locations
+     *
+     * @param truck truck
+     * @param after after
+     * @param before before
+     * @param first first
+     * @param max max
+     * @return truck locations
+     */
+    suspend fun listTruckLocations(
+        truck: Truck,
+        after: OffsetDateTime?,
+        before: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ): Pair<List<TruckLocation>, Long> {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
 
@@ -37,15 +54,19 @@ class TruckLocationRepository: AbstractRepository<TruckLocation, UUID>() {
 
         if (after != null) {
             stringBuilder.append(" AND timestamp >= :after")
-            parameters.and("after", after.toEpochSecond())
+            parameters.and("after", after.toEpochSecond() * 1000)
         }
 
         if (before != null) {
             stringBuilder.append(" AND timestamp <= :before")
-            parameters.and("before", before.toEpochSecond())
+            parameters.and("before", before.toEpochSecond() * 1000)
         }
 
-
+        return applyFirstMaxToQuery(
+            query = find(stringBuilder.toString(), Sort.descending("timestamp"), parameters),
+            firstIndex = first,
+            maxResults = max
+        )
     }
 
 }
