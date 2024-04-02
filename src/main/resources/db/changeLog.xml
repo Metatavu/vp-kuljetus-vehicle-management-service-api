@@ -207,5 +207,8 @@
                <constraints nullable="false"/>
           </column>
        </createTable>
+       <createIndex tableName="TruckSpeed" indexName="truck_speed_timestamp">
+           <column name="timestamp"/>
+       </createIndex>
    </changeSet>
 </databaseChangeLog>

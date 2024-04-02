@@ -10,7 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped
 class TruckSpeedTranslator : AbstractTranslator<TruckSpeed, fi.metatavu.vp.api.model.TruckSpeed>() {
     override suspend fun translate(entity: TruckSpeed): fi.metatavu.vp.api.model.TruckSpeed {
         return fi.metatavu.vp.api.model.TruckSpeed(
-            id = entity.timestamp!!,
+            id = entity.id!!,
+            timestamp = entity.timestamp!!,
             speed = entity.speed!!
         )
     }

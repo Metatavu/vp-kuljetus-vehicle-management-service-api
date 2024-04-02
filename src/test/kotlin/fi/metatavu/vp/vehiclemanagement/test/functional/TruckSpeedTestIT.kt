@@ -12,6 +12,7 @@ import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 
@@ -26,7 +27,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
     fun createTruckSpeed() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val truckSpeedData = TruckSpeed(
-            id = OffsetDateTime.now().toEpochSecond()*1000,
+            timestamp = OffsetDateTime.now().toEpochSecond() * 1000,
             speed = 100.0f
         )
         it.setApiKey().trucks.createTruckSpeed(
@@ -34,7 +35,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             truckSpeed = truckSpeedData
         )
         val createdTruckSpeed = it.manager.trucks.listTruckSpeed(truck.id).first()
-        assertEquals(truckSpeedData.id, createdTruckSpeed.id)
+        assertNotNull(createdTruckSpeed.id)
         assertEquals(truckSpeedData.speed, createdTruckSpeed.speed)
     }
 
@@ -42,7 +43,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
     fun createTruckSpeedFail() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val truckSpeedData = TruckSpeed(
-            id = OffsetDateTime.now().toEpochSecond()*1000,
+            timestamp = OffsetDateTime.now().toEpochSecond() * 1000,
             speed = 100.0f
         )
         InvalidValueTestScenarioBuilder(
@@ -76,7 +77,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id!!,
             truckSpeed = TruckSpeed(
-                id = now.toEpochSecond()*1000,
+                timestamp = now.toEpochSecond() * 1000,
                 speed = 1.0f
             )
         )
@@ -84,7 +85,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = TruckSpeed(
-                id = now.minusMinutes(1).toEpochSecond()*1000,
+                timestamp = now.minusMinutes(1).toEpochSecond() * 1000,
                 speed = 2.0f
             )
         )
@@ -92,7 +93,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = TruckSpeed(
-                id = now.minusMinutes(2).toEpochSecond()*1000,
+                timestamp = now.minusMinutes(2).toEpochSecond() * 1000,
                 speed = 3.0f
             )
         )
@@ -100,7 +101,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck2.id!!,
             truckSpeed = TruckSpeed(
-                id = now.toEpochSecond()*1000,
+                timestamp = now.toEpochSecond() * 1000,
                 speed = 4.0f
             )
         )

@@ -25,7 +25,7 @@ class TruckSpeedController {
     suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.api.model.TruckSpeed): TruckSpeed {
         return truckSpeedRepository.create(
             id = UUID.randomUUID(),
-            timestamp = truckSpeed.id,
+            timestamp = truckSpeed.timestamp,
             speed = truckSpeed.speed,
             truck = truck
         )
