@@ -26,7 +26,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
     fun createTruckSpeed() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val truckSpeedData = TruckSpeed(
-            id = OffsetDateTime.now().toEpochSecond(),
+            id = OffsetDateTime.now().toEpochSecond()*1000,
             speed = 100.0f
         )
         it.setApiKey().trucks.createTruckSpeed(
@@ -42,7 +42,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
     fun createTruckSpeedFail() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val truckSpeedData = TruckSpeed(
-            id = OffsetDateTime.now().toEpochSecond(),
+            id = OffsetDateTime.now().toEpochSecond()*1000,
             speed = 100.0f
         )
         InvalidValueTestScenarioBuilder(
@@ -76,7 +76,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id!!,
             truckSpeed = TruckSpeed(
-                id = now.toEpochSecond(),
+                id = now.toEpochSecond()*1000,
                 speed = 1.0f
             )
         )
@@ -84,7 +84,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = TruckSpeed(
-                id = now.minusMinutes(1).toEpochSecond(),
+                id = now.minusMinutes(1).toEpochSecond()*1000,
                 speed = 2.0f
             )
         )
@@ -92,7 +92,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = TruckSpeed(
-                id = now.minusMinutes(2).toEpochSecond(),
+                id = now.minusMinutes(2).toEpochSecond()*1000,
                 speed = 3.0f
             )
         )
@@ -100,7 +100,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck2.id!!,
             truckSpeed = TruckSpeed(
-                id = now.toEpochSecond(),
+                id = now.toEpochSecond()*1000,
                 speed = 4.0f
             )
         )

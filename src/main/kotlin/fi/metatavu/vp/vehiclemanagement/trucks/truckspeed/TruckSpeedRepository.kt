@@ -62,12 +62,12 @@ class TruckSpeedRepository : AbstractRepository<TruckSpeed, UUID>() {
 
         if (after != null) {
             sb.append(" AND timestamp >= :after")
-            parameters.and("after", after.toEpochSecond())
+            parameters.and("after", after.toEpochSecond()*1000)
         }
 
         if (before != null) {
             sb.append(" AND timestamp <= :before")
-            parameters.and("before", before.toEpochSecond())
+            parameters.and("before", before.toEpochSecond()*1000)
         }
 
         return applyFirstMaxToQuery(
