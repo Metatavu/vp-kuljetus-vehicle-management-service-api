@@ -50,9 +50,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
             heading = 1.0,
             timestamp = now
         )
-        it.user.trucks.assertCreateTruckLocationFail(truck.id!!, truckLocationData, 403)
-        it.driver.trucks.assertCreateTruckLocationFail(truck.id, truckLocationData, 403)
-        it.manager.trucks.assertCreateTruckLocationFail(truck.id, truckLocationData, 403)
+        it.setApiKey("fake key").trucks.assertCreateTruckLocationFail(truck.id!!, truckLocationData, 403)
 
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}/locations",
