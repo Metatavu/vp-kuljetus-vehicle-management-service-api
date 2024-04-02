@@ -211,4 +211,30 @@
            <column name="timestamp"/>
        </createIndex>
    </changeSet>
+    
+    <changeSet id="trucklocation" author="katja danilova">
+        <createTable tableName="TruckLocation">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="truck_id" type="binary(16)">
+                <constraints foreignKeyName="FK_TRUCKLOCATION_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="latitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="longitude" type="double">
+                <constraints nullable="false"/>
+            </column>
+            <column name="heading" type="double">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createIndex tableName="TruckLocation" indexName="truck_location_timestamp">
+            <column name="timestamp"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

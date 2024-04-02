@@ -43,10 +43,10 @@ class TruckSpeedController {
      */
     suspend fun listTruckSpeeds(
         truck: Truck,
-        after: OffsetDateTime?,
-        before: OffsetDateTime?,
-        first: Int?,
-        max: Int?
+        after: OffsetDateTime? = null,
+        before: OffsetDateTime? = null,
+        first: Int? = null,
+        max: Int? = null
     ): Pair<List<TruckSpeed>, Long> {
         return truckSpeedRepository.listTruckSpeeds(
             truck = truck,

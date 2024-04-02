@@ -1,6 +1,5 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.location
 
-import fi.metatavu.vp.api.model.TruckLocation
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -25,11 +24,11 @@ class TruckLocationController {
      */
     suspend fun createTruckLocation(
         truck: Truck,
-        truckLocation: TruckLocation
-    ): fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocation {
+        truckLocation: fi.metatavu.vp.api.model.TruckLocation
+    ): TruckLocation {
         return truckLocationRepository.create(
             id = UUID.randomUUID(),
-            timestamp = truckLocation.id,
+            timestamp = truckLocation.timestamp,
             latitude = truckLocation.latitude,
             longitude = truckLocation.longitude,
             heading = truckLocation.heading,
@@ -49,11 +48,11 @@ class TruckLocationController {
      */
     suspend fun listTruckLocations(
         truck: Truck,
-        after: OffsetDateTime?,
-        before: OffsetDateTime?,
-        first: Int?,
-        max: Int?
-    ): Pair<List<fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocation>, Long> {
+        after: OffsetDateTime? = null,
+        before: OffsetDateTime? = null,
+        first: Int? = null,
+        max: Int? = null
+    ): Pair<List<TruckLocation>, Long> {
         return truckLocationRepository.listTruckLocations(
             truck = truck,
             after = after,
@@ -61,5 +60,14 @@ class TruckLocationController {
             first = first,
             max = max
         )
+    }
+
+    /**
+     * Deletes truck location
+     *
+     * @param truckLocation truck location
+     */
+    suspend fun deleteTruckLocation(truckLocation: TruckLocation) {
+        return truckLocationRepository.deleteSuspending(truckLocation)
     }
 }

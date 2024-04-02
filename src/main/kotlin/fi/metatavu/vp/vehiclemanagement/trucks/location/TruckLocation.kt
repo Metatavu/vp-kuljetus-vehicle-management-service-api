@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotEmpty
 import java.util.*
 
 /**
- * Entity for driver cards
+ * Entity for truck location
  */
 @Entity
 class TruckLocation {
