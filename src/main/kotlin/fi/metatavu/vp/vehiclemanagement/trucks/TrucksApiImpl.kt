@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.api.model.TruckDriverCard
+import fi.metatavu.vp.api.model.TruckLocation
 import fi.metatavu.vp.api.spec.TrucksApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
@@ -19,6 +20,7 @@ import jakarta.ws.rs.core.Response
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -166,5 +168,25 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
         driverCardController.deleteDriverCard(insertedDriverCard)
         createNoContent()
+    }.asUni()
+
+    // Truck location endpoints
+    @RolesAllowed(MANAGER_ROLE)
+    override fun listTruckLocations(
+        truckId: UUID,
+        after: OffsetDateTime?,
+        before: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        TODO("Not yet implemented")
+    }.asUni()
+
+    @WithTransaction
+    override fun createTruckLocation(truckId: UUID, truckLocation: TruckLocation): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val insertedLocation = truckController.createTruckLocation(truck, truckLocation)
+        createAccepted(insertedLocation)
     }.asUni()
 }
