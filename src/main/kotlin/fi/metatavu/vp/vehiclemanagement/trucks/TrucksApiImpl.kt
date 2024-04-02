@@ -198,6 +198,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
         truckSpeedController.createTruckSpeed(truck, truckSpeed)
-        createAccepted(null)
+        createCreated()
     }.asUni()
 }
