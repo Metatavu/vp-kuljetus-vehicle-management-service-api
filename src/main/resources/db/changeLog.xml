@@ -191,4 +191,24 @@
             </column>
         </addColumn>
     </changeSet>
+
+   <changeSet id="truckspeed" author="katja danilova">
+       <createTable tableName="TruckSpeed">
+           <column name="id" type="binary(16)">
+               <constraints nullable="false" primaryKey="true"/>
+           </column>
+           <column name="truck_id" type="binary(16)">
+               <constraints foreignKeyName="FK_TRUCKSPEED_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
+           </column>
+           <column name="timestamp" type="bigint">
+               <constraints nullable="false"/>
+           </column>
+           <column name="speed" type="float">
+               <constraints nullable="false"/>
+          </column>
+       </createTable>
+       <createIndex tableName="TruckSpeed" indexName="truck_speed_timestamp">
+           <column name="timestamp"/>
+       </createIndex>
+   </changeSet>
 </databaseChangeLog>

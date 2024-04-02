@@ -7,10 +7,12 @@ import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.test.client.models.TruckDriverCard
 import fi.metatavu.vp.test.client.models.TruckLocation
+import fi.metatavu.vp.test.client.models.TruckSpeed
 import fi.metatavu.vp.test.client.models.Vehicle
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import org.junit.Assert
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -252,6 +254,54 @@ class TrucksTestBuilderResource(
     fun assertListDriverCardsFail(truckId: UUID, expectedStatus: Int) {
         try {
             api.listTruckDriverCards(truckId)
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Creates truck speed
+     *
+     * @param truckId truck id
+     * @param truckSpeed truck speed data
+     */
+    fun createTruckSpeed(truckId: UUID, truckSpeed: TruckSpeed) {
+        return api.createTruckSpeed(truckId, truckSpeed)
+    }
+
+    /**
+     * Lists truck speeds
+     *
+     * @param truckId truck id
+     * @param after after
+     * @param before before
+     * @param first first
+     * @param max max
+     * @return list of truck speeds
+     */
+    fun listTruckSpeed(
+        truckId: UUID,
+        after: OffsetDateTime? = null,
+        before: OffsetDateTime? = null,
+        first: Int? = null,
+        max: Int? = null
+    ): Array<TruckSpeed> {
+        return api.listTruckSpeeds(truckId, after?.toString(), before?.toString(), first, max)
+    }
+
+    /**
+     * Asserts that the list of truck speeds could not be retrieved
+     *
+     * @param truckId truck id
+     * @param expectedStatus expected status
+     */
+    fun assertListTruckSpeedFail(
+        truckId: UUID,
+        expectedStatus: Int
+    ) {
+        try {
+            api.listTruckSpeeds(truckId, null, null, null)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)

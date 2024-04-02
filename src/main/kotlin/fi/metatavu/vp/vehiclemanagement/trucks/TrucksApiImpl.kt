@@ -2,12 +2,15 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.api.model.TruckDriverCard
 import fi.metatavu.vp.api.model.TruckLocation
+import fi.metatavu.vp.api.model.TruckSpeed
 import fi.metatavu.vp.api.spec.TrucksApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationTranslator
+import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeedController
+import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeedTranslator
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
@@ -53,6 +56,12 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckLocationTranslator: TruckLocationTranslator
+
+    @Inject
+    lateinit var truckSpeedController: TruckSpeedController
+
+    @Inject
+    lateinit var truckSpeedTranslator: TruckSpeedTranslator
 
     @Inject
     lateinit var vertx: Vertx
@@ -176,6 +185,29 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
         driverCardController.deleteDriverCard(insertedDriverCard)
         createNoContent()
+    }.asUni()
+
+    // Truck Speed endpoints
+
+    @RolesAllowed(MANAGER_ROLE)
+    override fun listTruckSpeeds(
+        truckId: UUID,
+        after: OffsetDateTime?,
+        before: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val ( speeds, count ) = truckSpeedController.listTruckSpeeds(truck, after, before, first, max)
+        createOk(truckSpeedTranslator.translate(speeds), count)
+    }.asUni()
+
+    @WithTransaction
+    override fun createTruckSpeed(truckId: UUID, truckSpeed: TruckSpeed): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        truckSpeedController.createTruckSpeed(truck, truckSpeed)
+        createCreated()
     }.asUni()
 
     // Truck location endpoints
