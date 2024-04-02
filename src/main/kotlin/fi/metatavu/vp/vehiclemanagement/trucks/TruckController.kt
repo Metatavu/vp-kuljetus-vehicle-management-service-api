@@ -2,6 +2,7 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicDataRepository
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
+import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
 import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeedController
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import jakarta.enterprise.context.ApplicationScoped
@@ -28,6 +29,9 @@ class TruckController {
 
     @Inject
     lateinit var truckSpeedController: TruckSpeedController
+
+    @Inject
+    lateinit var truckLocationController: TruckLocationController
 
     /**
      * Creates new truck and a vehicle that is attached to it.
@@ -132,8 +136,11 @@ class TruckController {
         truckTelematicDataRepository.listByTruck(truck).forEach {
             truckTelematicDataRepository.deleteSuspending(it)
         }
-        truckSpeedController.listTruckSpeeds(truck, null, null, null, null).first.forEach {
+        truckSpeedController.listTruckSpeeds(truck).first.forEach {
             truckSpeedController.deleteTruckSpeed(it)
+        }
+        truckLocationController.listTruckLocations(truck,).first.forEach {
+            truckLocationController.deleteTruckLocation(it)
         }
         truckRepository.deleteSuspending(truck)
     }

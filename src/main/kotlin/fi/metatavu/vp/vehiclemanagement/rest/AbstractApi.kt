@@ -116,7 +116,7 @@ abstract class AbstractApi {
      *
      * @return response
      */
-    protected fun createCreated(): Response {
+    fun createCreated(): Response {
         return Response
             .status(Response.Status.CREATED)
             .build()

@@ -4,10 +4,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.test.client.apis.TrucksApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
-import fi.metatavu.vp.test.client.models.Truck
-import fi.metatavu.vp.test.client.models.TruckDriverCard
-import fi.metatavu.vp.test.client.models.TruckSpeed
-import fi.metatavu.vp.test.client.models.Vehicle
+import fi.metatavu.vp.test.client.models.*
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import org.junit.Assert
@@ -54,11 +51,13 @@ class TrucksTestBuilderResource(
         vin: String,
         vehiclesTestBuilderResource: VehiclesTestBuilderResource
     ): Truck {
-        return create(Truck(
-            plateNumber = plateNumber,
-            vin = vin,
-            type = Truck.Type.TRUCK
-        ), vehiclesTestBuilderResource)
+        return create(
+            Truck(
+                plateNumber = plateNumber,
+                vin = vin,
+                type = Truck.Type.TRUCK
+            ), vehiclesTestBuilderResource
+        )
     }
 
     /**
@@ -302,6 +301,67 @@ class TrucksTestBuilderResource(
         try {
             api.listTruckSpeeds(truckId, null, null, null)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Lists truck locations
+     *
+     * @param truckId truck id
+     * @param after after
+     * @param before before
+     * @param first first
+     * @param max max
+     * @return list of truck locations
+     */
+    fun listTruckLocations(
+        truckId: UUID,
+        after: OffsetDateTime? = null,
+        before: OffsetDateTime? = null,
+        first: Int? = null,
+        max: Int? = null
+    ): Array<TruckLocation> {
+        return api.listTruckLocations(truckId, after?.toString(), before?.toString(), first, max)
+    }
+
+    /**
+     * Asserts that the list of truck locations could not be retrieved
+     *
+     * @param truckId truck id
+     * @param expectedStatus expected status
+     */
+    fun assertListTruckLocationsFail(truckId: UUID, expectedStatus: Int) {
+        try {
+            api.listTruckLocations(truckId)
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Creates truck location
+     *
+     * @param truckId truck id
+     * @param truckLocation truck location id
+     */
+    fun createTruckLocation(truckId: UUID, truckLocation: TruckLocation) {
+        api.createTruckLocation(truckId, truckLocation)
+    }
+
+    /**
+     * Asserts that the truck location could not be created
+     *
+     * @param truckId truck id
+     * @param truckLocation truck location data
+     * @param expectedStatus expected status
+     */
+    fun assertCreateTruckLocationFail(truckId: UUID, truckLocation: TruckLocation, expectedStatus: Int) {
+        try {
+            api.createTruckLocation(truckId, truckLocation)
+            Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
