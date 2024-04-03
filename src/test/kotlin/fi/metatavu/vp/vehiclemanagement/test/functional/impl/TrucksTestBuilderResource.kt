@@ -367,6 +367,97 @@ class TrucksTestBuilderResource(
         }
     }
 
+    /**
+     * Lists drive states
+     *
+     * @param truckId truck id
+     * @param driverId driver id
+     * @param state state
+     * @param after after
+     * @param before before
+     * @param first first
+     * @param max max
+     * @return list of drive states
+     */
+    fun listDriveStates(
+        truckId: UUID,
+        driverId: UUID? = null,
+        state: Array<TruckDriveStateEnum>? = null,
+        after: OffsetDateTime? = null,
+        before: OffsetDateTime? = null,
+        first: Int? = null,
+        max: Int? = null
+    ): Array<TruckDriveState> {
+        return api.listDriveStates(
+            truckId = truckId,
+            driverId = driverId,
+            state = state,
+            after = after?.toString(),
+            before = before?.toString(),
+            first = first,
+            max = max
+        )
+    }
+
+    /**
+     * Asserts that the list of drive states could not be retrieved
+     *
+     * @param truckId truck id
+     * @param expectedStatus expected status
+     */
+    fun assertListDriveStatesFail(
+        truckId: UUID,
+        expectedStatus: Int
+    ) {
+        try {
+            api.listDriveStates(
+                truckId = truckId,
+                driverId = null,
+                state = null,
+                after = null,
+                before = null,
+                first = null,
+                max = null
+            )
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Creates drive state
+     *
+     * @param truckId truck id
+     * @param truckDriveState drive state data
+     */
+    fun createDriveState(
+        truckId: UUID,
+        truckDriveState: TruckDriveState
+    ) {
+        return api.createDriveState(truckId, truckDriveState)
+    }
+
+    /**
+     * Asserts that the drive state could not be created
+     *
+     * @param truckId truck id
+     * @param truckDriveState drive state data
+     * @param expectedStatus expected status
+     */
+    fun assertCreateDriveStateFail(
+        truckId: UUID,
+        truckDriveState: TruckDriveState,
+        expectedStatus: Int
+    ) {
+        try {
+            api.createDriveState(truckId, truckDriveState)
+            Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
     override fun clean(p0: Truck?) {
         api.deleteTruck(p0?.id!!)
     }

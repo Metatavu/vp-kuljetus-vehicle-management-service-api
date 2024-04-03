@@ -1,12 +1,12 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.api.model.TruckDriverCard
-import fi.metatavu.vp.api.model.TruckLocation
-import fi.metatavu.vp.api.model.TruckSpeed
+import fi.metatavu.vp.api.model.*
 import fi.metatavu.vp.api.spec.TrucksApi
+import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
-import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
+import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
+import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeedController
@@ -62,6 +62,12 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckSpeedTranslator: TruckSpeedTranslator
+
+    @Inject
+    lateinit var truckDriveStateController: TruckDriveStateController
+
+    @Inject
+    lateinit var truckDriveStateTranslator: TruckDriveStateTranslator
 
     @Inject
     lateinit var vertx: Vertx
@@ -234,6 +240,45 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
         truckLocationController.createTruckLocation(truck, truckLocation)
+        createCreated()
+    }.asUni()
+
+    // Truck Drive State endpoints
+
+    @RolesAllowed(MANAGER_ROLE, DRIVER_ROLE)
+    override fun listDriveStates(
+      truckId: UUID,
+      driverId: UUID?,
+      state: List<TruckDriveStateEnum>?,
+      after: OffsetDateTime?,
+      before: OffsetDateTime?,
+      first: Int?,
+      max: Int?
+  ) = CoroutineScope(vertx.dispatcher()).async {
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val (states, count) = truckDriveStateController.listDriveStates(
+            truck = truck,
+            driverId = driverId,
+            state = state,
+            after = after,
+            before = before,
+            first = first,
+            max = max
+        )
+        createOk(truckDriveStateTranslator.translate(states), count)
+    }.asUni()
+
+    @WithTransaction
+    override fun createDriveState(truckId: UUID, truckDriveState: TruckDriveState): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+
+        val existingDriverCard = driverCardController.findDriverCard(truckDriveState.driverCardId) ?: return@async createBadRequest(createNotFoundMessage(DRIVER_CARD, truckDriveState.driverCardId))
+        if (existingDriverCard.truck.id != truck.id) {
+            return@async createBadRequest(createNotFoundMessage(DRIVER_CARD, truckDriveState.driverCardId))
+        }
+
+        truckDriveStateController.createDriveState(truck, truckDriveState)
         createCreated()
     }.asUni()
 }
