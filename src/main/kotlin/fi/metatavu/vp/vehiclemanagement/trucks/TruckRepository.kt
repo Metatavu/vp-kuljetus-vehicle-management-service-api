@@ -49,17 +49,29 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
      *
      * @param plateNumber plate number
      * @param archived archived
+     * @param vin vin
      * @param firstResult first result
      * @param maxResults max results
      * @return list of trucks
      */
-    suspend fun list(plateNumber: String?, archived: Boolean?, firstResult: Int?, maxResults: Int?): Pair<List<Truck>, Long> {
+    suspend fun list(
+        plateNumber: String?,
+        archived: Boolean?,
+        vin: String?,
+        firstResult: Int?,
+        maxResults: Int?
+    ): Pair<List<Truck>, Long> {
         val sb = StringBuilder()
         val parameters = Parameters()
 
         if (plateNumber != null) {
             addCondition(sb, "plateNumber = :plateNumber")
             parameters.and("plateNumber", plateNumber)
+        }
+
+        if (vin != null) {
+            addCondition(sb, "vin = :vin")
+            parameters.and("vin", vin)
         }
 
         if (archived == null || archived == false) {
