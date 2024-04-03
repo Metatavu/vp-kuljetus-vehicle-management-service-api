@@ -37,6 +37,11 @@ class PublicTruckTestIT : AbstractFunctionalTest() {
         val pagedList4 = builder.anon.publicTrucks.list(first = 0, max = 0)
         assertEquals(0, pagedList4.size)
 
+        val filteredByVin = builder.anon.publicTrucks.list(vin = "002")
+        assertEquals(1, filteredByVin.size)
+
+        val filteredByVin2 = builder.anon.publicTrucks.list(vin = "005")
+        assertEquals(0, filteredByVin2.size)
     }
 
 }

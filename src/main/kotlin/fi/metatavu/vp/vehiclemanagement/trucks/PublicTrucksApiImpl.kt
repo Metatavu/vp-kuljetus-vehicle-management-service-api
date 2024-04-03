@@ -31,8 +31,12 @@ class PublicTrucksApiImpl: PublicTrucksApi, AbstractApi() {
     @Inject
     lateinit var vertx: Vertx
 
-    override fun listPublicTrucks(first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val ( trucks, count ) = truckController.listTrucks(firstResult = first, maxResults = max, archived = null, plateNumber = null)
+    override fun listPublicTrucks(
+        vin: String?,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+        val ( trucks, count ) = truckController.listTrucks(firstResult = first, maxResults = max, archived = null, plateNumber = null, vin = vin)
         createOk(publicTruckTranslator.translate(trucks), count)
     }.asUni()
 }

@@ -88,19 +88,22 @@ class TruckController {
      *
      * @param plateNumber plate number
      * @param archived archived
+     * @param vin vin
      * @param firstResult first result
      * @param maxResults max results
      * @return list of trucks
      */
     suspend fun listTrucks(
-        plateNumber: String?,
-        archived: Boolean?,
-        firstResult: Int?,
-        maxResults: Int?
+        plateNumber: String? = null,
+        archived: Boolean? = null,
+        vin: String? = null,
+        firstResult: Int? = null,
+        maxResults: Int? = null,
     ): Pair<List<Truck>, Long> {
         return truckRepository.list(
             plateNumber = plateNumber,
             archived = archived,
+            vin = vin,
             firstResult = firstResult,
             maxResults = maxResults
         )
