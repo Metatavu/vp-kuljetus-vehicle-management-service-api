@@ -15,7 +15,7 @@ import java.util.*
 class DriverCard {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @Column(nullable = false, unique = true)
     @NotEmpty

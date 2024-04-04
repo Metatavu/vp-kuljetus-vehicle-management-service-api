@@ -237,4 +237,26 @@
             <column name="timestamp"/>
         </createIndex>
     </changeSet>
+
+    <changeSet id="truckdrivingstate" author="katja danilova">
+        <createTable tableName="TruckDriveState">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="truck_id" type="binary(16)">
+                <constraints foreignKeyName="FK_TRUCKDRIVESTATE_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="state" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="drivercardid" type="varchar(191)"/>
+            <column name="driverid" type="binary(16)"/>
+        </createTable>
+        <createIndex tableName="TruckDriveState" indexName="truck_drivestate_timestamp">
+            <column name="timestamp"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>

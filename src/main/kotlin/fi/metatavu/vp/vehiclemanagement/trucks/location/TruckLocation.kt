@@ -15,7 +15,7 @@ import java.util.*
 class TruckLocation {
 
     @Id
-    var id: UUID? = null
+    lateinit var id: UUID
 
     @Column(nullable = false)
     var timestamp: Long? = null
