@@ -21,8 +21,8 @@ class TruckDriveState {
     @Column(nullable = false)
     var timestamp: Long? = null
 
-    @Column(nullable = false)
-    lateinit var driverCardId: String
+    @Column
+    var driverCardId: String? = null
 
     @Column
     var driverId: UUID? = null

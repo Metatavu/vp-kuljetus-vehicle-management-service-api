@@ -252,9 +252,7 @@
             <column name="state" type="varchar(191)">
                 <constraints nullable="false"/>
             </column>
-            <column name="drivercardid" type="varchar(191)">
-                <constraints nullable="false"/>
-            </column>
+            <column name="drivercardid" type="varchar(191)"/>
             <column name="driverid" type="binary(16)"/>
         </createTable>
         <createIndex tableName="TruckDriveState" indexName="truck_drivestate_timestamp">

@@ -273,11 +273,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
 
-        val existingDriverCard = driverCardController.findDriverCard(truckDriveState.driverCardId) ?: return@async createBadRequest(createNotFoundMessage(DRIVER_CARD, truckDriveState.driverCardId))
-        if (existingDriverCard.truck.id != truck.id) {
-            return@async createBadRequest(createNotFoundMessage(DRIVER_CARD, truckDriveState.driverCardId))
-        }
-
         truckDriveStateController.createDriveState(truck, truckDriveState)
         createCreated()
     }.asUni()

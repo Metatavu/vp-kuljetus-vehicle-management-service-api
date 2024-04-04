@@ -1,11 +1,9 @@
 package fi.metatavu.vp.vehiclemanagement.test.functional
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import fi.metatavu.invalid.InvalidValueTestScenarioBody
 import fi.metatavu.invalid.InvalidValueTestScenarioBuilder
 import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
-import fi.metatavu.invalid.providers.SimpleInvalidValueProvider
 import fi.metatavu.vp.test.client.models.TruckDriveState
 import fi.metatavu.vp.test.client.models.TruckDriveStateEnum
 import fi.metatavu.vp.test.client.models.TruckDriverCard
@@ -72,21 +70,6 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
             basePath = ApiTestSettings.apiBasePath,
             body = jacksonObjectMapper().writeValueAsString(truckDriveStateData)
         )
-            .body(
-                InvalidValueTestScenarioBody(
-                    default = truckDriveStateData,
-                    expectedStatus = 400,
-                    values = listOf(
-                        truckDriveStateData.copy(driverCardId = driverCardTruck2.id),
-                        truckDriveStateData.copy(driverCardId = "invalid")
-                    )
-                        .map { stateData ->
-                            SimpleInvalidValueProvider(
-                                jacksonObjectMapper().writeValueAsString(stateData)
-                            )
-                        }
-                )
-            )
             .path(
                 InvalidValueTestScenarioPath(
                     name = "truckId",

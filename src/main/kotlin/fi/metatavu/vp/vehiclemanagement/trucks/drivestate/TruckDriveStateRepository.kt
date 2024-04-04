@@ -30,7 +30,7 @@ class TruckDriveStateRepository : AbstractRepository<TruckDriveState, UUID>() {
         id: UUID,
         state: TruckDriveStateEnum,
         timestamp: Long,
-        driverCardId: String,
+        driverCardId: String?,
         driverId: UUID?,
         truck: Truck
     ): TruckDriveState {
