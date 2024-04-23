@@ -36,7 +36,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
         // should be ignored because timestamp is same even if data is different
         it.setApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(heading = 2.0))
         // should be ignored because the latest location record is the same
-        it.setApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(timestamp = now + 1, heading = 2.0))
+        it.setApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(timestamp = now + 1))
 
         val locations = it.manager.trucks.listTruckLocations(truck.id)
         assertEquals(1, locations.size)
