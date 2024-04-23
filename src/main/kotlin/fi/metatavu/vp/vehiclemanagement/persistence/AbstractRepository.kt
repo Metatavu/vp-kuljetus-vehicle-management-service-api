@@ -78,27 +78,6 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
     }
 
     /**
-     * Applies paging to query and executes it
-     *
-     * @param query PanacheQuery<Entity>
-     * @param pageIndex page index
-     * @param pageSize page size
-     * @return MutableList<Entity>?
-     */
-    open suspend fun applyPagingToQuery(
-        query: PanacheQuery<Entity>,
-        pageIndex: Int?,
-        pageSize: Int?
-    ): Pair<List<Entity>, Long> {
-        val count = query.count().awaitSuspending()
-        return if (pageIndex != null && pageSize != null) {
-            Pair(query.page<Entity>(pageIndex, pageSize).list<Entity>().awaitSuspending(), count)
-        } else
-            Pair(query.list<Entity>().awaitSuspending(), count)
-    }
-
-
-    /**
      * Applies range to query and executes it
      *
      * @param query find query
@@ -112,8 +91,10 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
         maxResults: Int?
     ): Pair<List<Entity>, Long> {
         val count = query.count().awaitSuspending()
-        return if (firstIndex != null && maxResults != null) {
-            Pair(query.range<Entity>(firstIndex,  maxResults + firstIndex - 1).list<Entity>().awaitSuspending(), count)
+        return if (firstIndex != null || maxResults != null) {
+            val first = firstIndex ?: 0
+            val max = maxResults ?: 10
+            Pair(query.range<Entity>(first,  max + first - 1).list<Entity>().awaitSuspending(), count)
         } else
             Pair(query.list<Entity>().awaitSuspending(), count)
     }
