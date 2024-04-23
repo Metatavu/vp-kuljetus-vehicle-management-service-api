@@ -3,6 +3,8 @@ package fi.metatavu.vp.vehiclemanagement.trucks.drivestate
 import fi.metatavu.vp.api.model.TruckDriveState
 import fi.metatavu.vp.api.model.TruckDriveStateEnum
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import io.quarkus.panache.common.Parameters
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.OffsetDateTime
@@ -27,7 +29,20 @@ class TruckDriveStateController {
     suspend fun createDriveState(
         truck: Truck,
         truckDriveState: TruckDriveState
-    ): fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState {
+    ): fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState? {
+        val duplicates = truckDriveStateRepository.count(
+            "(timestamp = :timestamp and truck = :truck) or " +
+                "(truck = :truck and state = :state and driverCardId = :driverCardId and driverId = :driverId and timestamp = (select max(timestamp)))",
+            Parameters.with("timestamp", truckDriveState.timestamp)
+                .and("state", truckDriveState.state)
+                .and("driverCardId", truckDriveState.driverCardId)
+                .and("driverId", truckDriveState.driverId)
+                .and("truck", truck)
+        ).awaitSuspending()
+        if (duplicates > 0) {
+            return null
+        }
+
         return truckDriveStateRepository.create(
             id = UUID.randomUUID(),
             state = truckDriveState.state,

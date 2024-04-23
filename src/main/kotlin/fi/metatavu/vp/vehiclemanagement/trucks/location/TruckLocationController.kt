@@ -1,6 +1,8 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.location
 
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import io.quarkus.panache.common.Parameters
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.OffsetDateTime
@@ -25,7 +27,20 @@ class TruckLocationController {
     suspend fun createTruckLocation(
         truck: Truck,
         truckLocation: fi.metatavu.vp.api.model.TruckLocation
-    ): TruckLocation {
+    ): TruckLocation? {
+        val duplicates = truckLocationRepository.count(
+            "(timestamp = :timestamp and truck = :truck) or " +
+                "(truck = :truck and latitude = :latitude and longitude = :longitude and heading = :heading and timestamp = (select max(timestamp)))",
+            Parameters.with("timestamp", truckLocation.timestamp)
+                .and("latitude", truckLocation.latitude)
+                .and("longitude", truckLocation.longitude)
+                .and("heading", truckLocation.heading)
+                .and("truck", truck)
+        ).awaitSuspending()
+        if (duplicates > 0) {
+            return null
+        }
+
         return truckLocationRepository.create(
             id = UUID.randomUUID(),
             timestamp = truckLocation.timestamp,

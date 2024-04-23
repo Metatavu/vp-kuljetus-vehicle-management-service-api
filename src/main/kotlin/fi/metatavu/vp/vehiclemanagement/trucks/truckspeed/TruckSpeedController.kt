@@ -1,6 +1,8 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.truckspeed
 
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import io.quarkus.panache.common.Parameters
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.OffsetDateTime
@@ -22,7 +24,17 @@ class TruckSpeedController {
      * @param truckSpeed truck speed
      * @return created truck speed
      */
-    suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.api.model.TruckSpeed): TruckSpeed {
+    suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.api.model.TruckSpeed): TruckSpeed? {
+        val duplicates = truckSpeedRepository.count(
+            "(timestamp = :timestamp and truck = :truck) or (truck = :truck and speed = :speed and timestamp = (select max(timestamp)))",
+            Parameters.with("timestamp", truckSpeed.timestamp)
+                .and("speed", truckSpeed.speed)
+                .and("truck", truck)
+        ).awaitSuspending()
+        if (duplicates > 0) {
+            return null
+        }
+
         return truckSpeedRepository.create(
             id = UUID.randomUUID(),
             timestamp = truckSpeed.timestamp,
