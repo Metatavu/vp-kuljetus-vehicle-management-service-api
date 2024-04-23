@@ -217,7 +217,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     override fun createTruckSpeed(truckId: UUID, truckSpeed: TruckSpeed): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-        truckSpeedController.createTruckSpeed(truck, truckSpeed)
+        truckSpeedController.createTruckSpeed(truck, truckSpeed)  ?: return@async createAccepted(null)
         createCreated()
     }.asUni()
 
@@ -239,7 +239,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     override fun createTruckLocation(truckId: UUID, truckLocation: TruckLocation): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-        truckLocationController.createTruckLocation(truck, truckLocation)
+        truckLocationController.createTruckLocation(truck, truckLocation) ?: return@async createAccepted(null)
         createCreated()
     }.asUni()
 
@@ -273,7 +273,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
 
-        truckDriveStateController.createDriveState(truck, truckDriveState)
+        truckDriveStateController.createDriveState(truck, truckDriveState) ?: return@async createAccepted(null)
         createCreated()
     }.asUni()
 }

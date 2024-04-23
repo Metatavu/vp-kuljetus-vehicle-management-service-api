@@ -26,17 +26,42 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
     @Test
     fun createTruckSpeed() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
+        val now = OffsetDateTime.now()
+        val time1 = now.toEpochSecond() * 1000
+        val time2 = now.plusSeconds(1).toEpochSecond() * 1000
         val truckSpeedData = TruckSpeed(
-            timestamp = OffsetDateTime.now().toEpochSecond() * 1000,
+            timestamp = time1,
             speed = 100.0f
         )
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id!!,
             truckSpeed = truckSpeedData
         )
-        val createdTruckSpeed = it.manager.trucks.listTruckSpeed(truck.id).first()
-        assertNotNull(createdTruckSpeed.id)
-        assertEquals(truckSpeedData.speed, createdTruckSpeed.speed)
+        // should be ignored because timestamp is same
+        it.setApiKey().trucks.createTruckSpeed(
+            truckId = truck.id,
+            truckSpeed = truckSpeedData.copy(speed = 101.0f)
+        )
+        // should be ignored because the latest speed record is the same
+        it.setApiKey().trucks.createTruckSpeed(
+            truckId = truck.id,
+            truckSpeed = truckSpeedData.copy(timestamp = time2)
+        )
+        // should be created successfully
+        it.setApiKey().trucks.createTruckSpeed(
+            truckId = truck.id,
+            truckSpeed = truckSpeedData.copy(speed = 101.0f, timestamp = time2)
+        )
+
+        val createdTruckSpeed = it.manager.trucks.listTruckSpeed(truck.id)
+        assertEquals(2, createdTruckSpeed.size)
+
+        assertNotNull(createdTruckSpeed[0].id)
+        assertEquals(101.0f, createdTruckSpeed[0].speed)
+        assertEquals(time2, createdTruckSpeed[0].timestamp)
+
+        assertNotNull(createdTruckSpeed[1].id)
+        assertEquals(time1, createdTruckSpeed[1].timestamp)
     }
 
     @Test
