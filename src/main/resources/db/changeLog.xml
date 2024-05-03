@@ -278,7 +278,11 @@
             <column name="timestamp"/>
             <column name="truck_id"/>
         </createIndex>
+    </changeSet>
 
+    <changeSet id="trucklocationunique" author="antti.leppa">
+        <dropIndex tableName="TruckLocation" indexName="inx_truck_location_timestamp_truck_id" />
+        <addUniqueConstraint tableName="TruckLocation" columnNames="truck_id, timestamp" constraintName="un_trucklocation_truck_id_timestamp"/>
     </changeSet>
 
 </databaseChangeLog>
