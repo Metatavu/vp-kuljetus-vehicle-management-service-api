@@ -271,4 +271,14 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="trucklocationtimestamptruckidindexnonunique" author="antti.leppa">
+        <dropIndex tableName="TruckLocation" indexName="inx_truck_location_timestamp_truck_id" />
+
+        <createIndex tableName="TruckLocation" indexName="inx_truck_location_timestamp_truck_id">
+            <column name="timestamp"/>
+            <column name="truck_id"/>
+        </createIndex>
+
+    </changeSet>
+
 </databaseChangeLog>
