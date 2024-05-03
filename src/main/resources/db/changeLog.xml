@@ -259,4 +259,9 @@
             <column name="timestamp"/>
         </createIndex>
     </changeSet>
+    
+    <changeSet id="trucklocationuniquetimestamptruckid" author="antti.leppa">
+        <addUniqueConstraint tableName="TruckLocation" columnNames="timestamp, truck_id"/>
+    </changeSet>
+
 </databaseChangeLog>
