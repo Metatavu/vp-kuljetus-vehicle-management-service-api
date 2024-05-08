@@ -1,12 +1,14 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.truckspeed
 
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocation
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.OffsetDateTime
 import java.util.*
+import kotlin.math.abs
 
 /**
  * Controller for truck speeds
@@ -25,13 +27,16 @@ class TruckSpeedController {
      * @return created truck speed
      */
     suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.api.model.TruckSpeed): TruckSpeed? {
-        val duplicates = truckSpeedRepository.count(
-            "(timestamp = :timestamp and truck = :truck) or (truck = :truck and speed = :speed and timestamp = (select max(timestamp)))",
-            Parameters.with("timestamp", truckSpeed.timestamp)
-                .and("speed", truckSpeed.speed)
-                .and("truck", truck)
-        ).awaitSuspending()
-        if (duplicates > 0) {
+        val latestRecord = truckSpeedRepository.find(
+            "truck = :truck order by timestamp desc limit 1",
+            Parameters.with("truck", truck)
+        ).firstResult<TruckSpeed>().awaitSuspending()
+
+        if (latestRecord?.timestamp != null && truckSpeed.timestamp <= latestRecord.timestamp!!) {
+            println("timestamp older or same as latest record")
+            return null
+        }
+        if (latestRecord != null && abs(latestRecord.speed!! - truckSpeed.speed) < 0.0001) {
             return null
         }
 

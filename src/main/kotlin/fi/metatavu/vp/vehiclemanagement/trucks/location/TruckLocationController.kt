@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.OffsetDateTime
 import java.util.*
+import kotlin.math.abs
 
 /**
  * Controller for truck locations
@@ -28,18 +29,21 @@ class TruckLocationController {
         truck: Truck,
         truckLocation: fi.metatavu.vp.api.model.TruckLocation
     ): TruckLocation? {
-        val duplicates = truckLocationRepository.count(
-            "(timestamp = :timestamp and truck = :truck) or " +
-                "(truck = :truck and latitude = :latitude and longitude = :longitude and heading = :heading and timestamp = (select max(timestamp)))",
-            Parameters.with("timestamp", truckLocation.timestamp)
-                .and("latitude", truckLocation.latitude)
-                .and("longitude", truckLocation.longitude)
-                .and("heading", truckLocation.heading)
-                .and("truck", truck)
-        ).awaitSuspending()
-        if (duplicates > 0) {
+        val latestRecord = truckLocationRepository.find(
+            "truck = :truck order by timestamp desc limit 1",
+            Parameters.with("truck", truck)
+        ).firstResult<TruckLocation>().awaitSuspending()
+
+        if (latestRecord?.timestamp != null && truckLocation.timestamp <= latestRecord.timestamp!!) {
             return null
         }
+        if (latestRecord != null &&
+            abs(latestRecord.latitude!! - truckLocation.latitude) < 0.0001 &&
+            abs(latestRecord.longitude!! - truckLocation.longitude) < 0.0001
+        ) {
+            return null
+        }
+
 
         return truckLocationRepository.create(
             id = UUID.randomUUID(),
