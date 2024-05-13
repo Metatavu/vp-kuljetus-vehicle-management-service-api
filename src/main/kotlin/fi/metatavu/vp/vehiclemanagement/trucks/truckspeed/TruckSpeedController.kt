@@ -33,7 +33,6 @@ class TruckSpeedController {
         ).firstResult<TruckSpeed>().awaitSuspending()
 
         if (latestRecord?.timestamp != null && truckSpeed.timestamp <= latestRecord.timestamp!!) {
-            println("timestamp older or same as latest record")
             return null
         }
         if (latestRecord != null && abs(latestRecord.speed!! - truckSpeed.speed) < 0.0001) {
