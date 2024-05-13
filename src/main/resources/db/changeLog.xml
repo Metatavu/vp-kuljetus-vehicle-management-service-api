@@ -286,6 +286,8 @@
     </changeSet>
 
     <changeSet id="telematics_unique" author="katja danilova">
+        <dropUniqueConstraint tableName="TruckLocation" constraintName="timestamp"/>
+
         <dropIndex tableName="TruckSpeed" indexName="truck_speed_timestamp"/>
         <dropIndex tableName="TruckLocation" indexName="truck_location_timestamp"/>
         <dropIndex tableName="TruckDriveState" indexName="truck_drivestate_timestamp"/>
