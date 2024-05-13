@@ -30,11 +30,11 @@ class TruckLocationController {
         truckLocation: fi.metatavu.vp.api.model.TruckLocation
     ): TruckLocation? {
         val latestRecord = truckLocationRepository.find(
-            "truck = :truck order by timestamp desc limit 1",
-            Parameters.with("truck", truck)
+            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
+            Parameters.with("truck", truck).and("timestamp", truckLocation.timestamp)
         ).firstResult<TruckLocation>().awaitSuspending()
 
-        if (latestRecord?.timestamp != null && truckLocation.timestamp <= latestRecord.timestamp!!) {
+        if (latestRecord?.timestamp != null && truckLocation.timestamp == latestRecord.timestamp!!) {
             return null
         }
         if (latestRecord != null &&

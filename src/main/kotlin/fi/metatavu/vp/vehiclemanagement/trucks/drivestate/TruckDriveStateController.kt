@@ -31,11 +31,11 @@ class TruckDriveStateController {
         truckDriveState: TruckDriveState
     ): fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState? {
         val latestRecord = truckDriveStateRepository.find(
-            "truck = :truck order by timestamp desc limit 1",
-            Parameters.with("truck", truck)
+            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
+            Parameters.with("truck", truck).and("timestamp", truckDriveState.timestamp)
         ).firstResult<fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState>().awaitSuspending()
 
-        if (latestRecord?.timestamp != null && truckDriveState.timestamp <= latestRecord.timestamp!!) {
+        if (latestRecord?.timestamp != null && truckDriveState.timestamp == latestRecord.timestamp!!) {
             return null
         }
         if (latestRecord != null
