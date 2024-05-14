@@ -27,15 +27,21 @@ class TruckSpeedController {
      * @return created truck speed
      */
     suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.api.model.TruckSpeed): TruckSpeed? {
+        val existingRecord = truckSpeedRepository.find(
+            "truck = :truck and timestamp = :timestamp",
+            Parameters.with("truck", truck).and("timestamp", truckSpeed.timestamp)
+        ).firstResult<TruckSpeed>().awaitSuspending()
+        if (existingRecord != null) {
+            return existingRecord
+        }
+
         val latestRecord = truckSpeedRepository.find(
             "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
             Parameters.with("truck", truck).and("timestamp", truckSpeed.timestamp)
         ).firstResult<TruckSpeed>().awaitSuspending()
-
-        if (latestRecord?.timestamp != null && truckSpeed.timestamp == latestRecord.timestamp!!) {
-            return null
-        }
-        if (latestRecord != null && abs(latestRecord.speed!! - truckSpeed.speed) < 0.0001) {
+        if (latestRecord != null &&
+            latestRecord.timestamp!! < truckSpeed.timestamp &&
+            abs(latestRecord.speed!! - truckSpeed.speed) < 0.0001) {
             return null
         }
 
