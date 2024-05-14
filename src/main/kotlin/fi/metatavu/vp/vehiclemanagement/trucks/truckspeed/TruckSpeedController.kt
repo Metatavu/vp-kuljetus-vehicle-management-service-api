@@ -1,12 +1,14 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.truckspeed
 
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocation
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.OffsetDateTime
 import java.util.*
+import kotlin.math.abs
 
 /**
  * Controller for truck speeds
@@ -25,13 +27,21 @@ class TruckSpeedController {
      * @return created truck speed
      */
     suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.api.model.TruckSpeed): TruckSpeed? {
-        val duplicates = truckSpeedRepository.count(
-            "(timestamp = :timestamp and truck = :truck) or (truck = :truck and speed = :speed and timestamp = (select max(timestamp)))",
-            Parameters.with("timestamp", truckSpeed.timestamp)
-                .and("speed", truckSpeed.speed)
-                .and("truck", truck)
-        ).awaitSuspending()
-        if (duplicates > 0) {
+        val existingRecord = truckSpeedRepository.find(
+            "truck = :truck and timestamp = :timestamp",
+            Parameters.with("truck", truck).and("timestamp", truckSpeed.timestamp)
+        ).firstResult<TruckSpeed>().awaitSuspending()
+        if (existingRecord != null) {
+            return existingRecord
+        }
+
+        val latestRecord = truckSpeedRepository.find(
+            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
+            Parameters.with("truck", truck).and("timestamp", truckSpeed.timestamp)
+        ).firstResult<TruckSpeed>().awaitSuspending()
+        if (latestRecord != null &&
+            latestRecord.timestamp!! < truckSpeed.timestamp &&
+            abs(latestRecord.speed!! - truckSpeed.speed) < 0.0001) {
             return null
         }
 

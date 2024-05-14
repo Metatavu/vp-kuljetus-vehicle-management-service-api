@@ -115,7 +115,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createDriveState(
             truck.id, TruckDriveState(
                 state = TruckDriveStateEnum.REST,
-                timestamp = now.minusMinutes(1).toEpochSecond() * 1000,
+                timestamp = now.plusMinutes(1).toEpochSecond() * 1000,
                 driverId = driver2,
                 driverCardId = driverCard.id
             )
@@ -130,7 +130,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
 
         val truckDriveStates = it.manager.trucks.listDriveStates(truckId = truck.id)
         assertEquals(2, truckDriveStates.size)
-        assertEquals(TruckDriveStateEnum.DRIVE, truckDriveStates[0].state)
+        assertEquals(TruckDriveStateEnum.DRIVE, truckDriveStates[1].state)
 
         val truck2DriveStates = it.manager.trucks.listDriveStates(truck2.id)
         assertEquals(1, truck2DriveStates.size)
@@ -150,8 +150,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         val pagedList2 = it.manager.trucks.listDriveStates(truck.id, first = 2, max = 1)
         assertEquals(0, pagedList2.size)
 
-        val filteredList =
-            it.manager.trucks.listDriveStates(truck.id, after = now.minusMinutes(5), before = now.minusSeconds(10))
+        val filteredList = it.manager.trucks.listDriveStates(truck.id, after = now.minusMinutes(5), before = now.plusSeconds(1))
         assertEquals(1, filteredList.size)
 
         assertNotNull(it.driver.trucks.listDriveStates(truckId = truck.id))

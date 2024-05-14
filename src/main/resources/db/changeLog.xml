@@ -285,4 +285,15 @@
         <addUniqueConstraint tableName="TruckLocation" columnNames="truck_id, timestamp" constraintName="un_trucklocation_truck_id_timestamp"/>
     </changeSet>
 
+    <changeSet id="telematics_unique" author="katja danilova">
+        <dropUniqueConstraint tableName="TruckLocation" constraintName="timestamp"/>
+
+        <dropIndex tableName="TruckSpeed" indexName="truck_speed_timestamp"/>
+        <dropIndex tableName="TruckLocation" indexName="truck_location_timestamp"/>
+        <dropIndex tableName="TruckDriveState" indexName="truck_drivestate_timestamp"/>
+
+        <addUniqueConstraint tableName="TruckSpeed" columnNames="truck_id, timestamp" constraintName="un_truckspeed_truck_id_timestamp"/>
+        <addUniqueConstraint tableName="TruckDriveState" columnNames="truck_id, timestamp" constraintName="un_truckdrivestate_truck_id_timestamp"/>
+    </changeSet>
+
 </databaseChangeLog>

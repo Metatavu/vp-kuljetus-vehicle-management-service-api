@@ -110,7 +110,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = TruckSpeed(
-                timestamp = now.minusMinutes(1).toEpochSecond() * 1000,
+                timestamp = now.plusMinutes(1).toEpochSecond() * 1000,
                 speed = 2.0f
             )
         )
@@ -118,7 +118,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = TruckSpeed(
-                timestamp = now.minusMinutes(2).toEpochSecond() * 1000,
+                timestamp = now.plusMinutes(2).toEpochSecond() * 1000,
                 speed = 3.0f
             )
         )
@@ -131,13 +131,21 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             )
         )
 
+        it.setApiKey().trucks.createTruckSpeed(
+            truckId = truck2.id,
+            truckSpeed = TruckSpeed(
+                timestamp = now.minusMinutes(1).toEpochSecond() * 1000,
+                speed = 4.0f
+            )
+        )
+
         val truck1List = it.manager.trucks.listTruckSpeed(truck.id)
         val truck2List = it.manager.trucks.listTruckSpeed(truck2.id)
         assertEquals(3, truck1List.size)
-        assertEquals(1.0f, truck1List[0].speed)
-        assertEquals(1, truck2List.size)
+        assertEquals(3.0f, truck1List[0].speed)
+        assertEquals(2, truck2List.size)
 
-        val filtered = it.manager.trucks.listTruckSpeed(truck.id, after = now.minusMinutes(1), before = now)
+        val filtered = it.manager.trucks.listTruckSpeed(truck.id, after = now.minusMinutes(1), before = now.plusMinutes(1))
         assertEquals(2, filtered.size)
 
         val paged = it.manager.trucks.listTruckSpeed(truck.id, first = 3, max = 4)

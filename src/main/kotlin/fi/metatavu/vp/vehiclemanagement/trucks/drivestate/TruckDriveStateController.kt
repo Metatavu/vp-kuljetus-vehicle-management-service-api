@@ -30,16 +30,23 @@ class TruckDriveStateController {
         truck: Truck,
         truckDriveState: TruckDriveState
     ): fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState? {
-        val duplicates = truckDriveStateRepository.count(
-            "(timestamp = :timestamp and truck = :truck) or " +
-                "(truck = :truck and state = :state and driverCardId = :driverCardId and driverId = :driverId and timestamp = (select max(timestamp)))",
-            Parameters.with("timestamp", truckDriveState.timestamp)
-                .and("state", truckDriveState.state)
-                .and("driverCardId", truckDriveState.driverCardId)
-                .and("driverId", truckDriveState.driverId)
-                .and("truck", truck)
-        ).awaitSuspending()
-        if (duplicates > 0) {
+        val existingRecord = truckDriveStateRepository.find(
+            "truck = :truck and timestamp = :timestamp",
+            Parameters.with("truck", truck).and("timestamp", truckDriveState.timestamp)
+        ).firstResult<fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState>().awaitSuspending()
+        if (existingRecord != null) {
+            return existingRecord
+        }
+
+        val latestRecord = truckDriveStateRepository.find(
+            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
+            Parameters.with("truck", truck).and("timestamp", truckDriveState.timestamp)
+        ).firstResult<fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState>().awaitSuspending()
+        if (latestRecord != null &&
+            latestRecord.timestamp!! < truckDriveState.timestamp &&
+            latestRecord.state == truckDriveState.state &&
+            truckDriveState.driverCardId == latestRecord.driverCardId &&
+            truckDriveState.driverId == latestRecord.driverId) {
             return null
         }
 

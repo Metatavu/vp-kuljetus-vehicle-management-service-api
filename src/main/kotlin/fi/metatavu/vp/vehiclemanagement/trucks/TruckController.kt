@@ -146,7 +146,7 @@ class TruckController {
         truckSpeedController.listTruckSpeeds(truck).first.forEach {
             truckSpeedController.deleteTruckSpeed(it)
         }
-        truckLocationController.listTruckLocations(truck,).first.forEach {
+        truckLocationController.listTruckLocations(truck).first.forEach {
             truckLocationController.deleteTruckLocation(it)
         }
         truckDriveStateController.listDriveStates(truck = truck).first.forEach {
