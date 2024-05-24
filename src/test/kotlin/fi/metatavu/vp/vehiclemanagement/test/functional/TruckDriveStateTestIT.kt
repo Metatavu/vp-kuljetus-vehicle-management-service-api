@@ -107,7 +107,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createDriveState(
             truck.id, TruckDriveState(
                 state = TruckDriveStateEnum.DRIVE,
-                timestamp = now.toEpochSecond() * 1000,
+                timestamp = now.toEpochSecond(),
                 driverId = driver1,
                 driverCardId = driverCard.id
             )
@@ -115,7 +115,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         it.setApiKey().trucks.createDriveState(
             truck.id, TruckDriveState(
                 state = TruckDriveStateEnum.REST,
-                timestamp = now.plusMinutes(1).toEpochSecond() * 1000,
+                timestamp = now.plusMinutes(1).toEpochSecond(),
                 driverId = driver2,
                 driverCardId = driverCard.id
             )
