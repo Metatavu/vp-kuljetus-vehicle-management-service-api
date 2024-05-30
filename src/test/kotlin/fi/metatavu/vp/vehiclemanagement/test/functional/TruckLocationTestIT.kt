@@ -33,7 +33,15 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
             timestamp = now
         )
         it.setApiKey().trucks.createTruckLocation(truck.id!!, truckLocationData)
-        val createdTruckLocation = it.manager.trucks.listTruckLocations(truck.id)[0]
+        // should be ignored because timestamp is same even if data is different
+        it.setApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(heading = 2.0))
+        // should be ignored because the latest location record is the same
+        it.setApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(timestamp = now + 1))
+
+        val locations = it.manager.trucks.listTruckLocations(truck.id)
+        assertEquals(1, locations.size)
+
+        val createdTruckLocation = locations[0]
         assertNotNull(createdTruckLocation.id)
         assertEquals(truckLocationData.latitude, createdTruckLocation.latitude)
         assertEquals(truckLocationData.longitude, createdTruckLocation.longitude)
@@ -80,7 +88,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
                 latitude = 1.0,
                 longitude = 1.0,
                 heading = 1.0,
-                timestamp = now.toEpochSecond() * 1000
+                timestamp = now.toEpochSecond()
             )
         )
         it.setApiKey().trucks.createTruckLocation(
@@ -88,7 +96,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
                 latitude = 2.0,
                 longitude = 2.0,
                 heading = 2.0,
-                timestamp = now.minusMinutes(1).toEpochSecond() * 1000
+                timestamp = now.plusMinutes(1).toEpochSecond()
             )
         )
         it.setApiKey().trucks.createTruckLocation(
@@ -96,12 +104,12 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
                 latitude = 1.0,
                 longitude = 1.0,
                 heading = 1.0,
-                timestamp = now.toEpochSecond() * 1000
+                timestamp = now.toEpochSecond()
             )
         )
         val truckLocations = it.manager.trucks.listTruckLocations(truck.id)
         assertEquals(2, truckLocations.size)
-        assertEquals(1.0, truckLocations[0].latitude)
+        assertEquals(1.0, truckLocations[1].latitude)
 
         val truck2Locations = it.manager.trucks.listTruckLocations(truck2.id)
         assertEquals(1, truck2Locations.size)
@@ -112,7 +120,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
         val pagedList2 = it.manager.trucks.listTruckLocations(truck.id, first = 2, max = 1)
         assertEquals(0, pagedList2.size)
 
-        val filteredList = it.manager.trucks.listTruckLocations(truck.id, after = now.minusMinutes(5), before = now.minusSeconds(10))
+        val filteredList = it.manager.trucks.listTruckLocations(truck.id, after = now.minusMinutes(5), before = now.plusSeconds(1))
         assertEquals(1, filteredList.size)
     }
 

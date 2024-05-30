@@ -45,6 +45,12 @@ class TruckTestIT : AbstractFunctionalTest() {
         val pagedList4 = builder.manager.trucks.list(firstResult = 0, maxResults = 0)
         assertEquals(0, pagedList4.size)
 
+        val pagedList6 = builder.manager.trucks.list(firstResult = 2)
+        assertEquals(1, pagedList6.size)
+
+        val pagedList7 = builder.manager.trucks.list(maxResults = 1)
+        assertEquals(1, pagedList7.size)
+
         val filteredList = builder.manager.trucks.list(plateNumber = plateNumber)
         assertEquals(1, filteredList.size)
     }

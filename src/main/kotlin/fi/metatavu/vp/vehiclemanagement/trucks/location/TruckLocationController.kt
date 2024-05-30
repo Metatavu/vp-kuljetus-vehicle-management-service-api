@@ -1,10 +1,14 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.location
 
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeed
+import io.quarkus.panache.common.Parameters
+import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.time.OffsetDateTime
 import java.util.*
+import kotlin.math.abs
 
 /**
  * Controller for truck locations
@@ -25,7 +29,27 @@ class TruckLocationController {
     suspend fun createTruckLocation(
         truck: Truck,
         truckLocation: fi.metatavu.vp.api.model.TruckLocation
-    ): TruckLocation {
+    ): TruckLocation? {
+        val existingRecord = truckLocationRepository.find(
+            "truck = :truck and timestamp = :timestamp",
+            Parameters.with("truck", truck).and("timestamp", truckLocation.timestamp)
+        ).firstResult<TruckLocation>().awaitSuspending()
+        if (existingRecord != null) {
+            return existingRecord
+        }
+
+        val latestRecord = truckLocationRepository.find(
+            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
+            Parameters.with("truck", truck).and("timestamp", truckLocation.timestamp)
+        ).firstResult<TruckLocation>().awaitSuspending()
+        if (latestRecord != null &&
+            latestRecord.timestamp!! < truckLocation.timestamp &&
+            abs(latestRecord.latitude!! - truckLocation.latitude) < 0.0001 &&
+            abs(latestRecord.longitude!! - truckLocation.longitude) < 0.0001) {
+            return null
+        }
+
+
         return truckLocationRepository.create(
             id = UUID.randomUUID(),
             timestamp = truckLocation.timestamp,
