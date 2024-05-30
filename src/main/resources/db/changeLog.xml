@@ -296,4 +296,8 @@
         <addUniqueConstraint tableName="TruckDriveState" columnNames="truck_id, timestamp" constraintName="un_truckdrivestate_truck_id_timestamp"/>
     </changeSet>
 
+    <changeSet id="delete_truck_telematics_data" author="lauri lukkarinen">
+        <dropTable tableName="TruckTelematicData"/>
+    </changeSet>
+
 </databaseChangeLog>
