@@ -1,6 +1,5 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.vehiclemanagement.telematics.trucks.TruckTelematicDataRepository
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
@@ -18,9 +17,6 @@ class TruckController {
 
     @Inject
     lateinit var truckRepository: TruckRepository
-
-    @Inject
-    lateinit var truckTelematicDataRepository: TruckTelematicDataRepository
 
     @Inject
     lateinit var vehicleController: VehicleController
@@ -139,9 +135,6 @@ class TruckController {
     suspend fun deleteTruck(truck: Truck) {
         driverCardController.listDriverCards(truck).first.forEach {
             driverCardController.deleteDriverCard(it)
-        }
-        truckTelematicDataRepository.listByTruck(truck).forEach {
-            truckTelematicDataRepository.deleteSuspending(it)
         }
         truckSpeedController.listTruckSpeeds(truck).first.forEach {
             truckSpeedController.deleteTruckSpeed(it)
