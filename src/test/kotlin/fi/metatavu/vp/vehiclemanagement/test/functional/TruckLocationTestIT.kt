@@ -88,7 +88,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
                 latitude = 1.0,
                 longitude = 1.0,
                 heading = 1.0,
-                timestamp = now.toEpochSecond() * 1000
+                timestamp = now.toEpochSecond()
             )
         )
         it.setApiKey().trucks.createTruckLocation(
@@ -96,7 +96,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
                 latitude = 2.0,
                 longitude = 2.0,
                 heading = 2.0,
-                timestamp = now.plusMinutes(1).toEpochSecond() * 1000
+                timestamp = now.plusMinutes(1).toEpochSecond()
             )
         )
         it.setApiKey().trucks.createTruckLocation(
@@ -104,7 +104,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
                 latitude = 1.0,
                 longitude = 1.0,
                 heading = 1.0,
-                timestamp = now.toEpochSecond() * 1000
+                timestamp = now.toEpochSecond()
             )
         )
         val truckLocations = it.manager.trucks.listTruckLocations(truck.id)

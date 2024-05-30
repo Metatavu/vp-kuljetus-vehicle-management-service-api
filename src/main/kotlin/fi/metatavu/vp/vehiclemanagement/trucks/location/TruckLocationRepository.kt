@@ -68,12 +68,12 @@ class TruckLocationRepository : AbstractRepository<TruckLocation, UUID>() {
 
         if (after != null) {
             stringBuilder.append(" AND timestamp >= :after")
-            parameters.and("after", after.toEpochSecond() * 1000)
+            parameters.and("after", after.toEpochSecond())
         }
 
         if (before != null) {
             stringBuilder.append(" AND timestamp <= :before")
-            parameters.and("before", before.toEpochSecond() * 1000)
+            parameters.and("before", before.toEpochSecond())
         }
 
         return applyFirstMaxToQuery(
