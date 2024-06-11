@@ -58,7 +58,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateTruckDriveStatesFail() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val truck2 = it.manager.trucks.create("002", "002", it.manager.vehicles)
+        val truck2 = it.manager.trucks.create("002", "002", null, it.manager.vehicles)
         val driverCard = it.setApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId"))
         val driverCardTruck2 = it.setApiKey().trucks.createDriverCard(truck2.id!!, TruckDriverCard("driverCardId2"))
 
@@ -97,7 +97,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val driverCard = it.setApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId"))
 
-        val truck2 = it.manager.trucks.create("002", "002", it.manager.vehicles)
+        val truck2 = it.manager.trucks.create("002", "002", null, it.manager.vehicles)
         val driverCard2 = it.setApiKey().trucks.createDriverCard(truck2.id!!, TruckDriverCard("driverCardId2"))
 
         val now = OffsetDateTime.now()

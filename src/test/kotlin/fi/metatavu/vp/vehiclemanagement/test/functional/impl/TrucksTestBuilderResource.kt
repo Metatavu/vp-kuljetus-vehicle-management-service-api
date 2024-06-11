@@ -49,12 +49,14 @@ class TrucksTestBuilderResource(
     fun create(
         plateNumber: String,
         vin: String,
+        name: String? = null,
         vehiclesTestBuilderResource: VehiclesTestBuilderResource
     ): Truck {
         return create(
             Truck(
                 plateNumber = plateNumber,
                 vin = vin,
+                name = name,
                 type = Truck.Type.TRUCK
             ), vehiclesTestBuilderResource
         )
@@ -66,7 +68,7 @@ class TrucksTestBuilderResource(
      * @return created truck
      */
     fun create(vehiclesTestBuilderResource: VehiclesTestBuilderResource): Truck {
-        return create("ABC-123", "001", vehiclesTestBuilderResource)
+        return create("ABC-123", "001", null,  vehiclesTestBuilderResource)
     }
 
     /**
@@ -84,6 +86,8 @@ class TrucksTestBuilderResource(
      *
      * @param plateNumber plate number
      * @param archived archived
+     * @param sortBy sort by field
+     * @param sortDirection sort direction
      * @param firstResult first result
      * @param maxResults max results
      * @return list of trucks
@@ -91,12 +95,16 @@ class TrucksTestBuilderResource(
     fun list(
         plateNumber: String? = null,
         archived: Boolean? = null,
+        sortBy: TruckSortByField? = null,
+        sortDirection: String? = null,
         firstResult: Int? = null,
         maxResults: Int? = null
     ): Array<Truck> {
         return api.listTrucks(
             plateNumber,
             archived,
+            sortBy = sortBy,
+            sortDirection = sortDirection,
             firstResult,
             maxResults
         )
@@ -146,7 +154,7 @@ class TrucksTestBuilderResource(
         maxResults: Int? = null
     ) {
         try {
-            api.listTrucks(plateNumber, archived, firstResult, maxResults)
+            api.listTrucks(plateNumber, archived, null, null, firstResult, maxResults)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)

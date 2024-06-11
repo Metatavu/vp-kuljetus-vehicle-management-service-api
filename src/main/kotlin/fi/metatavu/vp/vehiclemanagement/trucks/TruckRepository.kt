@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
+import fi.metatavu.vp.api.model.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -50,6 +51,8 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
      * @param plateNumber plate number
      * @param archived archived
      * @param vin vin
+     * @param sortBy sort by field
+     * @param sortDirection sort direction
      * @param firstResult first result
      * @param maxResults max results
      * @return list of trucks
@@ -58,11 +61,16 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         plateNumber: String?,
         archived: Boolean?,
         vin: String?,
+        sortBy: TruckSortByField?,
+        sortDirection: String?,
         firstResult: Int?,
         maxResults: Int?
     ): Pair<List<Truck>, Long> {
         val sb = StringBuilder()
         val parameters = Parameters()
+
+        val validSortDirection = validateSortDirection(sortDirection)
+        val validSortBy = convertRestSortByToJpa(sortBy)
 
         if (plateNumber != null) {
             addCondition(sb, "plateNumber = :plateNumber")
@@ -80,7 +88,10 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
             addCondition(sb, "archivedAt IS NOT NULL")
         }
 
-        sb.append("ORDER BY createdAt DESC")
+        if (validSortDirection != null) {
+            sb.append("ORDER BY $validSortBy $validSortDirection")
+        }
+
         return applyFirstMaxToQuery(
             query = find(sb.toString(), parameters),
             firstIndex = firstResult,
@@ -116,5 +127,20 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
      */
     suspend fun countByVin(vin: String): Long {
         return count("vin", vin).awaitSuspending()
+    }
+
+    /**
+     * Converts REST sort by field to JPA sort by field
+     *
+     * Default sort by field is name
+     *
+     * @param sortBy REST sort by field
+     * @return JPA sort by field
+     */
+    private fun convertRestSortByToJpa(sortBy: TruckSortByField?): String {
+        return when (sortBy) {
+            TruckSortByField.PLATE_NUMBER -> "plateNumber"
+            else -> "name"
+        }
     }
 }

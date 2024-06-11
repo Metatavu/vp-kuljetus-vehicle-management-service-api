@@ -121,4 +121,20 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
     open suspend fun findByIdSuspending(id: Id): Entity? {
         return findById(id).awaitSuspending()
     }
+
+    /**
+     * Validates string sort direction
+     *
+     * If no sort direction is provided, default is desc
+     *
+     * @param sortDirection sort direction
+     * @return validated sort direction
+     */
+    open fun validateSortDirection(sortDirection: String?): String? {
+        return if (sortDirection?.lowercase() == "asc" || sortDirection?.lowercase() == "desc") {
+            sortDirection
+        } else {
+            "asc"
+        }
+    }
 }

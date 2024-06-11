@@ -22,7 +22,7 @@ class VehicleTestIT : AbstractFunctionalTest() {
     @Test
     fun testList() = createTestBuilder().use { builder ->
         val truck1 = builder.manager.trucks.create(builder.manager.vehicles)
-        val truck2 = builder.manager.trucks.create("DEF-457", "002", builder.manager.vehicles)
+        val truck2 = builder.manager.trucks.create("DEF-457", "002", null, builder.manager.vehicles)
 
         val towable1 = builder.manager.towables.create(plateNumber = "DEF-456", vin = "003")
         val towable2 = builder.manager.towables.create(plateNumber = "GHI-789", vin = "004")

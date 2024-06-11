@@ -15,9 +15,9 @@ class PublicTruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        val createdTruck = builder.manager.trucks.create(plateNumber = plateNumber, vin = "001", builder.manager.vehicles)
-        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002", builder.manager.vehicles)
-        builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003", builder.manager.vehicles)
+        val createdTruck = builder.manager.trucks.create(plateNumber = plateNumber, vin = "001", vehiclesTestBuilderResource = builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002", vehiclesTestBuilderResource = builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003", vehiclesTestBuilderResource = builder.manager.vehicles)
         val totalList = builder.anon.publicTrucks.list()
         assertEquals(3, totalList.size)
         val truck1 = totalList.find { it.vin == "001" }
