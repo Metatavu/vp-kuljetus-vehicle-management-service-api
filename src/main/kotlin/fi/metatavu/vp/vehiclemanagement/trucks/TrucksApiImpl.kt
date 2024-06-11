@@ -106,7 +106,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         plateNumber: String?,
         archived: Boolean?,
         sortBy: TruckSortByField?,
-        sortDirection: String?,
+        sortDirection: SortOrder?,
         first: Int?,
         max: Int?
     ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {

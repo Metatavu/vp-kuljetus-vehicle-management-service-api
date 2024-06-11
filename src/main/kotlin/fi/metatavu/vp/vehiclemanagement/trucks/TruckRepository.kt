@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
+import fi.metatavu.vp.api.model.SortOrder
 import fi.metatavu.vp.api.model.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
@@ -62,14 +63,14 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         archived: Boolean?,
         vin: String?,
         sortBy: TruckSortByField?,
-        sortDirection: String?,
+        sortDirection: SortOrder?,
         firstResult: Int?,
         maxResults: Int?
     ): Pair<List<Truck>, Long> {
         val sb = StringBuilder()
         val parameters = Parameters()
 
-        val validSortDirection = validateSortDirection(sortDirection)
+        val validSortDirection = convertRestSortOrderToJpa(sortDirection)
         val validSortBy = convertRestSortByToJpa(sortBy)
 
         if (plateNumber != null) {

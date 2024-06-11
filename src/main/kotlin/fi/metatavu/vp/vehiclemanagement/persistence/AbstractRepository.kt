@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.persistence
 
+import fi.metatavu.vp.api.model.SortOrder
 import io.quarkus.hibernate.reactive.panache.PanacheQuery
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -123,18 +124,17 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
     }
 
     /**
-     * Validates string sort direction
+     * Converts REST sort order to JPA sort order
      *
-     * If no sort direction is provided, default is desc
+     * If no sort order is provided, default is desc
      *
-     * @param sortDirection sort direction
-     * @return validated sort direction
+     * @param sortOrder sort order
+     * @return jpa sort order
      */
-    open fun validateSortDirection(sortDirection: String?): String? {
-        return if (sortDirection?.lowercase() == "asc" || sortDirection?.lowercase() == "desc") {
-            sortDirection
-        } else {
-            "asc"
+    open fun convertRestSortOrderToJpa(sortOrder: SortOrder?): String? {
+        return when (sortOrder) {
+            SortOrder.DESCENDING -> "desc"
+            else -> "asc"
         }
     }
 }

@@ -96,7 +96,7 @@ class TrucksTestBuilderResource(
         plateNumber: String? = null,
         archived: Boolean? = null,
         sortBy: TruckSortByField? = null,
-        sortDirection: String? = null,
+        sortDirection: SortOrder? = null,
         firstResult: Int? = null,
         maxResults: Int? = null
     ): Array<Truck> {

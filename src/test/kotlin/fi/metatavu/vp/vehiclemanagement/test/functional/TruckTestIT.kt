@@ -4,6 +4,7 @@ import fi.metatavu.invalid.InvalidValueTestScenarioBody
 import fi.metatavu.invalid.InvalidValueTestScenarioBuilder
 import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
+import fi.metatavu.vp.test.client.models.SortOrder
 import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.test.client.models.TruckSortByField
@@ -44,7 +45,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         assertEquals("DEF-456", sortedListByPlateNumber[1].plateNumber)
         assertEquals("GHI-789", sortedListByPlateNumber[2].plateNumber)
 
-        val sortedListByNameDesc = builder.manager.trucks.list(sortBy = TruckSortByField.NAME, sortDirection = "desc")
+        val sortedListByNameDesc = builder.manager.trucks.list(sortBy = TruckSortByField.NAME, sortDirection = SortOrder.DESCENDING)
         assertEquals(3, sortedListByNameDesc.size)
         assertEquals("5", sortedListByNameDesc[0].name)
         assertEquals("2", sortedListByNameDesc[1].name)
