@@ -81,7 +81,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
     @Test
     fun testListTruckLocations() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val truck2 = it.manager.trucks.create("002", "002", it.manager.vehicles)
+        val truck2 = it.manager.trucks.create("002", "002", null, it.manager.vehicles)
         val now = OffsetDateTime.now()
         it.setApiKey().trucks.createTruckLocation(
             truck.id!!, TruckLocation(

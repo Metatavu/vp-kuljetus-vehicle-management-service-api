@@ -102,10 +102,19 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     }.asUni()
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listTrucks(plateNumber: String?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+    override fun listTrucks(
+        plateNumber: String?,
+        archived: Boolean?,
+        sortBy: TruckSortByField?,
+        sortDirection: SortOrder?,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
         val ( trucks, count ) = truckController.listTrucks(
             plateNumber = plateNumber,
             archived = archived,
+            sortBy = sortBy,
+            sortDirection = sortDirection,
             firstResult = first,
             maxResults = max
         )

@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.persistence
 
+import fi.metatavu.vp.api.model.SortOrder
 import io.quarkus.hibernate.reactive.panache.PanacheQuery
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -120,5 +121,20 @@ abstract class AbstractRepository<Entity, Id> : PanacheRepositoryBase<Entity, Id
      */
     open suspend fun findByIdSuspending(id: Id): Entity? {
         return findById(id).awaitSuspending()
+    }
+
+    /**
+     * Converts REST sort order to JPA sort order
+     *
+     * If no sort order is provided, default is desc
+     *
+     * @param sortOrder sort order
+     * @return jpa sort order
+     */
+    open fun convertRestSortOrderToJpa(sortOrder: SortOrder?): String? {
+        return when (sortOrder) {
+            SortOrder.DESCENDING -> "desc"
+            else -> "asc"
+        }
     }
 }

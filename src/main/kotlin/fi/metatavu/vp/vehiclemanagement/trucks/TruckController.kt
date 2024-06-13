@@ -1,5 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
+import fi.metatavu.vp.api.model.SortOrder
+import fi.metatavu.vp.api.model.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
@@ -89,6 +91,8 @@ class TruckController {
      * @param plateNumber plate number
      * @param archived archived
      * @param vin vin
+     * @param sortBy sort by field
+     * @param sortDirection sort direction
      * @param firstResult first result
      * @param maxResults max results
      * @return list of trucks
@@ -97,6 +101,8 @@ class TruckController {
         plateNumber: String? = null,
         archived: Boolean? = null,
         vin: String? = null,
+        sortBy: TruckSortByField? = null,
+        sortDirection: SortOrder? = null,
         firstResult: Int? = null,
         maxResults: Int? = null,
     ): Pair<List<Truck>, Long> {
@@ -104,6 +110,8 @@ class TruckController {
             plateNumber = plateNumber,
             archived = archived,
             vin = vin,
+            sortBy = sortBy,
+            sortDirection = sortDirection,
             firstResult = firstResult,
             maxResults = maxResults
         )

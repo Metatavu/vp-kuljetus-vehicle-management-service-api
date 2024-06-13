@@ -4,8 +4,10 @@ import fi.metatavu.invalid.InvalidValueTestScenarioBody
 import fi.metatavu.invalid.InvalidValueTestScenarioBuilder
 import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
+import fi.metatavu.vp.test.client.models.SortOrder
 import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.test.client.models.Truck
+import fi.metatavu.vp.test.client.models.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.test.functional.impl.InvalidTestValues
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
@@ -16,7 +18,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import java.util.*
 
 /**
  * Test class for testing Trucks API
@@ -27,11 +28,28 @@ class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
     fun testList() = createTestBuilder().use { builder ->
-        builder.manager.trucks.create(plateNumber = plateNumber, vin = "001", builder.manager.vehicles)
-        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002", builder.manager.vehicles)
-        builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003", builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = plateNumber, vin = "001", name = "1", vehiclesTestBuilderResource = builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002", name = "5", vehiclesTestBuilderResource = builder.manager.vehicles)
+        builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003", name = "2", vehiclesTestBuilderResource = builder.manager.vehicles)
         val totalList = builder.manager.trucks.list()
         assertEquals(3, totalList.size)
+
+        // Assert that trucks are sorted by name field
+        assertEquals("1", totalList[0].name)
+        assertEquals("2", totalList[1].name)
+        assertEquals("5", totalList[2].name)
+
+        val sortedListByPlateNumber = builder.manager.trucks.list(sortBy = TruckSortByField.PLATE_NUMBER)
+        assertEquals(3, sortedListByPlateNumber.size)
+        assertEquals(plateNumber, sortedListByPlateNumber[0].plateNumber)
+        assertEquals("DEF-456", sortedListByPlateNumber[1].plateNumber)
+        assertEquals("GHI-789", sortedListByPlateNumber[2].plateNumber)
+
+        val sortedListByNameDesc = builder.manager.trucks.list(sortBy = TruckSortByField.NAME, sortDirection = SortOrder.DESCENDING)
+        assertEquals(3, sortedListByNameDesc.size)
+        assertEquals("5", sortedListByNameDesc[0].name)
+        assertEquals("2", sortedListByNameDesc[1].name)
+        assertEquals("1", sortedListByNameDesc[2].name)
 
         val pagedList = builder.manager.trucks.list(firstResult = 1, maxResults = 1)
         assertEquals(1, pagedList.size)
