@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.test.functional.settings
 
-import fi.metatavu.vp.vehiclemanagement.test.functional.resources.UserManagementMockTestResource
+import fi.metatavu.vp.vehiclemanagement.test.functional.resources.wiremock.UserManagementMockTestResource
 import io.quarkus.test.junit.QuarkusTestProfile
 import io.quarkus.test.junit.QuarkusTestProfile.TestResourceEntry
 

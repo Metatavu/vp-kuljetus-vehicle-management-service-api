@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
-import java.util.*
 
 /**
  * Tests for TruckDriveState part of Trucks API
@@ -28,15 +27,13 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateTruckDriveStates() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val driverCard = it.setApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId"))
         val now = System.currentTimeMillis()
         val truckDriveStateData = TruckDriveState(
             state = TruckDriveStateEnum.DRIVE,
             timestamp = now,
-            driverCardId = driverCard.id,
-            driverId = UUID.randomUUID()
+            driverCardId = driver1CardId,
         )
-        it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData)
+        it.setApiKey().trucks.createDriveState(truck.id!!, truckDriveStateData)
         // should be ignored because timestamp is same
         it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(state = TruckDriveStateEnum.REST))
         // should be ignored because the latest drive state record is the same
@@ -45,29 +42,26 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
             truckDriveStateData.copy(timestamp = now + 1)
         )
 
-        val createdTruckLocations = it.manager.trucks.listDriveStates(truck.id)
-        assertEquals(1, createdTruckLocations.size)
-        val createdTruckLocation = createdTruckLocations[0]
-        assertNotNull(createdTruckLocation.id)
-        assertEquals(truckDriveStateData.state, createdTruckLocation.state)
-        assertEquals(truckDriveStateData.driverCardId, createdTruckLocation.driverCardId)
-        assertEquals(truckDriveStateData.driverId, createdTruckLocation.driverId)
-        assertEquals(truckDriveStateData.timestamp, createdTruckLocation.timestamp)
+        val createdTruckDriveStates = it.manager.trucks.listDriveStates(truck.id)
+        assertEquals(1, createdTruckDriveStates.size)
+        val createdTruckDriveState = createdTruckDriveStates[0]
+        assertNotNull(createdTruckDriveState.id)
+        assertEquals(truckDriveStateData.state, createdTruckDriveState.state)
+        assertEquals(truckDriveStateData.driverCardId, createdTruckDriveState.driverCardId)
+        assertEquals(driver1Id, createdTruckDriveState.driverId)
+        assertEquals(truckDriveStateData.timestamp, createdTruckDriveState.timestamp)
     }
 
     @Test
     fun testCreateTruckDriveStatesFail() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val truck2 = it.manager.trucks.create("002", "002", null, it.manager.vehicles)
         val driverCard = it.setApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId"))
-        val driverCardTruck2 = it.setApiKey().trucks.createDriverCard(truck2.id!!, TruckDriverCard("driverCardId2"))
 
         val now = System.currentTimeMillis()
         val truckDriveStateData = TruckDriveState(
             state = TruckDriveStateEnum.DRIVE,
             timestamp = now,
-            driverCardId = driverCard.id,
-            driverId = UUID.randomUUID()
+            driverCardId = driverCard.id
         )
 
         // access rights
@@ -95,36 +89,29 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testListTruckDriveStates() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val driverCard = it.setApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId"))
-
         val truck2 = it.manager.trucks.create("002", "002", null, it.manager.vehicles)
-        val driverCard2 = it.setApiKey().trucks.createDriverCard(truck2.id!!, TruckDriverCard("driverCardId2"))
 
         val now = OffsetDateTime.now()
-        val driver1 = UUID.randomUUID()
-        val driver2 = UUID.randomUUID()
 
         it.setApiKey().trucks.createDriveState(
-            truck.id, TruckDriveState(
+            truck.id!!, TruckDriveState(
                 state = TruckDriveStateEnum.DRIVE,
                 timestamp = now.toEpochSecond(),
-                driverId = driver1,
-                driverCardId = driverCard.id
+                driverCardId = driver1CardId
             )
         )
         it.setApiKey().trucks.createDriveState(
             truck.id, TruckDriveState(
                 state = TruckDriveStateEnum.REST,
                 timestamp = now.plusMinutes(1).toEpochSecond(),
-                driverId = driver2,
-                driverCardId = driverCard.id
+                driverCardId = driver1CardId
             )
         )
         it.setApiKey().trucks.createDriveState(
-            truck2.id, TruckDriveState(
+            truck2.id!!, TruckDriveState(
                 state = TruckDriveStateEnum.REST,
                 timestamp = now.toEpochSecond() * 1000,
-                driverCardId = driverCard2.id
+                driverCardId = driver2CardId
             )
         )
 
@@ -135,14 +122,17 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         val truck2DriveStates = it.manager.trucks.listDriveStates(truck2.id)
         assertEquals(1, truck2DriveStates.size)
 
-        val driver1States = it.manager.trucks.listDriveStates(truckId = truck.id, driverId = driver1)
-        assertEquals(1, driver1States.size)
+        val driver1States = it.manager.trucks.listDriveStates(truckId = truck.id, driverId = driver1Id)
+        assertEquals(2, driver1States.size)
 
-        val driverCardStates = it.manager.trucks.listDriveStates(
+        val driver2States = it.manager.trucks.listDriveStates(truckId = truck2.id, driverId = driver2Id)
+        assertEquals(1, driver2States.size)
+
+        val restStates = it.manager.trucks.listDriveStates(
             truckId = truck.id,
             state = listOf(TruckDriveStateEnum.REST).toTypedArray()
         )
-        assertEquals(1, driverCardStates.size)
+        assertEquals(1, restStates.size)
 
         val pagedList = it.manager.trucks.listDriveStates(truck.id, first = 1, max = 1)
         assertEquals(1, pagedList.size)
@@ -150,7 +140,8 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         val pagedList2 = it.manager.trucks.listDriveStates(truck.id, first = 2, max = 1)
         assertEquals(0, pagedList2.size)
 
-        val filteredList = it.manager.trucks.listDriveStates(truck.id, after = now.minusMinutes(5), before = now.plusSeconds(1))
+        val filteredList =
+            it.manager.trucks.listDriveStates(truck.id, after = now.minusMinutes(5), before = now.plusSeconds(1))
         assertEquals(1, filteredList.size)
 
         assertNotNull(it.driver.trucks.listDriveStates(truckId = truck.id))

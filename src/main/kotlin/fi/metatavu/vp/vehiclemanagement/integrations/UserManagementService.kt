@@ -22,10 +22,11 @@ class UserManagementService {
      * @param driverCardId driver card id
      * @return found driver
      */
-    @Suppress("UNCHECKED_CAST")
-    suspend fun findDriver(driverCardId: String): Driver? {
+    suspend fun findDriverByDriverCardId(driverCardId: String): Driver? {
         return try {
-            val foundDrivers = driversApi.listDrivers(driverCardId = driverCardId, archived = false, first = null, max = null).awaitSuspending().entity as List<Driver>?
+            val foundDrivers = driversApi.listDrivers(driverCardId = driverCardId, archived = false, first = null, max = null)
+                .awaitSuspending()
+                .readEntity(Array<Driver>::class.java)
 
             foundDrivers?.firstOrNull()
         } catch (e: Exception) {

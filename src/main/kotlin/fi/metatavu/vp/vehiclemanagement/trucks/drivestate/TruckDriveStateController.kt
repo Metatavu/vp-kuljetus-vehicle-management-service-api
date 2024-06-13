@@ -2,15 +2,12 @@ package fi.metatavu.vp.vehiclemanagement.trucks.drivestate
 
 import fi.metatavu.vp.api.model.TruckDriveState
 import fi.metatavu.vp.api.model.TruckDriveStateEnum
-import fi.metatavu.vp.usermanagement.model.Driver
-import fi.metatavu.vp.usermanagement.spec.DriversApi
 import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -45,6 +42,9 @@ class TruckDriveStateController {
             return existingRecord
         }
 
+
+        val foundDriverId = truckDriveState.driverCardId?.let { userManagementService.findDriverByDriverCardId(it)?.id }
+
         val latestRecord = truckDriveStateRepository.find(
             "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
             Parameters.with("truck", truck).and("timestamp", truckDriveState.timestamp)
@@ -53,20 +53,16 @@ class TruckDriveStateController {
             latestRecord.timestamp!! < truckDriveState.timestamp &&
             latestRecord.state == truckDriveState.state &&
             truckDriveState.driverCardId == latestRecord.driverCardId &&
-            truckDriveState.driverId == latestRecord.driverId) {
+            foundDriverId == latestRecord.driverId) {
             return null
         }
-
-
-//        val foundDriverId = truckDriveState.driverCardId?.let { userManagementService.findDriver(it)?.id }
 
         return truckDriveStateRepository.create(
             id = UUID.randomUUID(),
             state = truckDriveState.state,
             timestamp = truckDriveState.timestamp,
             driverCardId = truckDriveState.driverCardId,
-            driverId = null,
-//            driverId = foundDriverId,
+            driverId = foundDriverId,
             truck = truck
         )
     }
