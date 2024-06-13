@@ -2,11 +2,15 @@ package fi.metatavu.vp.vehiclemanagement.trucks.drivestate
 
 import fi.metatavu.vp.api.model.TruckDriveState
 import fi.metatavu.vp.api.model.TruckDriveStateEnum
+import fi.metatavu.vp.usermanagement.model.Driver
+import fi.metatavu.vp.usermanagement.spec.DriversApi
+import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import org.eclipse.microprofile.rest.client.inject.RestClient
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -18,6 +22,9 @@ class TruckDriveStateController {
 
     @Inject
     lateinit var truckDriveStateRepository: TruckDriveStateRepository
+
+    @Inject
+    lateinit var userManagementService: UserManagementService
 
     /**
      * Creates a new truck drive state
@@ -50,12 +57,16 @@ class TruckDriveStateController {
             return null
         }
 
+
+//        val foundDriverId = truckDriveState.driverCardId?.let { userManagementService.findDriver(it)?.id }
+
         return truckDriveStateRepository.create(
             id = UUID.randomUUID(),
             state = truckDriveState.state,
             timestamp = truckDriveState.timestamp,
             driverCardId = truckDriveState.driverCardId,
-            driverId = truckDriveState.driverId,
+            driverId = null,
+//            driverId = foundDriverId,
             truck = truck
         )
     }

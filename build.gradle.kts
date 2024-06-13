@@ -17,6 +17,7 @@ val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 val jaxrsFunctionalTestBuilderVersion: String by project
 val okhttpVersion: String by project
+val wiremockVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -31,6 +32,7 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-kotlin")
+    implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
 
     implementation("io.vertx:vertx-core")
     implementation("io.vertx:vertx-lang-kotlin")
@@ -44,23 +46,26 @@ dependencies {
     }
     implementation("org.jboss.logging:commons-logging-jboss-logging")
 
+    testImplementation("org.wiremock:wiremock:$wiremockVersion")
     testImplementation("io.rest-assured:kotlin-extensions")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
+
 }
 
 group = "fi.metatavu.vp"
 version = "1.0.0-SNAPSHOT"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 sourceSets["main"].java {
     srcDir("build/generated/api-spec/src/main/kotlin")
+    srcDir("build/generated/user-management-api-spec/src/main/kotlin")
 }
 sourceSets["test"].java {
     srcDir("build/generated/api-client/src/main/kotlin")
@@ -77,8 +82,12 @@ allOpen {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions.jvmTarget = JavaVersion.VERSION_11.toString()
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString()
     kotlinOptions.javaParameters = true
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
@@ -115,12 +124,46 @@ val generateApiClient = tasks.register("generateApiClient",GenerateTask::class){
     this.configOptions.put("enumPropertyNaming", "UPPERCASE")
 }
 
-tasks.named("compileKotlin") {
+val generateUserManagementApiClient = tasks.register("generateUserManagementApiClient",GenerateTask::class){
+    setProperty("generatorName", "kotlin-server")
+    setProperty("inputSpec",  "$rootDir/vp-kuljetus-transport-management-specs/services/user-management-services.yaml")
+    setProperty("outputDir", "$buildDir/generated/user-management-api-spec")
+    setProperty("apiPackage", "${project.group}.usermanagement.spec")
+    setProperty("invokerPackage", "${project.group}.usermanagement.invoker")
+    setProperty("modelPackage", "${project.group}.usermanagement.model")
+    setProperty("templateDir", "$rootDir/openapi/rest-client")
+    setProperty("validateSpec", false)
+
+    this.configOptions.put("library", "jaxrs-spec")
+    this.configOptions.put("dateLibrary", "java8")
+    this.configOptions.put("enumPropertyNaming", "UPPERCASE")
+    this.configOptions.put("interfaceOnly", "true")
+    this.configOptions.put("useMutiny", "true")
+    this.configOptions.put("returnResponse", "true")
+    this.configOptions.put("useSwaggerAnnotations", "false")
+    this.configOptions.put("additionalModelTypeAnnotations", "@io.quarkus.runtime.annotations.RegisterForReflection")
+}
+
+tasks.register("generate") {
+    dependsOn(generateImplementationClients)
+    dependsOn(generateTestClients)
+}
+
+val generateImplementationClients: TaskProvider<Task> = tasks.register("generateImplementationClients") {
     dependsOn(generateApiSpec)
+    dependsOn(generateUserManagementApiClient)
+}
+
+val generateTestClients: TaskProvider<Task> = tasks.register("generateTestClients") {
+    dependsOn(generateApiClient)
+}
+
+tasks.named("compileKotlin") {
+    dependsOn(generateImplementationClients)
 }
 
 tasks.named("compileTestKotlin") {
-    dependsOn(generateApiClient)
+    dependsOn(generateTestClients)
 }
 
 tasks.named<Test>("test") {

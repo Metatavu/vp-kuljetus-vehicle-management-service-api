@@ -2,6 +2,7 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.api.model.*
 import fi.metatavu.vp.api.spec.TrucksApi
+import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
@@ -68,6 +69,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckDriveStateTranslator: TruckDriveStateTranslator
+
+    @Inject
+    lateinit var userManagementService: UserManagementService
 
     @Inject
     lateinit var vertx: Vertx
@@ -164,8 +168,12 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     // Driver cards
 
     override fun listTruckDriverCards(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+        if (loggedUserId == null && requestApiKey == null) return@async createUnauthorized(UNAUTHORIZED)
+        if (requestApiKey != null && requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+        if (loggedUserId != null && !hasRealmRole(DRIVER_ROLE)) return@async createForbidden(FORBIDDEN)
+
         val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+
         val (cards, count) = driverCardController.listDriverCards(truck)
         createOk(driverCardTranslator.translate(cards), count)
     }.asUni()

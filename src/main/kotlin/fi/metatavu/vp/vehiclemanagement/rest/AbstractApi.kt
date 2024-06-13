@@ -4,6 +4,7 @@ import jakarta.inject.Inject
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
 import jakarta.ws.rs.core.Response
+import jakarta.ws.rs.core.SecurityContext
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.jwt.JsonWebToken
 import java.util.*
@@ -24,6 +25,9 @@ abstract class AbstractApi {
 
     @Inject
     private lateinit var jsonWebToken: JsonWebToken
+
+    @Context
+    lateinit var securityContext: SecurityContext
 
     @Context
     lateinit var headers: HttpHeaders
@@ -57,6 +61,17 @@ abstract class AbstractApi {
         get() {
             return headers.getHeaderString("X-API-Key")
         }
+
+    /**
+     * Checks if user has realm role
+     *
+     * @param realmRoles realm role
+     * @return response
+     */
+    protected fun hasRealmRole(vararg realmRoles: String): Boolean {
+        if (jsonWebToken.subject == null) return false
+        return realmRoles.any { securityContext.isUserInRole(it) }
+    }
 
     /**
      * Constructs ok response
