@@ -11,7 +11,7 @@ class TruckLocationTranslator : AbstractTranslator<TruckLocation, fi.metatavu.vp
 
     override suspend fun translate(entity: TruckLocation): fi.metatavu.vp.api.model.TruckLocation {
         return fi.metatavu.vp.api.model.TruckLocation(
-            id = entity.id!!,
+            id = entity.id,
             latitude = entity.latitude!!,
             longitude = entity.longitude!!,
             heading = entity.heading!!,

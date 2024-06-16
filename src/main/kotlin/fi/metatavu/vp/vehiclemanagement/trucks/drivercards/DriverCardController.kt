@@ -59,5 +59,4 @@ class DriverCardController {
     suspend fun deleteDriverCard(driverCard: DriverCard) {
         driverCardRepository.deleteSuspending(driverCard)
     }
-
 }

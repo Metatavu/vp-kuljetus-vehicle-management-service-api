@@ -2,6 +2,7 @@ package fi.metatavu.vp.vehiclemanagement.trucks.drivestate
 
 import fi.metatavu.vp.api.model.TruckDriveState
 import fi.metatavu.vp.api.model.TruckDriveStateEnum
+import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -18,6 +19,9 @@ class TruckDriveStateController {
 
     @Inject
     lateinit var truckDriveStateRepository: TruckDriveStateRepository
+
+    @Inject
+    lateinit var userManagementService: UserManagementService
 
     /**
      * Creates a new truck drive state
@@ -38,6 +42,9 @@ class TruckDriveStateController {
             return existingRecord
         }
 
+
+        val foundDriverId = truckDriveState.driverCardId?.let { userManagementService.findDriverByDriverCardId(it)?.id }
+
         val latestRecord = truckDriveStateRepository.find(
             "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
             Parameters.with("truck", truck).and("timestamp", truckDriveState.timestamp)
@@ -46,7 +53,7 @@ class TruckDriveStateController {
             latestRecord.timestamp!! < truckDriveState.timestamp &&
             latestRecord.state == truckDriveState.state &&
             truckDriveState.driverCardId == latestRecord.driverCardId &&
-            truckDriveState.driverId == latestRecord.driverId) {
+            foundDriverId == latestRecord.driverId) {
             return null
         }
 
@@ -55,7 +62,7 @@ class TruckDriveStateController {
             state = truckDriveState.state,
             timestamp = truckDriveState.timestamp,
             driverCardId = truckDriveState.driverCardId,
-            driverId = truckDriveState.driverId,
+            driverId = foundDriverId,
             truck = truck
         )
     }

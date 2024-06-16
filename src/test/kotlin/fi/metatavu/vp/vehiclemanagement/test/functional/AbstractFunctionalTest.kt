@@ -12,6 +12,7 @@ import org.skyscreamer.jsonassert.JSONCompareMode
 import org.skyscreamer.jsonassert.JSONCompareResult
 import org.skyscreamer.jsonassert.comparator.CustomComparator
 import java.io.File
+import java.util.UUID
 import java.util.zip.ZipFile
 
 /**
@@ -121,4 +122,10 @@ abstract class AbstractFunctionalTest {
         return config.propertyNames.associateWith { config.getConfigValue(it).rawValue }
     }
 
+    companion object {
+        val driver1Id = UUID.fromString("95dd89a2-da9a-4ce4-979d-8897b7603b2e")
+        val driver1CardId = "001"
+        val driver2Id = UUID.fromString("0bb1039a-7688-453d-b4e8-4f5ba277db0c")
+        val driver2CardId = "002"
+    }
 }

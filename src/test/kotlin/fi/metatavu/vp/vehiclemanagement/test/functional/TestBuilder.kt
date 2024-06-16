@@ -19,9 +19,10 @@ import org.eclipse.microprofile.config.ConfigProvider
 class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenTestBuilder<ApiClient>() {
 
     var anon = TestBuilderAuthentication(this, NullAccessTokenProvider(), null)
-    var user = createTestBuilderAuthentication(username = "user", password = "userPassword")
-    val driver = createTestBuilderAuthentication(username = "driver", password = "driverPassword")
-    val manager = createTestBuilderAuthentication(username = "manager", password = "managerPassword")
+    var user = createTestBuilderAuthentication(username = "user", password = "test")
+    val driver = createTestBuilderAuthentication(username = "driver1", password = "test")
+    val driver2 = createTestBuilderAuthentication(username = "driver2", password = "test")
+    val manager = createTestBuilderAuthentication(username = "manager", password = "test")
 
     override fun createTestBuilderAuthentication(
         abstractTestBuilder: AbstractTestBuilder<ApiClient, AccessTokenProvider>,
@@ -50,10 +51,9 @@ class TestBuilder(private val config: Map<String, String>): AbstractAccessTokenT
      */
     private fun createTestBuilderAuthentication(username: String, password: String): TestBuilderAuthentication {
         val serverUrl = ConfigProvider.getConfig().getValue("quarkus.oidc.auth-server-url", String::class.java).substringBeforeLast("/").substringBeforeLast("/")
-        val realm: String = ConfigProvider.getConfig().getValue("quarkus.keycloak.devservices.realm-name", String::class.java)
+        val realm = "vp-kuljetus"
         val clientId = "test"
-        val clientSecret = "secret"
-        return TestBuilderAuthentication(this, KeycloakAccessTokenProvider(serverUrl, realm, clientId, username, password, clientSecret), null)
+        return TestBuilderAuthentication(this, KeycloakAccessTokenProvider(serverUrl, realm, clientId, username, password, null), null)
     }
 
 }
