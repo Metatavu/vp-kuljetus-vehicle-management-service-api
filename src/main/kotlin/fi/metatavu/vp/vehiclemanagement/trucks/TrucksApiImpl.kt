@@ -16,16 +16,10 @@ import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
-import io.smallrye.mutiny.coroutines.asUni
-import io.vertx.core.Vertx
-import io.vertx.kotlin.coroutines.dispatcher
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -33,8 +27,8 @@ import java.util.*
  * Trucks API implementation
  */
 @RequestScoped
-@OptIn(ExperimentalCoroutinesApi::class)
 @WithSession
+@Suppress("unused")
 class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
@@ -73,20 +67,17 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     @Inject
     lateinit var userManagementService: UserManagementService
 
-    @Inject
-    lateinit var vertx: Vertx
-
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun createTruck(truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
+    override fun createTruck(truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = withCoroutineScope({
+        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         if (!vehicleController.isPlateNumberValid(truck.plateNumber) || truck.vin.isEmpty()) {
-            return@async createBadRequest(INVALID_PLATE_NUMBER)
+            return@withCoroutineScope createBadRequest(INVALID_PLATE_NUMBER)
         }
 
-        if (!vehicleController.isPlateNumberUnique(truck.plateNumber)) return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
-        if (!vehicleController.isVinUnique(truck.vin)) return@async createBadRequest(NOT_UNIQUE_VIN)
+        if (!vehicleController.isPlateNumberUnique(truck.plateNumber)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+        if (!vehicleController.isVinUnique(truck.vin)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_VIN)
 
         val createdTruck = truckController.createTruck(
             plateNumber = truck.plateNumber,
@@ -96,14 +87,14 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             userId = userId
         )
         createOk(truckTranslator.translate(createdTruck))
-    }.asUni()
+    })
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun findTruck(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+    override fun findTruck(truckId: UUID): Uni<Response> = withCoroutineScope({
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
         createOk(truckTranslator.translate(truck))
-    }.asUni()
+    })
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun listTrucks(
@@ -113,7 +104,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         sortDirection: SortOrder?,
         first: Int?,
         max: Int?
-    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
+    ): Uni<Response> = withCoroutineScope({
         val ( trucks, count ) = truckController.listTrucks(
             plateNumber = plateNumber,
             archived = archived,
@@ -123,73 +114,73 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             maxResults = max
         )
         createOk(trucks.map { truckTranslator.translate(it) }, count)
-    }.asUni()
+    })
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val userId = loggedUserId ?: return@async createUnauthorized(UNAUTHORIZED)
+    override fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = withCoroutineScope({
+        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         if (!vehicleController.isPlateNumberValid(truck.plateNumber) || truck.vin.isEmpty()) {
-            return@async createBadRequest(INVALID_PLATE_NUMBER)
+            return@withCoroutineScope createBadRequest(INVALID_PLATE_NUMBER)
         }
 
-        val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val existingTruck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
         if (existingTruck.archivedAt != null && truck.archivedAt != null) {
-            return@async createConflict("Archived truck cannot be updated")
+            return@withCoroutineScope createConflict("Archived truck cannot be updated")
         }
 
         if (!vehicleController.isPlateNumberUnique(truck.plateNumber) && existingTruck.plateNumber != truck.plateNumber) {
-            return@async createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+            return@withCoroutineScope createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
         }
         if (!vehicleController.isVinUnique(truck.vin) && existingTruck.vin != truck.vin) {
-            return@async createBadRequest(NOT_UNIQUE_VIN)
+            return@withCoroutineScope createBadRequest(NOT_UNIQUE_VIN)
         }
 
         val updated = truckController.updateTruck(existingTruck, truck, userId)
 
         createOk(truckTranslator.translate(updated))
-    }.asUni()
+    })
 
    @RolesAllowed(MANAGER_ROLE)
    @WithTransaction
-   override fun deleteTruck(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-       val existingTruck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-       if (isProduction) return@async createForbidden(FORBIDDEN)
+   override fun deleteTruck(truckId: UUID): Uni<Response> = withCoroutineScope({
+       val existingTruck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
+       if (isProduction) return@withCoroutineScope createForbidden(FORBIDDEN)
        val partOfVehicles = vehicleController.listVehicles(existingTruck)
        if (partOfVehicles.isNotEmpty()) {
-           return@async createBadRequest("Truck is part of a vehicle")
+           return@withCoroutineScope createBadRequest("Truck is part of a vehicle")
        }
        truckController.deleteTruck(existingTruck)
        createNoContent()
-   }.asUni()
+   })
 
     // Driver cards
 
-    override fun listTruckDriverCards(truckId: UUID): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        if (loggedUserId == null && requestApiKey == null) return@async createUnauthorized(UNAUTHORIZED)
-        if (requestApiKey != null && requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
-        if (loggedUserId != null && !hasRealmRole(DRIVER_ROLE)) return@async createForbidden(FORBIDDEN)
+    override fun listTruckDriverCards(truckId: UUID): Uni<Response> = withCoroutineScope({
+        if (loggedUserId == null && requestApiKey == null) return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        if (requestApiKey != null && requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (loggedUserId != null && !hasRealmRole(DRIVER_ROLE)) return@withCoroutineScope createForbidden(FORBIDDEN)
 
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
         val (cards, count) = driverCardController.listDriverCards(truck)
         createOk(driverCardTranslator.translate(cards), count)
-    }.asUni()
+    })
 
     @WithTransaction
-    override fun createTruckDriverCard(truckId: UUID, truckDriverCard: TruckDriverCard): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
+    override fun createTruckDriverCard(truckId: UUID, truckDriverCard: TruckDriverCard): Uni<Response> = withCoroutineScope({
+        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
 
         val driverCardWithId = driverCardController.findDriverCard(truckDriverCard.id)
         if (driverCardWithId != null) {
-            return@async createConflict("Driver card already exists")
+            return@withCoroutineScope createConflict("Driver card already exists")
         }
 
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         if (driverCardController.listDriverCards(truck).second > 0) {
-            return@async createConflict("Truck already contains driver's card")
+            return@withCoroutineScope createConflict("Truck already contains driver's card")
         }
 
         val insertedCard = driverCardController.createDriverCard(
@@ -197,23 +188,23 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             truck = truck
         )
         createOk(driverCardTranslator.translate(insertedCard))
-    }.asUni()
+    })
 
     @WithTransaction
     override fun deleteTruckDriverCard(
         truckId: UUID,
         driverCardId: String
-    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-        val insertedDriverCard = driverCardController.findDriverCard(driverCardId) ?: return@async createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
+    ): Uni<Response> = withCoroutineScope({
+        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val insertedDriverCard = driverCardController.findDriverCard(driverCardId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
         if (insertedDriverCard.truck.id != truck.id) {
-            return@async createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
+            return@withCoroutineScope createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
         }
 
         driverCardController.deleteDriverCard(insertedDriverCard)
         createNoContent()
-    }.asUni()
+    })
 
     // Truck Speed endpoints
 
@@ -224,19 +215,19 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         before: OffsetDateTime?,
         first: Int?,
         max: Int?
-    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+    ): Uni<Response> = withCoroutineScope({
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         val ( speeds, count ) = truckSpeedController.listTruckSpeeds(truck, after, before, first, max)
         createOk(truckSpeedTranslator.translate(speeds), count)
-    }.asUni()
+    })
 
     @WithTransaction
-    override fun createTruckSpeed(truckId: UUID, truckSpeed: TruckSpeed): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-        truckSpeedController.createTruckSpeed(truck, truckSpeed)  ?: return@async createAccepted(null)
+    override fun createTruckSpeed(truckId: UUID, truckSpeed: TruckSpeed): Uni<Response> = withCoroutineScope({
+        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
+        truckSpeedController.createTruckSpeed(truck, truckSpeed)  ?: return@withCoroutineScope createAccepted(null)
         createCreated()
-    }.asUni()
+    })
 
     // Truck location endpoints
     @RolesAllowed(MANAGER_ROLE)
@@ -246,19 +237,19 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         before: OffsetDateTime?,
         first: Int?,
         max: Int?
-    ): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+    ): Uni<Response> = withCoroutineScope({
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         val (locations, count) = truckLocationController.listTruckLocations(truck, after, before, first, max)
         createOk(truckLocationTranslator.translate(locations), count)
-    }.asUni()
+    })
 
     @WithTransaction
-    override fun createTruckLocation(truckId: UUID, truckLocation: TruckLocation): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
-        truckLocationController.createTruckLocation(truck, truckLocation) ?: return@async createAccepted(null)
+    override fun createTruckLocation(truckId: UUID, truckLocation: TruckLocation): Uni<Response> = withCoroutineScope({
+        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
+        truckLocationController.createTruckLocation(truck, truckLocation) ?: return@withCoroutineScope createAccepted(null)
         createCreated()
-    }.asUni()
+    })
 
     // Truck Drive State endpoints
 
@@ -271,8 +262,8 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
       before: OffsetDateTime?,
       first: Int?,
       max: Int?
-  ) = CoroutineScope(vertx.dispatcher()).async {
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+  ) = withCoroutineScope({
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         val (states, count) = truckDriveStateController.listDriveStates(
             truck = truck,
             driverId = driverId,
@@ -283,14 +274,14 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             max = max
         )
         createOk(truckDriveStateTranslator.translate(states), count)
-    }.asUni()
+    })
 
     @WithTransaction
-    override fun createDriveState(truckId: UUID, truckDriveState: TruckDriveState): Uni<Response> = CoroutineScope(vertx.dispatcher()).async {
-        if (requestApiKey != apiKey) return@async createForbidden(INVALID_API_KEY)
-        val truck = truckController.findTruck(truckId) ?: return@async createNotFound(createNotFoundMessage(TRUCK, truckId))
+    override fun createDriveState(truckId: UUID, truckDriveState: TruckDriveState): Uni<Response> = withCoroutineScope({
+        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
-        truckDriveStateController.createDriveState(truck, truckDriveState) ?: return@async createAccepted(null)
+        truckDriveStateController.createDriveState(truck, truckDriveState) ?: return@withCoroutineScope createAccepted(null)
         createCreated()
-    }.asUni()
+    })
 }
