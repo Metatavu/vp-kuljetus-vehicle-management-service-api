@@ -243,11 +243,11 @@ abstract class AbstractApi {
      * Wraps a block of code in a coroutine scope using a vertx dispatcher and a timeout
      *
      * @param block block of code to run
-     * @param requestTimeOut request timeout in milliseconds. Defaults to 1000
+     * @param requestTimeOut request timeout in milliseconds. Defaults to 10 seconds
      * @return Uni
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    protected fun <T> withCoroutineScope(block: suspend () -> T, requestTimeOut: Long = 1000L): Uni<T> {
+    protected fun <T> withCoroutineScope(block: suspend () -> T, requestTimeOut: Long = 10000L): Uni<T> {
         return CoroutineScope(vertx.dispatcher())
             .async { withTimeout(requestTimeOut) { block() } }
             .asUni()
