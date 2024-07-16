@@ -32,7 +32,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createTowable(towable: fi.metatavu.vp.api.model.Towable): Uni<Response> =
-        withCoroutineScope({
+        withCoroutineScope {
             val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
             if (!vehicleController.isPlateNumberValid(towable.plateNumber)) {
@@ -42,7 +42,9 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 return@withCoroutineScope createBadRequest(INVALID_VIN)
             }
 
-            if (!vehicleController.isPlateNumberUnique(towable.plateNumber)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
+            if (!vehicleController.isPlateNumberUnique(towable.plateNumber)) return@withCoroutineScope createBadRequest(
+                NOT_UNIQUE_PLATE_NUMBER
+            )
             if (!vehicleController.isVinUnique(towable.vin)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_VIN)
 
             val createdTruck = towableController.createTowable(
@@ -53,10 +55,10 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 userId = userId
             )
             createOk(towableTranslator.translate(createdTruck))
-        })
+        }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun findTowable(towableId: UUID): Uni<Response> = withCoroutineScope({
+    override fun findTowable(towableId: UUID): Uni<Response> = withCoroutineScope {
         val truck = towableController.findTowable(towableId) ?: return@withCoroutineScope createNotFound(
             createNotFoundMessage(
                 TOWABLE,
@@ -65,19 +67,19 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
         )
 
         createOk(towableTranslator.translate(truck))
-    })
+    }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     override fun listTowables(plateNumber: String?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> =
-        withCoroutineScope({
+        withCoroutineScope {
             val (trucks, count) = towableController.listTowables(plateNumber, archived, first, max)
             createOk(trucks.map { towableTranslator.translate(it) }, count)
-        })
+        }
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun updateTowable(towableId: UUID, towable: fi.metatavu.vp.api.model.Towable): Uni<Response> =
-        withCoroutineScope({
+        withCoroutineScope {
             val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
             if (!vehicleController.isPlateNumberValid(towable.plateNumber)) {
@@ -108,11 +110,11 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
             val updatedTowable = towableController.updateTowable(existingTowable, towable, userId)
 
             createOk(towableTranslator.translate(updatedTowable))
-        })
+        }
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun deleteTowable(towableId: UUID): Uni<Response> = withCoroutineScope({
+    override fun deleteTowable(towableId: UUID): Uni<Response> = withCoroutineScope {
         loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         if (isProduction) return@withCoroutineScope createForbidden(FORBIDDEN)
         val existingTowable = towableController.findTowable(towableId) ?: return@withCoroutineScope createNotFound(
@@ -129,5 +131,5 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
 
         towableController.deleteTowable(existingTowable)
         createNoContent()
-    })
+    }
 }
