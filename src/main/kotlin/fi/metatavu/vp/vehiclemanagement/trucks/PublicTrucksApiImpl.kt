@@ -26,8 +26,8 @@ class PublicTrucksApiImpl: PublicTrucksApi, AbstractApi() {
         vin: String?,
         first: Int?,
         max: Int?
-    ): Uni<Response> = withCoroutineScope({
+    ): Uni<Response> = withCoroutineScope {
         val ( trucks, count ) = truckController.listTrucks(firstResult = first, maxResults = max, archived = null, plateNumber = null, vin = vin)
         createOk(publicTruckTranslator.translate(trucks), count)
-    })
+    }
 }

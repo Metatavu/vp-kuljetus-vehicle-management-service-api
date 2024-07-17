@@ -35,18 +35,18 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
     lateinit var vehicleTranslator: VehicleTranslator
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listVehicles(truckId: UUID?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> = withCoroutineScope({
+    override fun listVehicles(truckId: UUID?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> = withCoroutineScope {
         val truckFilter = if (truckId != null) {
             truckController.findTruck(truckId) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(TRUCK, truckId))
         } else null
 
         val ( vehicles, count ) = vehicleController.listVehicles(truckFilter, archived, first, max)
         createOk(vehicleTranslator.translate(vehicles), count)
-    })
+    }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
     @WithTransaction
-    override fun createVehicle(vehicle: Vehicle): Uni<Response> = withCoroutineScope({
+    override fun createVehicle(vehicle: Vehicle): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         isInvalidVehicle(vehicle)?.let {
@@ -64,24 +64,23 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
         )
 
         createOk(vehicleTranslator.translate(createdVehicle))
-    })
+    }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun findVehicle(vehicleId: UUID): Uni<Response> = withCoroutineScope({
+    override fun findVehicle(vehicleId: UUID): Uni<Response> = withCoroutineScope {
         val vehicle = vehicleController.find(vehicleId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
 
         createOk(vehicleTranslator.translate(vehicle))
-    })
+    }
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun deleteVehicle(vehicleId: UUID): Uni<Response> = withCoroutineScope({
+    override fun deleteVehicle(vehicleId: UUID): Uni<Response> = withCoroutineScope {
         if (isProduction) return@withCoroutineScope createForbidden(FORBIDDEN)
         val vehicle = vehicleController.find(vehicleId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(VEHICLE, vehicleId))
         vehicleController.delete(vehicle)
         createNoContent()
-    })
-
+    }
 
     /**
      * Checks if the given vehicle is valid
