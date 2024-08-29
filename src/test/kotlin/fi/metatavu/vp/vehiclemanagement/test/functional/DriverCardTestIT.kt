@@ -34,7 +34,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
     fun testDriverCardWorkEvents() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val now = OffsetDateTime.now()
-        val messagingClient = MessagingClient
+        val driverWorkEventConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>()
         it.setApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = TruckDriverCard(
@@ -47,18 +47,18 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             .await()
             .atMost(1, TimeUnit.MINUTES)
             .until {
-                messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 1
+                driverWorkEventConsumer.getIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 1
             }
 
-        val message = messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).first()
+        val message = driverWorkEventConsumer.getIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).first()
 
         assertEquals(message.driverId, driver1Id)
         assertEquals(message.workEventType, WorkEventType.DRIVER_CARD_INSERTED)
         assertEquals(message.time.toEpochSecond(), now.toEpochSecond())
 
-        messagingClient.clearMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
+        driverWorkEventConsumer.clearMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
 
-        val messages = messagingClient.getIncomingMessages()
+        val messages = driverWorkEventConsumer.getIncomingMessages()
         assertEquals(0, messages.size)
 
         it.setApiKey().trucks.deleteTruckDriverCard(truck.id, driver1CardId)
@@ -67,10 +67,10 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             .await()
             .atMost(1, TimeUnit.MINUTES)
             .until {
-                messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 1
+                driverWorkEventConsumer.getIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 1
             }
 
-        val message2 = messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).first()
+        val message2 = driverWorkEventConsumer.getIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).first()
 
         assertEquals(message2.driverId, driver1Id)
         assertEquals(message2.workEventType, WorkEventType.DRIVER_CARD_REMOVED)
