@@ -11,7 +11,8 @@ import jakarta.enterprise.context.ApplicationScoped
 class DriverCardTranslator: AbstractTranslator<DriverCard, TruckDriverCard>()   {
     override suspend fun translate(entity: DriverCard): TruckDriverCard {
         return TruckDriverCard(
-            id = entity.driverCardId
+            id = entity.driverCardId,
+            timestamp = entity.timestamp!!
         )
     }
 

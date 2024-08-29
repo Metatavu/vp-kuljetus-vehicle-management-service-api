@@ -42,7 +42,6 @@ class TruckDriveStateController {
             return existingRecord
         }
 
-
         val foundDriverId = truckDriveState.driverCardId?.let { userManagementService.findDriverByDriverCardId(it)?.id }
 
         val latestRecord = truckDriveStateRepository.find(

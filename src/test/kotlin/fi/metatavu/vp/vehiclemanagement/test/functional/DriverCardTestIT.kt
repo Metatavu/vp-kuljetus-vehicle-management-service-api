@@ -4,8 +4,12 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.invalid.InvalidValueTestScenarioBuilder
 import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
+import fi.metatavu.vp.messaging.RoutingKey
+import fi.metatavu.vp.messaging.client.MessagingClient
+import fi.metatavu.vp.messaging.events.DriverWorkEventGlobalEvent
 import fi.metatavu.vp.test.client.models.Truck
 import fi.metatavu.vp.test.client.models.TruckDriverCard
+import fi.metatavu.vp.usermanagement.model.WorkEventType
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
@@ -13,7 +17,10 @@ import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.testcontainers.shaded.org.awaitility.Awaitility
+import java.time.OffsetDateTime
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -24,11 +31,58 @@ import java.util.*
 class DriverCardTestIT : AbstractFunctionalTest() {
 
     @Test
+    fun testDriverCardWorkEvents() = createTestBuilder().use {
+        val truck = it.manager.trucks.create(it.manager.vehicles)
+        val now = OffsetDateTime.now()
+        val messagingClient = MessagingClient
+        it.setApiKey().trucks.createDriverCard(
+            truckId = truck.id!!,
+            truckDriverCard = TruckDriverCard(
+                id = driver1CardId,
+                timestamp = now.toEpochSecond()
+            )
+        )
+
+        Awaitility
+            .await()
+            .atMost(1, TimeUnit.MINUTES)
+            .until {
+                messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 1
+            }
+
+        val message = messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).first()
+
+        assertEquals(message.driverId, driver1Id)
+        assertEquals(message.workEventType, WorkEventType.DRIVER_CARD_INSERTED)
+        assertEquals(message.time.toEpochSecond(), now.toEpochSecond())
+
+        messagingClient.clearMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
+
+        val messages = messagingClient.getIncomingMessages()
+        assertEquals(0, messages.size)
+
+        it.setApiKey().trucks.deleteTruckDriverCard(truck.id, driver1CardId)
+
+        Awaitility
+            .await()
+            .atMost(1, TimeUnit.MINUTES)
+            .until {
+                messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 1
+            }
+
+        val message2 = messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).first()
+
+        assertEquals(message2.driverId, driver1Id)
+        assertEquals(message2.workEventType, WorkEventType.DRIVER_CARD_REMOVED)
+    }
+
+    @Test
     fun createDriverCard() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val truck2 = it.manager.trucks.create(Truck(plateNumber="0002", type = Truck.Type.TRUCK, vin = "0002"), it.manager.vehicles)
         val driverCardData = TruckDriverCard(
-            id = "driverCardId"
+            id = "driverCardId",
+            timestamp = OffsetDateTime.now().toEpochSecond()
         )
         val created = it.setApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
@@ -67,7 +121,8 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             basePath = ApiTestSettings.apiBasePath,
             body = jacksonObjectMapper().writeValueAsString(
                 TruckDriverCard(
-                    id = "cardId"
+                    id = "cardId",
+                    timestamp = OffsetDateTime.now().toEpochSecond()
                 )
             )
         )
@@ -88,14 +143,16 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         val driverCard1 = it.setApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = TruckDriverCard(
-                id = "driverCardId"
+                id = "driverCardId",
+                timestamp = OffsetDateTime.now().toEpochSecond()
             )
         )
 
         val driverCard2 = it.setApiKey().trucks.createDriverCard(
             truckId = truck2.id!!,
             truckDriverCard = TruckDriverCard(
-                id = "driverCardId2"
+                id = "driverCardId2",
+                timestamp = OffsetDateTime.now().toEpochSecond()
             )
         )
 
@@ -121,7 +178,8 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         val truck = it.manager.trucks.create(it.manager.vehicles)
 
         val driverCardData = TruckDriverCard(
-            id = "driverCardId"
+            id = "driverCardId",
+            timestamp = OffsetDateTime.now().toEpochSecond()
         )
         it.setApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
@@ -167,7 +225,8 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         )
 
         val driverCardData = TruckDriverCard(
-            id = "driverCardId"
+            id = "driverCardId",
+            timestamp = OffsetDateTime.now().toEpochSecond()
         )
         it.setApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
@@ -175,7 +234,8 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         )
 
         val driverCardData2 = TruckDriverCard(
-            id = "driverCardId2"
+            id = "driverCardId2",
+            timestamp = OffsetDateTime.now().toEpochSecond()
         )
         it.setApiKey().trucks.createDriverCard(
             truckId = truck2.id!!,

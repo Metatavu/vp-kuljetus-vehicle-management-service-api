@@ -29,12 +29,14 @@ class DriverCardController {
      *
      * @param driverCardId driver card id
      * @param truckEntity truck
+     * @param timestamp timestamp
      * @return created driver card
      */
-    suspend fun createDriverCard(driverCardId: String, truckEntity: TruckEntity): DriverCard {
+    suspend fun createDriverCard(driverCardId: String, truckEntity: TruckEntity, timestamp: Long): DriverCard {
         return driverCardRepository.create(
             driverCardId = driverCardId,
-            truckEntity = truckEntity
+            truckEntity = truckEntity,
+            timestamp = timestamp
         )
     }
 

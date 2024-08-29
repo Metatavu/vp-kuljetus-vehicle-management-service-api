@@ -76,7 +76,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateTruckDriveStatesFail() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val driverCard = it.setApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId"))
+        val driverCard = it.setApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId", OffsetDateTime.now().toEpochSecond()))
 
         val now = System.currentTimeMillis()
         val truckDriveStateData = TruckDriveState(

@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
+import fi.metatavu.vp.vehiclemanagement.event.DriverCardEventConsumer
 import fi.metatavu.vp.vehiclemanagement.model.*
 import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
 import fi.metatavu.vp.vehiclemanagement.event.TruckDriveStateCreatedConsumer
@@ -190,8 +191,16 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
         val insertedCard = driverCardController.createDriverCard(
             driverCardId = truckDriverCard.id,
-            truckEntity = truck
+            truckEntity = truck,
+            timestamp = truckDriverCard.timestamp
         )
+        val foundDriver = insertedCard.driverCardId.let { userManagementService.findDriverByDriverCardId(it) }
+
+        eventBus.publish(
+            DriverCardEventConsumer.DRIVER_CARD_EVENT,
+            DriverCardEventConsumer.DriverCardEvent(insertedCard, false, foundDriver)
+        )
+
         createOk(driverCardTranslator.translate(insertedCard))
     }
 
@@ -206,8 +215,14 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         if (insertedDriverCard.truck.id != truck.id) {
             return@withCoroutineScope createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
         }
+        val foundDriver = insertedDriverCard.driverCardId.let { userManagementService.findDriverByDriverCardId(it) }
 
         driverCardController.deleteDriverCard(insertedDriverCard)
+
+        eventBus.publish(
+            DriverCardEventConsumer.DRIVER_CARD_EVENT,
+            DriverCardEventConsumer.DriverCardEvent(insertedDriverCard, true, foundDriver)
+        )
         createNoContent()
     }
 
