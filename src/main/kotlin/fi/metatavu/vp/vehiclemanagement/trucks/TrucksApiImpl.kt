@@ -1,9 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.vehiclemanagement.event.DriverCardEventConsumer
 import fi.metatavu.vp.vehiclemanagement.model.*
 import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
-import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
@@ -64,9 +62,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckDriveStateTranslator: TruckDriveStateTranslator
-
-    @Inject
-    lateinit var userManagementService: UserManagementService
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
@@ -189,12 +184,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             truckEntity = truck,
             timestamp = truckDriverCard.timestamp
         )
-        val foundDriver = insertedCard.driverCardId.let { userManagementService.findDriverByDriverCardId(it) }
-
-        eventBus.publish(
-            DriverCardEventConsumer.DRIVER_CARD_EVENT,
-            DriverCardEventConsumer.DriverCardEvent(insertedCard, false, foundDriver)
-        )
 
         createOk(driverCardTranslator.translate(insertedCard))
     }
@@ -210,14 +199,8 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         if (insertedDriverCard.truck.id != truck.id) {
             return@withCoroutineScope createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
         }
-        val foundDriver = insertedDriverCard.driverCardId.let { userManagementService.findDriverByDriverCardId(it) }
 
         driverCardController.deleteDriverCard(insertedDriverCard)
-
-        eventBus.publish(
-            DriverCardEventConsumer.DRIVER_CARD_EVENT,
-            DriverCardEventConsumer.DriverCardEvent(insertedDriverCard, true, foundDriver)
-        )
         createNoContent()
     }
 

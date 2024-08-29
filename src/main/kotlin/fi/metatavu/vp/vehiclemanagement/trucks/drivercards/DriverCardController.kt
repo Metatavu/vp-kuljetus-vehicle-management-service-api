@@ -1,7 +1,10 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivercards
 
+import fi.metatavu.vp.vehiclemanagement.event.DriverCardEventConsumer
+import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.smallrye.mutiny.coroutines.awaitSuspending
+import io.vertx.core.eventbus.EventBus
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 
@@ -13,6 +16,12 @@ class DriverCardController {
 
     @Inject
     lateinit var driverCardRepository: DriverCardRepository
+
+    @Inject
+    lateinit var userManagementService: UserManagementService
+
+    @Inject
+    lateinit var eventBus: EventBus
 
     /**
      * Lists driver cards
@@ -33,11 +42,19 @@ class DriverCardController {
      * @return created driver card
      */
     suspend fun createDriverCard(driverCardId: String, truckEntity: TruckEntity, timestamp: Long): DriverCard {
-        return driverCardRepository.create(
+        val createdDriverCard = driverCardRepository.create(
             driverCardId = driverCardId,
             truckEntity = truckEntity,
             timestamp = timestamp
         )
+        val foundDriver = createdDriverCard.driverCardId.let { userManagementService.findDriverByDriverCardId(it) }
+
+        eventBus.publish(
+            DriverCardEventConsumer.DRIVER_CARD_EVENT,
+            DriverCardEventConsumer.DriverCardEvent(createdDriverCard, false, foundDriver)
+        )
+
+        return createdDriverCard
     }
 
     /**
@@ -60,5 +77,11 @@ class DriverCardController {
      */
     suspend fun deleteDriverCard(driverCard: DriverCard) {
         driverCardRepository.deleteSuspending(driverCard)
+
+        val foundDriver = driverCard.driverCardId.let { userManagementService.findDriverByDriverCardId(it) }
+        eventBus.publish(
+            DriverCardEventConsumer.DRIVER_CARD_EVENT,
+            DriverCardEventConsumer.DriverCardEvent(driverCard, true, foundDriver)
+        )
     }
 }

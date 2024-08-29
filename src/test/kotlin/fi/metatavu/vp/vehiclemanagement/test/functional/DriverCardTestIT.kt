@@ -17,10 +17,8 @@ import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.testcontainers.shaded.org.awaitility.Awaitility
 import java.time.OffsetDateTime
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 /**
@@ -34,7 +32,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
     fun testDriverCardWorkEvents() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val now = OffsetDateTime.now()
-        val driverWorkEventConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>()
+        val driverWorkEventConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
         it.setApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = TruckDriverCard(
@@ -43,35 +41,20 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             )
         )
 
-        Awaitility
-            .await()
-            .atMost(1, TimeUnit.MINUTES)
-            .until {
-                driverWorkEventConsumer.getIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 1
-            }
+        val messages1 = driverWorkEventConsumer.consumeMessages(1)
 
-        val message = driverWorkEventConsumer.getIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).first()
-
+        assertEquals(1, messages1.size)
+        val message = messages1.first()
         assertEquals(message.driverId, driver1Id)
         assertEquals(message.workEventType, WorkEventType.DRIVER_CARD_INSERTED)
         assertEquals(message.time.toEpochSecond(), now.toEpochSecond())
 
-        driverWorkEventConsumer.clearMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
-
-        val messages = driverWorkEventConsumer.getIncomingMessages()
-        assertEquals(0, messages.size)
-
         it.setApiKey().trucks.deleteTruckDriverCard(truck.id, driver1CardId)
 
-        Awaitility
-            .await()
-            .atMost(1, TimeUnit.MINUTES)
-            .until {
-                driverWorkEventConsumer.getIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 1
-            }
+        val messages2 = driverWorkEventConsumer.consumeMessages(1)
 
-        val message2 = driverWorkEventConsumer.getIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).first()
-
+        assertEquals(1, messages2.size)
+        val message2 = messages2.first()
         assertEquals(message2.driverId, driver1Id)
         assertEquals(message2.workEventType, WorkEventType.DRIVER_CARD_REMOVED)
     }
