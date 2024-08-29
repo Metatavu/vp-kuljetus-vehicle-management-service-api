@@ -3,7 +3,6 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 import fi.metatavu.vp.vehiclemanagement.event.DriverCardEventConsumer
 import fi.metatavu.vp.vehiclemanagement.model.*
 import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
-import fi.metatavu.vp.vehiclemanagement.event.TruckDriveStateCreatedConsumer
 import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
@@ -18,7 +17,6 @@ import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.smallrye.mutiny.Uni
-import io.vertx.core.eventbus.EventBus
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
@@ -69,9 +67,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var userManagementService: UserManagementService
-
-    @Inject
-    lateinit var eventBus: EventBus
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
@@ -301,9 +296,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
-        val createdDriveState = truckDriveStateController.createDriveState(truck, truckDriveState) ?: return@withCoroutineScope createAccepted(null)
-
-        eventBus.publish(TruckDriveStateCreatedConsumer.TRUCK_DRIVE_STATE_CREATED, createdDriveState)
+        truckDriveStateController.createDriveState(truck, truckDriveState) ?: return@withCoroutineScope createAccepted(null)
 
         createCreated()
     }

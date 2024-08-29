@@ -18,9 +18,7 @@ import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import org.testcontainers.shaded.org.awaitility.Awaitility
 import java.time.OffsetDateTime
-import java.util.concurrent.TimeUnit
 
 /**
  * Tests for TruckDriveState part of Trucks API
@@ -32,7 +30,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateTruckDriveStates() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val messagingClient = MessagingClient
+        val messageConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
         val now = System.currentTimeMillis()
         val truckDriveStateData = TruckDriveState(
             state = TruckDriveStateEnum.DRIVE,
@@ -43,10 +41,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         // should be ignored because timestamp is same
         it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(state = TruckDriveStateEnum.REST))
         // should be ignored because the latest drive state record is the same
-        it.setApiKey().trucks.createDriveState(
-            truck.id,
-            truckDriveStateData.copy(timestamp = now + 1)
-        )
+        it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(timestamp = now + 1))
 
         val createdTruckDriveStates = it.manager.trucks.listDriveStates(truck.id)
         assertEquals(1, createdTruckDriveStates.size)
@@ -57,20 +52,24 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         assertEquals(driver1Id, createdTruckDriveState.driverId)
         assertEquals(truckDriveStateData.timestamp, createdTruckDriveState.timestamp)
 
-        Awaitility
-            .await()
-            .atMost(1, TimeUnit.MINUTES)
-            .until {
-                messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 2
-            }
+        val messages1 = messageConsumer.consumeMessages(1)
+        assertEquals(1, messages1.size)
 
-        val messages = messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
-        assertEquals(2, messages.size)
-
-        for (message in messages) {
+        for (message in messages1) {
             assertEquals(WorkEventType.DRIVE, message.workEventType)
         }
 
+        it.setApiKey().trucks.createDriveState(
+            truck.id,
+            truckDriveStateData.copy(state = TruckDriveStateEnum.REST, timestamp = now + 10_000)
+        )
+
+        val messages2 = messageConsumer.consumeMessages(1)
+        assertEquals(1, messages2.size)
+
+        for (message in messages2) {
+            assertEquals(WorkEventType.BREAK, message.workEventType)
+        }
     }
 
     @Test
