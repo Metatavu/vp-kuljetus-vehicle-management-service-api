@@ -4,18 +4,23 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.invalid.InvalidValueTestScenarioBuilder
 import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
+import fi.metatavu.vp.messaging.RoutingKey
+import fi.metatavu.vp.messaging.client.MessagingClient
+import fi.metatavu.vp.messaging.events.DriverWorkEventGlobalEvent
 import fi.metatavu.vp.test.client.models.TruckDriveState
 import fi.metatavu.vp.test.client.models.TruckDriveStateEnum
 import fi.metatavu.vp.test.client.models.TruckDriverCard
+import fi.metatavu.vp.usermanagement.model.WorkEventType
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import org.testcontainers.shaded.org.awaitility.Awaitility
 import java.time.OffsetDateTime
+import java.util.concurrent.TimeUnit
 
 /**
  * Tests for TruckDriveState part of Trucks API
@@ -27,6 +32,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateTruckDriveStates() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
+        val messagingClient = MessagingClient
         val now = System.currentTimeMillis()
         val truckDriveStateData = TruckDriveState(
             state = TruckDriveStateEnum.DRIVE,
@@ -50,6 +56,21 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         assertEquals(truckDriveStateData.driverCardId, createdTruckDriveState.driverCardId)
         assertEquals(driver1Id, createdTruckDriveState.driverId)
         assertEquals(truckDriveStateData.timestamp, createdTruckDriveState.timestamp)
+
+        Awaitility
+            .await()
+            .atMost(1, TimeUnit.MINUTES)
+            .until {
+                messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name).size == 2
+            }
+
+        val messages = messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
+        assertEquals(2, messages.size)
+
+        for (message in messages) {
+            assertEquals(WorkEventType.DRIVE, message.workEventType)
+        }
+
     }
 
     @Test

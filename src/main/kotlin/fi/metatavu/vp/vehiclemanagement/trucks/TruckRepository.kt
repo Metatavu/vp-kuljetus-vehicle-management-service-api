@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.api.model.SortOrder
-import fi.metatavu.vp.api.model.TruckSortByField
+import fi.metatavu.vp.vehiclemanagement.model.SortOrder
+import fi.metatavu.vp.vehiclemanagement.model.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
@@ -29,7 +29,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
     suspend fun create(
         id: UUID,
         plateNumber: String,
-        type: fi.metatavu.vp.api.model.Truck.Type,
+        type: fi.metatavu.vp.vehiclemanagement.model.Truck.Type,
         vin: String,
         name: String?,
         creatorId: UUID,

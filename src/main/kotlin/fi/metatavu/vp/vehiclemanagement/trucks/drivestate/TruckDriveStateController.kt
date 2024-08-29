@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivestate
 
-import fi.metatavu.vp.api.model.TruckDriveState
-import fi.metatavu.vp.api.model.TruckDriveStateEnum
+import fi.metatavu.vp.vehiclemanagement.model.TruckDriveState
+import fi.metatavu.vp.vehiclemanagement.model.TruckDriveStateEnum
 import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import io.quarkus.panache.common.Parameters

@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivercards
 
-import fi.metatavu.vp.api.model.TruckDriverCard
+import fi.metatavu.vp.vehiclemanagement.model.TruckDriverCard
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractTranslator
 import jakarta.enterprise.context.ApplicationScoped
 

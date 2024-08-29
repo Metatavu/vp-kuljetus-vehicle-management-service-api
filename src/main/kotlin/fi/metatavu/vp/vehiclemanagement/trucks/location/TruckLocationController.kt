@@ -1,7 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.location
 
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
-import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeed
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -28,7 +27,7 @@ class TruckLocationController {
      */
     suspend fun createTruckLocation(
         truck: Truck,
-        truckLocation: fi.metatavu.vp.api.model.TruckLocation
+        truckLocation: fi.metatavu.vp.vehiclemanagement.model.TruckLocation
     ): TruckLocation? {
         val existingRecord = truckLocationRepository.find(
             "truck = :truck and timestamp = :timestamp",

@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.api.spec.PublicTrucksApi
+import fi.metatavu.vp.vehiclemanagement.spec.PublicTrucksApi
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.smallrye.mutiny.Uni

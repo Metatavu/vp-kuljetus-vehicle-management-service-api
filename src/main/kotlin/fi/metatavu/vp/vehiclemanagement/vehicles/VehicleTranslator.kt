@@ -8,13 +8,13 @@ import jakarta.inject.Inject
  * Translates vehicle entity to REST
  */
 @ApplicationScoped
-class VehicleTranslator : AbstractTranslator<Vehicle, fi.metatavu.vp.api.model.Vehicle>() {
+class VehicleTranslator : AbstractTranslator<Vehicle, fi.metatavu.vp.vehiclemanagement.model.Vehicle>() {
 
     @Inject
     lateinit var vehicleTowableRepository: VehicleTowableRepository
 
-    override suspend fun translate(entity: Vehicle): fi.metatavu.vp.api.model.Vehicle {
-        return fi.metatavu.vp.api.model.Vehicle(
+    override suspend fun translate(entity: Vehicle): fi.metatavu.vp.vehiclemanagement.model.Vehicle {
+        return fi.metatavu.vp.vehiclemanagement.model.Vehicle(
             id = entity.id,
             truckId = entity.truck.id!!,
             towableIds = vehicleTowableRepository.listByVehicle(entity).map { it.towable.id!! },
