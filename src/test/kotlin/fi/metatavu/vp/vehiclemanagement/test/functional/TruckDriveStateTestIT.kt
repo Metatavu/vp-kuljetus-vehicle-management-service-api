@@ -30,7 +30,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateTruckDriveStates() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val messageConsumer = MessagingClient.setConsumer()
+        val messageConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
         val now = System.currentTimeMillis()
         val truckDriveStateData = TruckDriveState(
             state = TruckDriveStateEnum.DRIVE,
@@ -55,7 +55,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         assertEquals(driver1Id, createdTruckDriveState.driverId)
         assertEquals(truckDriveStateData.timestamp, createdTruckDriveState.timestamp)
 
-        val messages1 = messageConsumer.consumeMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name, 1)
+        val messages1 = messageConsumer.consumeMessages(1)
         assertEquals(1, messages1.size)
 
         for (message in messages1) {
@@ -67,7 +67,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
             truckDriveStateData.copy(state = TruckDriveStateEnum.REST, timestamp = now + 10_000)
         )
 
-        val messages2 = messageConsumer.consumeMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name, 1)
+        val messages2 = messageConsumer.consumeMessages(1)
         assertEquals(1, messages2.size)
 
         for (message in messages2) {
