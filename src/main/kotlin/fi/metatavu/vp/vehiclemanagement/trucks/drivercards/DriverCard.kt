@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivercards
 
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
@@ -22,6 +22,6 @@ class DriverCard {
     lateinit var driverCardId: String
 
     @ManyToOne
-    lateinit var truck: Truck
+    lateinit var truck: TruckEntity
 
 }

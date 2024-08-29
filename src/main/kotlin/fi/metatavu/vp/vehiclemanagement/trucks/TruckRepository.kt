@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.vehiclemanagement.model.SortOrder
+import fi.metatavu.vp.vehiclemanagement.model.Truck
 import fi.metatavu.vp.vehiclemanagement.model.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import io.quarkus.panache.common.Parameters
@@ -12,7 +13,7 @@ import java.util.UUID
  * Repository class for Truck
  */
 @ApplicationScoped
-class TruckRepository: AbstractRepository<Truck, UUID>() {
+class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
 
     /**
      * Saves a new truck to the database
@@ -29,21 +30,21 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
     suspend fun create(
         id: UUID,
         plateNumber: String,
-        type: fi.metatavu.vp.vehiclemanagement.model.Truck.Type,
+        type: Truck.Type,
         vin: String,
         name: String?,
         creatorId: UUID,
         lastModifierId: UUID
-    ): Truck {
-        val truck = Truck()
-        truck.id = id
-        truck.plateNumber = plateNumber
-        truck.type = type
-        truck.vin = vin
-        truck.name = name
-        truck.creatorId = creatorId
-        truck.lastModifierId = lastModifierId
-        return persistSuspending(truck)
+    ): TruckEntity {
+        val truckEntity = TruckEntity()
+        truckEntity.id = id
+        truckEntity.plateNumber = plateNumber
+        truckEntity.type = type
+        truckEntity.vin = vin
+        truckEntity.name = name
+        truckEntity.creatorId = creatorId
+        truckEntity.lastModifierId = lastModifierId
+        return persistSuspending(truckEntity)
     }
 
     /**
@@ -66,7 +67,7 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
         sortDirection: SortOrder?,
         firstResult: Int?,
         maxResults: Int?
-    ): Pair<List<Truck>, Long> {
+    ): Pair<List<TruckEntity>, Long> {
         val sb = StringBuilder()
         val parameters = Parameters()
 
@@ -116,8 +117,8 @@ class TruckRepository: AbstractRepository<Truck, UUID>() {
      * @param vin vin
      * @return found truck or null if not found
      */
-    suspend fun findByVin(vin: String): Truck? {
-        return find("vin", vin).firstResult<Truck>().awaitSuspending()
+    suspend fun findByVin(vin: String): TruckEntity? {
+        return find("vin", vin).firstResult<TruckEntity>().awaitSuspending()
     }
 
     /**

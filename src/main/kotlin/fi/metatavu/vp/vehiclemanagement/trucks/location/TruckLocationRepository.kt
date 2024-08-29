@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.location
 
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.quarkus.panache.common.Parameters
 import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
@@ -12,7 +12,7 @@ import java.util.*
  * Repository for truck locations
  */
 @ApplicationScoped
-class TruckLocationRepository : AbstractRepository<TruckLocation, UUID>() {
+class TruckLocationRepository : AbstractRepository<TruckLocationEntity, UUID>() {
 
     /**
      * Creates new truck location
@@ -22,7 +22,7 @@ class TruckLocationRepository : AbstractRepository<TruckLocation, UUID>() {
      * @param latitude latitude
      * @param longitude longitude
      * @param heading heading
-     * @param truck truck
+     * @param truckEntity truck
      * @return created truck location
      */
     suspend fun create(
@@ -31,22 +31,22 @@ class TruckLocationRepository : AbstractRepository<TruckLocation, UUID>() {
         latitude: Double,
         longitude: Double,
         heading: Double,
-        truck: Truck
-    ): TruckLocation {
-        val truckLocation = TruckLocation()
-        truckLocation.id = id
-        truckLocation.timestamp = timestamp
-        truckLocation.latitude = latitude
-        truckLocation.longitude = longitude
-        truckLocation.heading = heading
-        truckLocation.truck = truck
-        return persistSuspending(truckLocation)
+        truckEntity: TruckEntity
+    ): TruckLocationEntity {
+        val truckLocationEntity = TruckLocationEntity()
+        truckLocationEntity.id = id
+        truckLocationEntity.timestamp = timestamp
+        truckLocationEntity.latitude = latitude
+        truckLocationEntity.longitude = longitude
+        truckLocationEntity.heading = heading
+        truckLocationEntity.truck = truckEntity
+        return persistSuspending(truckLocationEntity)
     }
 
     /**
      * Lists truck locations
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param after after
      * @param before before
      * @param first first
@@ -54,17 +54,17 @@ class TruckLocationRepository : AbstractRepository<TruckLocation, UUID>() {
      * @return truck locations
      */
     suspend fun listTruckLocations(
-        truck: Truck,
+        truckEntity: TruckEntity,
         after: OffsetDateTime?,
         before: OffsetDateTime?,
         first: Int?,
         max: Int?
-    ): Pair<List<TruckLocation>, Long> {
+    ): Pair<List<TruckLocationEntity>, Long> {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
 
         stringBuilder.append("truck = :truck")
-        parameters.and("truck", truck)
+        parameters.and("truck", truckEntity)
 
         if (after != null) {
             stringBuilder.append(" AND timestamp >= :after")

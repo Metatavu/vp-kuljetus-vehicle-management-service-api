@@ -1,11 +1,8 @@
 package fi.metatavu.vp.vehiclemanagement.vehicles
 
 import fi.metatavu.vp.vehiclemanagement.persistence.Metadata
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
+import jakarta.persistence.*
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -14,13 +11,14 @@ import java.util.*
  * Vehicle contains 1 truck and N towables (connection to towables is done via VehicleTowable entity)
  */
 @Entity
-class Vehicle: Metadata() {
+@Table(name = "vehicle")
+class VehicleEntity: Metadata() {
 
     @Id
     var id: UUID? = null
 
     @ManyToOne
-    lateinit var truck: Truck
+    lateinit var truck: TruckEntity
 
     @Column
     var archivedAt: OffsetDateTime? = null

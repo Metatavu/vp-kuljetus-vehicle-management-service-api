@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.towables
 
+import fi.metatavu.vp.vehiclemanagement.model.Towable
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -25,11 +26,11 @@ class TowableController {
      */
     suspend fun createTowable(
         plateNumber: String,
-        type: fi.metatavu.vp.vehiclemanagement.model.Towable.Type,
+        type: Towable.Type,
         vin: String,
         name: String?,
         userId: UUID
-    ): Towable {
+    ): TowableEntity {
         return towableRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,
@@ -47,7 +48,7 @@ class TowableController {
      * @param towableId towable id
      * @return found towable or null if not found
      */
-    suspend fun findTowable(towableId: UUID): Towable? {
+    suspend fun findTowable(towableId: UUID): TowableEntity? {
         return towableRepository.findByIdSuspending(towableId)
     }
 
@@ -65,7 +66,7 @@ class TowableController {
         archived: Boolean?,
         firstResult: Int?,
         maxResults: Int?
-    ): Pair<List<Towable>, Long> {
+    ): Pair<List<TowableEntity>, Long> {
         return towableRepository.list(
             plateNumber = plateNumber,
             archived = archived,
@@ -77,31 +78,31 @@ class TowableController {
     /**
      * Updates towable
      *
-     * @param existingTowable existing towable
+     * @param existingTowableEntity existing towable
      * @param newTowableData new towable data
      * @param userId user id
      */
     suspend fun updateTowable(
-        existingTowable: Towable,
-        newTowableData: fi.metatavu.vp.vehiclemanagement.model.Towable,
+        existingTowableEntity: TowableEntity,
+        newTowableData: Towable,
         userId: UUID
-    ): Towable {
-        existingTowable.plateNumber = newTowableData.plateNumber
-        existingTowable.archivedAt = newTowableData.archivedAt
-        existingTowable.type = newTowableData.type
-        existingTowable.vin = newTowableData.vin
-        existingTowable.name = newTowableData.name
-        existingTowable.lastModifierId = userId
-        return towableRepository.persistSuspending(existingTowable)
+    ): TowableEntity {
+        existingTowableEntity.plateNumber = newTowableData.plateNumber
+        existingTowableEntity.archivedAt = newTowableData.archivedAt
+        existingTowableEntity.type = newTowableData.type
+        existingTowableEntity.vin = newTowableData.vin
+        existingTowableEntity.name = newTowableData.name
+        existingTowableEntity.lastModifierId = userId
+        return towableRepository.persistSuspending(existingTowableEntity)
     }
 
     /**
      * Deletes towable
      *
-     * @param towable towable to be deleted
+     * @param towableEntity towable to be deleted
      */
-    suspend fun deleteTowable(towable: Towable) {
-        towableRepository.deleteSuspending(towable)
+    suspend fun deleteTowable(towableEntity: TowableEntity) {
+        towableRepository.deleteSuspending(towableEntity)
     }
 
 }

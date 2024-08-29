@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.truckspeed
 
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.model.TruckSpeed
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -21,23 +22,23 @@ class TruckSpeedController {
     /**
      * Creates truck speed
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param truckSpeed truck speed
      * @return created truck speed
      */
-    suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.vehiclemanagement.model.TruckSpeed): TruckSpeed? {
+    suspend fun createTruckSpeed(truckEntity: TruckEntity, truckSpeed: TruckSpeed): TruckSpeedEntity? {
         val existingRecord = truckSpeedRepository.find(
             "truck = :truck and timestamp = :timestamp",
-            Parameters.with("truck", truck).and("timestamp", truckSpeed.timestamp)
-        ).firstResult<TruckSpeed>().awaitSuspending()
+            Parameters.with("truck", truckEntity).and("timestamp", truckSpeed.timestamp)
+        ).firstResult<TruckSpeedEntity>().awaitSuspending()
         if (existingRecord != null) {
             return existingRecord
         }
 
         val latestRecord = truckSpeedRepository.find(
             "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
-            Parameters.with("truck", truck).and("timestamp", truckSpeed.timestamp)
-        ).firstResult<TruckSpeed>().awaitSuspending()
+            Parameters.with("truck", truckEntity).and("timestamp", truckSpeed.timestamp)
+        ).firstResult<TruckSpeedEntity>().awaitSuspending()
         if (latestRecord != null &&
             latestRecord.timestamp!! < truckSpeed.timestamp &&
             abs(latestRecord.speed!! - truckSpeed.speed) < 0.0001) {
@@ -48,14 +49,14 @@ class TruckSpeedController {
             id = UUID.randomUUID(),
             timestamp = truckSpeed.timestamp,
             speed = truckSpeed.speed,
-            truck = truck
+            truckEntity = truckEntity
         )
     }
 
     /**
      * Lists truck speeds
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param after after
      * @param before before
      * @param first first
@@ -63,14 +64,14 @@ class TruckSpeedController {
      * @return pair of list of truck speeds and count
      */
     suspend fun listTruckSpeeds(
-        truck: Truck,
+        truckEntity: TruckEntity,
         after: OffsetDateTime? = null,
         before: OffsetDateTime? = null,
         first: Int? = null,
         max: Int? = null
-    ): Pair<List<TruckSpeed>, Long> {
+    ): Pair<List<TruckSpeedEntity>, Long> {
         return truckSpeedRepository.listTruckSpeeds(
-            truck = truck,
+            truckEntity = truckEntity,
             after = after,
             before = before,
             first = first,
@@ -83,7 +84,7 @@ class TruckSpeedController {
      *
      * @param speed truck speed
      */
-    suspend fun deleteTruckSpeed(speed: TruckSpeed) {
+    suspend fun deleteTruckSpeed(speed: TruckSpeedEntity) {
         return truckSpeedRepository.deleteSuspending(speed)
     }
 }

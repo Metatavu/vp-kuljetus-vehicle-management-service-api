@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.truckspeed
 
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.quarkus.panache.common.Parameters
 import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
@@ -12,7 +12,7 @@ import java.util.*
  * Repository for truck speeds
  */
 @ApplicationScoped
-class TruckSpeedRepository : AbstractRepository<TruckSpeed, UUID>() {
+class TruckSpeedRepository : AbstractRepository<TruckSpeedEntity, UUID>() {
 
     /**
      * Creates truck speed
@@ -20,27 +20,27 @@ class TruckSpeedRepository : AbstractRepository<TruckSpeed, UUID>() {
      * @param id id
      * @param timestamp timestamp
      * @param speed speed
-     * @param truck truck
+     * @param truckEntity truck
      * @return created truck speed
      */
     suspend fun create(
         id: UUID,
         timestamp: Long,
         speed: Float,
-        truck: Truck
-    ): TruckSpeed {
-        val truckSpeed = TruckSpeed()
-        truckSpeed.id = id
-        truckSpeed.timestamp = timestamp
-        truckSpeed.speed = speed
-        truckSpeed.truck = truck
-        return persistSuspending(truckSpeed)
+        truckEntity: TruckEntity
+    ): TruckSpeedEntity {
+        val truckSpeedEntity = TruckSpeedEntity()
+        truckSpeedEntity.id = id
+        truckSpeedEntity.timestamp = timestamp
+        truckSpeedEntity.speed = speed
+        truckSpeedEntity.truck = truckEntity
+        return persistSuspending(truckSpeedEntity)
     }
 
     /**
      * Lists truck speeds
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param after after
      * @param before before
      * @param first first
@@ -48,17 +48,17 @@ class TruckSpeedRepository : AbstractRepository<TruckSpeed, UUID>() {
      * @return pair of list of truck speeds and total count
      */
     suspend fun listTruckSpeeds(
-        truck: Truck,
+        truckEntity: TruckEntity,
         after: OffsetDateTime?,
         before: OffsetDateTime?,
         first: Int?,
         max: Int?
-    ): Pair<List<TruckSpeed>, Long> {
+    ): Pair<List<TruckSpeedEntity>, Long> {
         val sb = StringBuilder()
         val parameters = Parameters()
 
         sb.append("truck = :truck")
-        parameters.and("truck", truck)
+        parameters.and("truck", truckEntity)
 
         if (after != null) {
             sb.append(" AND timestamp >= :after")
