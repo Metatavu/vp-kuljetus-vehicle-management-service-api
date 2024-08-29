@@ -41,10 +41,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         // should be ignored because timestamp is same
         it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(state = TruckDriveStateEnum.REST))
         // should be ignored because the latest drive state record is the same
-        it.setApiKey().trucks.createDriveState(
-            truck.id,
-            truckDriveStateData.copy(timestamp = now + 1)
-        )
+        it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(timestamp = now + 1))
 
         val createdTruckDriveStates = it.manager.trucks.listDriveStates(truck.id)
         assertEquals(1, createdTruckDriveStates.size)
