@@ -65,8 +65,8 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
             }
 
         val messages1 = messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
-        messagingClient.clearIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
         assertEquals(1, messages1.size)
+        messagingClient.clearIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
 
         for (message in messages1) {
             assertEquals(WorkEventType.DRIVE, message.workEventType)
@@ -85,13 +85,12 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
             }
 
         val messages2 = messagingClient.getIncomingMessages<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
-        messagingClient.clearIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
         assertEquals(1, messages2.size)
 
         for (message in messages2) {
             assertEquals(WorkEventType.BREAK, message.workEventType)
         }
-
+        messagingClient.clearIncomingMessages(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
     }
 
     @Test
