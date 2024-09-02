@@ -1,9 +1,8 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivestate
 
-import fi.metatavu.vp.api.model.TruckDriveStateEnum
+import fi.metatavu.vp.vehiclemanagement.model.TruckDriveStateEnum
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotEmpty
 import java.util.*
 
 /**

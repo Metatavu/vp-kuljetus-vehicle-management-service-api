@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.api.model.*
-import fi.metatavu.vp.api.spec.TrucksApi
+import fi.metatavu.vp.vehiclemanagement.model.*
+import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
 import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
@@ -69,7 +69,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun createTruck(truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = withCoroutineScope {
+    override fun createTruck(truck: fi.metatavu.vp.vehiclemanagement.model.Truck): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         if (!vehicleController.isPlateNumberValid(truck.plateNumber) || truck.vin.isEmpty()) {
@@ -118,7 +118,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.api.model.Truck): Uni<Response> = withCoroutineScope {
+    override fun updateTruck(truckId: UUID, truck: fi.metatavu.vp.vehiclemanagement.model.Truck): Uni<Response> = withCoroutineScope {
         val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
         if (!vehicleController.isPlateNumberValid(truck.plateNumber) || truck.vin.isEmpty()) {
@@ -282,6 +282,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
         truckDriveStateController.createDriveState(truck, truckDriveState) ?: return@withCoroutineScope createAccepted(null)
+
         createCreated()
     }
 }

@@ -12,6 +12,9 @@ class DefaultTestProfile: QuarkusTestProfile {
     override fun getConfigOverrides(): MutableMap<String, String> {
         val config: MutableMap<String, String> = HashMap()
         config["vp.vehiclemanagement.telematics.apiKey"] = VEHICLE_MANAGEMENT_TELEMATICS_API_KEY
+
+        config["mp.messaging.outgoing.vp-out.exchange.name"] = EXCHANGE_NAME
+
         config["vp.env"] = "TEST"
         return config
     }
@@ -24,5 +27,6 @@ class DefaultTestProfile: QuarkusTestProfile {
 
     companion object {
         const val VEHICLE_MANAGEMENT_TELEMATICS_API_KEY = "test-api-key"
+        const val EXCHANGE_NAME = "test-exchange"
     }
 }

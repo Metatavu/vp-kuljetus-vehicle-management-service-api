@@ -4,16 +4,19 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import fi.metatavu.invalid.InvalidValueTestScenarioBuilder
 import fi.metatavu.invalid.InvalidValueTestScenarioPath
 import fi.metatavu.invalid.InvalidValues
+import fi.metatavu.vp.messaging.RoutingKey
+import fi.metatavu.vp.messaging.client.MessagingClient
+import fi.metatavu.vp.messaging.events.DriverWorkEventGlobalEvent
 import fi.metatavu.vp.test.client.models.TruckDriveState
 import fi.metatavu.vp.test.client.models.TruckDriveStateEnum
 import fi.metatavu.vp.test.client.models.TruckDriverCard
+import fi.metatavu.vp.usermanagement.model.WorkEventType
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import io.restassured.http.Method
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertNotNull
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.time.OffsetDateTime
 
@@ -27,6 +30,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateTruckDriveStates() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
+        val messageConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
         val now = System.currentTimeMillis()
         val truckDriveStateData = TruckDriveState(
             state = TruckDriveStateEnum.DRIVE,
@@ -37,10 +41,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         // should be ignored because timestamp is same
         it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(state = TruckDriveStateEnum.REST))
         // should be ignored because the latest drive state record is the same
-        it.setApiKey().trucks.createDriveState(
-            truck.id,
-            truckDriveStateData.copy(timestamp = now + 1)
-        )
+        it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(timestamp = now + 1))
 
         val createdTruckDriveStates = it.manager.trucks.listDriveStates(truck.id)
         assertEquals(1, createdTruckDriveStates.size)
@@ -50,6 +51,25 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         assertEquals(truckDriveStateData.driverCardId, createdTruckDriveState.driverCardId)
         assertEquals(driver1Id, createdTruckDriveState.driverId)
         assertEquals(truckDriveStateData.timestamp, createdTruckDriveState.timestamp)
+
+        val messages1 = messageConsumer.consumeMessages(1)
+        assertEquals(1, messages1.size)
+
+        for (message in messages1) {
+            assertEquals(WorkEventType.DRIVE, message.workEventType)
+        }
+
+        it.setApiKey().trucks.createDriveState(
+            truck.id,
+            truckDriveStateData.copy(state = TruckDriveStateEnum.REST, timestamp = now + 10_000)
+        )
+
+        val messages2 = messageConsumer.consumeMessages(1)
+        assertEquals(1, messages2.size)
+
+        for (message in messages2) {
+            assertEquals(WorkEventType.BREAK, message.workEventType)
+        }
     }
 
     @Test

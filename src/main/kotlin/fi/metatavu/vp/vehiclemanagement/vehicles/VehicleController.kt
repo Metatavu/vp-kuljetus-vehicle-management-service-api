@@ -108,7 +108,7 @@ class VehicleController {
      */
     suspend fun update(
         existingVehicle: Vehicle,
-        vehicleUpdateData: fi.metatavu.vp.api.model.Vehicle,
+        vehicleUpdateData: fi.metatavu.vp.vehiclemanagement.model.Vehicle,
         newTruck: Truck,
         newTowables: List<Towable>,
         userId: UUID

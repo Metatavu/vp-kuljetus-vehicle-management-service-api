@@ -25,7 +25,7 @@ class TowableController {
      */
     suspend fun createTowable(
         plateNumber: String,
-        type: fi.metatavu.vp.api.model.Towable.Type,
+        type: fi.metatavu.vp.vehiclemanagement.model.Towable.Type,
         vin: String,
         name: String?,
         userId: UUID
@@ -83,7 +83,7 @@ class TowableController {
      */
     suspend fun updateTowable(
         existingTowable: Towable,
-        newTowableData: fi.metatavu.vp.api.model.Towable,
+        newTowableData: fi.metatavu.vp.vehiclemanagement.model.Towable,
         userId: UUID
     ): Towable {
         existingTowable.plateNumber = newTowableData.plateNumber

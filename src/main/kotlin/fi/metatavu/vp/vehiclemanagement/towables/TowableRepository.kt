@@ -26,7 +26,7 @@ class TowableRepository: AbstractRepository<Towable, UUID>() {
     suspend fun create(
         id: UUID,
         plateNumber: String,
-        type: fi.metatavu.vp.api.model.Towable.Type,
+        type: fi.metatavu.vp.vehiclemanagement.model.Towable.Type,
         vin: String,
         name: String?,
         creatorId: UUID,

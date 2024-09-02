@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
-import fi.metatavu.vp.api.model.SortOrder
-import fi.metatavu.vp.api.model.TruckSortByField
+import fi.metatavu.vp.vehiclemanagement.model.SortOrder
+import fi.metatavu.vp.vehiclemanagement.model.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
@@ -47,7 +47,7 @@ class TruckController {
      */
     suspend fun createTruck(
         plateNumber: String,
-        type: fi.metatavu.vp.api.model.Truck.Type,
+        type: fi.metatavu.vp.vehiclemanagement.model.Truck.Type,
         vin: String,
         name: String?,
         userId: UUID
@@ -125,7 +125,7 @@ class TruckController {
      * @param userId user id
      * @return updated trailer
      */
-    suspend fun updateTruck(existingTruck: Truck, newTruckData: fi.metatavu.vp.api.model.Truck, userId: UUID): Truck {
+    suspend fun updateTruck(existingTruck: Truck, newTruckData: fi.metatavu.vp.vehiclemanagement.model.Truck, userId: UUID): Truck {
         existingTruck.plateNumber = newTruckData.plateNumber
         existingTruck.archivedAt = newTruckData.archivedAt
         existingTruck.type = newTruckData.type

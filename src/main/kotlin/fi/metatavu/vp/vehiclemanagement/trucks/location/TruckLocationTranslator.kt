@@ -7,10 +7,10 @@ import jakarta.enterprise.context.ApplicationScoped
  * Translator for truck locations
  */
 @ApplicationScoped
-class TruckLocationTranslator : AbstractTranslator<TruckLocation, fi.metatavu.vp.api.model.TruckLocation>() {
+class TruckLocationTranslator : AbstractTranslator<TruckLocation, fi.metatavu.vp.vehiclemanagement.model.TruckLocation>() {
 
-    override suspend fun translate(entity: TruckLocation): fi.metatavu.vp.api.model.TruckLocation {
-        return fi.metatavu.vp.api.model.TruckLocation(
+    override suspend fun translate(entity: TruckLocation): fi.metatavu.vp.vehiclemanagement.model.TruckLocation {
+        return fi.metatavu.vp.vehiclemanagement.model.TruckLocation(
             id = entity.id,
             latitude = entity.latitude!!,
             longitude = entity.longitude!!,

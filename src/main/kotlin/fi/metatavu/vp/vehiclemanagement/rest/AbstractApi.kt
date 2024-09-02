@@ -1,7 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.rest
 
-import io.smallrye.mutiny.Uni
-import io.vertx.core.Vertx
+import fi.metatavu.vp.vehiclemanagement.WithCoroutineScope
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders
@@ -10,10 +9,6 @@ import jakarta.ws.rs.core.SecurityContext
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import org.eclipse.microprofile.jwt.JsonWebToken
 import java.util.*
-import io.smallrye.mutiny.coroutines.asUni
-import kotlinx.coroutines.*
-import java.lang.Runnable
-import kotlin.coroutines.CoroutineContext
 
 /**
  * Abstract base class for all API services
@@ -21,10 +16,7 @@ import kotlin.coroutines.CoroutineContext
  * @author Jari Nykänen
  */
 
-abstract class AbstractApi {
-
-    @Inject
-    lateinit var vertx: Vertx
+abstract class AbstractApi: WithCoroutineScope() {
 
     @ConfigProperty(name = "vp.env")
     private lateinit var environment: String
@@ -246,7 +238,7 @@ abstract class AbstractApi {
      * @return error response
      */
     private fun createError(status: Response.Status, message: String): Response {
-        val entity = fi.metatavu.vp.api.model.Error(
+        val entity = fi.metatavu.vp.vehiclemanagement.model.Error(
             message = message,
             status = status.statusCode
         )
@@ -263,38 +255,6 @@ abstract class AbstractApi {
 
     fun createNotFoundMessage(entity: String, id: String): String {
         return "$entity with id $id not found"
-    }
-
-    /**
-     * Executes a block with coroutine scope
-     *
-     * @param requestTimeOut request timeout in milliseconds. Default is 10000
-     * @param block block to execute
-     * @return Uni
-     */
-    @OptIn(ExperimentalCoroutinesApi::class)
-    protected fun <T> withCoroutineScope(requestTimeOut: Long = 10000L, block: suspend () -> T): Uni<T> {
-        val context = Vertx.currentContext()
-        val dispatcher = VertxCoroutineDispatcher(context)
-
-        return CoroutineScope(context = dispatcher)
-            .async {
-                withTimeout(requestTimeOut) {
-                    block()
-                }
-            }
-            .asUni()
-    }
-
-    /**
-     * Custom vertx coroutine dispatcher that keeps the context stable during the execution
-     */
-    private class VertxCoroutineDispatcher(private val vertxContext: io.vertx.core.Context): CoroutineDispatcher() {
-        override fun dispatch(context: CoroutineContext, block: Runnable) {
-            vertxContext.runOnContext {
-                block.run()
-            }
-        }
     }
 
     companion object {

@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.persistence
 
-import fi.metatavu.vp.api.model.SortOrder
+import fi.metatavu.vp.vehiclemanagement.model.SortOrder
 import io.quarkus.hibernate.reactive.panache.PanacheQuery
 import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase
 import io.smallrye.mutiny.coroutines.awaitSuspending

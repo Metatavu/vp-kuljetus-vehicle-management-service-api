@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.vehicles
 
-import fi.metatavu.vp.api.model.Vehicle
-import fi.metatavu.vp.api.spec.VehiclesApi
+import fi.metatavu.vp.vehiclemanagement.model.Vehicle
+import fi.metatavu.vp.vehiclemanagement.spec.VehiclesApi
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.towables.TowableController
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckController

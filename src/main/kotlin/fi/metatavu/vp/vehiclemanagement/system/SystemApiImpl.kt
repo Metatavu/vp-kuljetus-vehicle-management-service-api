@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.system
 
-import fi.metatavu.vp.api.spec.SystemApi
+import fi.metatavu.vp.vehiclemanagement.spec.SystemApi
 import io.smallrye.mutiny.Uni
 import jakarta.enterprise.context.RequestScoped
 import jakarta.ws.rs.core.Response

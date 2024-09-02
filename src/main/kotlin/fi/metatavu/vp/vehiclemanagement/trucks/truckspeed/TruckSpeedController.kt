@@ -1,7 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.truckspeed
 
 import fi.metatavu.vp.vehiclemanagement.trucks.Truck
-import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocation
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -26,7 +25,7 @@ class TruckSpeedController {
      * @param truckSpeed truck speed
      * @return created truck speed
      */
-    suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.api.model.TruckSpeed): TruckSpeed? {
+    suspend fun createTruckSpeed(truck: Truck, truckSpeed: fi.metatavu.vp.vehiclemanagement.model.TruckSpeed): TruckSpeed? {
         val existingRecord = truckSpeedRepository.find(
             "truck = :truck and timestamp = :timestamp",
             Parameters.with("truck", truck).and("timestamp", truckSpeed.timestamp)

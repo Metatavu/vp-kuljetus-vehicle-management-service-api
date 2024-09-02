@@ -21,7 +21,7 @@ class Towable : Metadata() {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    lateinit var type: fi.metatavu.vp.api.model.Towable.Type
+    lateinit var type: fi.metatavu.vp.vehiclemanagement.model.Towable.Type
 
     @Column(unique = true, nullable = false)
     @NotEmpty

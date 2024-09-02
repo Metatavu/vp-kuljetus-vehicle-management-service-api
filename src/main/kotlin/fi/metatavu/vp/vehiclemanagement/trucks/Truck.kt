@@ -21,7 +21,7 @@ class Truck: Metadata() {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    lateinit var type: fi.metatavu.vp.api.model.Truck.Type
+    lateinit var type: fi.metatavu.vp.vehiclemanagement.model.Truck.Type
 
     @Column(unique = true, nullable = false)
     @NotEmpty

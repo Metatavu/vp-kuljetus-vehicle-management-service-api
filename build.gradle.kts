@@ -1,8 +1,8 @@
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.allopen") version "1.9.22"
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.allopen") version "2.0.0"
     id("io.quarkus")
     id("org.openapi.generator") version "7.2.0"
 }
@@ -21,19 +21,20 @@ val wiremockVersion: String by project
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
-    implementation("io.quarkus:quarkus-hibernate-validator")
-    implementation("io.quarkus:quarkus-hibernate-reactive-panache")
-    implementation("io.quarkus:quarkus-liquibase")
-    implementation("io.quarkus:quarkus-jdbc-mysql")
-    implementation("io.quarkus:quarkus-reactive-mysql-client")
-    implementation("io.quarkus:quarkus-undertow")
     implementation("io.quarkus:quarkus-resteasy-reactive")
     implementation("io.quarkus:quarkus-resteasy-reactive-kotlin")
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-oidc")
     implementation("io.quarkus:quarkus-kotlin")
-    implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
     implementation("io.quarkus:quarkus-smallrye-health")
+    implementation("io.quarkus:quarkus-hibernate-validator")
+    implementation("io.quarkus:quarkus-hibernate-reactive-panache")
+    implementation("io.quarkus:quarkus-liquibase")
+    implementation("io.quarkus:quarkus-jdbc-mysql")
+    implementation("io.quarkus:quarkus-reactive-mysql-client")
+    implementation("io.quarkus:quarkus-messaging-rabbitmq")
+    implementation("io.quarkus:quarkus-arc")
+    implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
 
     implementation("io.vertx:vertx-core")
     implementation("io.vertx:vertx-lang-kotlin")
@@ -51,6 +52,7 @@ dependencies {
     testImplementation("io.rest-assured:kotlin-extensions")
     testImplementation("io.rest-assured:rest-assured")
     testImplementation("io.quarkus:quarkus-junit5")
+    testImplementation("org.testcontainers:testcontainers")
     testImplementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
     testImplementation("fi.metatavu.jaxrs.testbuilder:jaxrs-functional-test-builder:$jaxrsFunctionalTestBuilderVersion")
 
@@ -67,10 +69,12 @@ java {
 sourceSets["main"].java {
     srcDir("build/generated/api-spec/src/main/kotlin")
     srcDir("build/generated/user-management-api-spec/src/main/kotlin")
+    srcDir("vp-kuljetus-messaging-service/src/main/kotlin")
 }
 sourceSets["test"].java {
     srcDir("build/generated/api-client/src/main/kotlin")
     srcDir("quarkus-invalid-param-test/src/main/kotlin")
+    srcDir("vp-kuljetus-messaging-service/src/test/kotlin")
 }
 
 allOpen {
@@ -95,9 +99,9 @@ val generateApiSpec = tasks.register("generateApiSpec",GenerateTask::class){
     setProperty("generatorName", "kotlin-server")
     setProperty("inputSpec",  "$rootDir/vp-kuljetus-transport-management-specs/services/vehicle-management-services.yaml")
     setProperty("outputDir", "$buildDir/generated/api-spec")
-    setProperty("apiPackage", "${project.group}.api.spec")
-    setProperty("invokerPackage", "${project.group}.api.invoker")
-    setProperty("modelPackage", "${project.group}.api.model")
+    setProperty("apiPackage", "${project.group}.vehiclemanagement.spec")
+    setProperty("invokerPackage", "${project.group}.vehiclemanagement.invoker")
+    setProperty("modelPackage", "${project.group}.vehiclemanagement.model")
     setProperty("templateDir", "$rootDir/openapi/api-spec")
     setProperty("validateSpec", false)
 
