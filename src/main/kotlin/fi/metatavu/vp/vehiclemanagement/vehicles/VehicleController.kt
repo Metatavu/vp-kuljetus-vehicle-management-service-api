@@ -1,8 +1,9 @@
 package fi.metatavu.vp.vehiclemanagement.vehicles
 
-import fi.metatavu.vp.vehiclemanagement.towables.Towable
+import fi.metatavu.vp.vehiclemanagement.model.Vehicle
+import fi.metatavu.vp.vehiclemanagement.towables.TowableEntity
 import fi.metatavu.vp.vehiclemanagement.towables.TowableRepository
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckRepository
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -31,37 +32,37 @@ class VehicleController {
     /**
      * Lists vehicles
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param archived archived
      * @param first first
      * @param max max
      * @return list of vehicles that contains the truck
      */
-    suspend fun listVehicles(truck: Truck?, archived: Boolean?, first: Int? = null, max: Int? = null): Pair<List<Vehicle>, Long> {
-        return vehicleRepository.list(truck, archived, first, max)
+    suspend fun listVehicles(truckEntity: TruckEntity?, archived: Boolean?, first: Int? = null, max: Int? = null): Pair<List<VehicleEntity>, Long> {
+        return vehicleRepository.list(truckEntity, archived, first, max)
     }
 
     /**
      * Lists vehicles
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @return list of vehicles that contains the truck
      */
-    suspend fun listVehicles(truck: Truck?): List<Vehicle> {
-        return vehicleRepository.listByTruck(truck)
+    suspend fun listVehicles(truckEntity: TruckEntity?): List<VehicleEntity> {
+        return vehicleRepository.listByTruck(truckEntity)
     }
 
     /**
      * Creates a new vehicle
      *
-     * @param truck truck for which vehicle is created
-     * @param towables towables
+     * @param truckEntity truck for which vehicle is created
+     * @param towableEntities towables
      * @param userId user id
      * @return created vehicle
      */
-    suspend fun create(truck: Truck, towables: List<Towable>, userId: UUID): Vehicle {
+    suspend fun create(truckEntity: TruckEntity, towableEntities: List<TowableEntity>, userId: UUID): VehicleEntity {
         // Archive the vehicles that if their truck got reserved for this newly created one
-        val truckVehicles = vehicleRepository.listByTruck(truck)
+        val truckVehicles = vehicleRepository.listByTruck(truckEntity)
         truckVehicles.forEach {
             it.archivedAt = OffsetDateTime.now()
             vehicleRepository.persistSuspending(it)
@@ -69,15 +70,15 @@ class VehicleController {
 
         val createdVehicle = vehicleRepository.create(
             id = UUID.randomUUID(),
-            truck = truck,
+            truckEntity = truckEntity,
             userId = userId
         )
 
-        towables.forEachIndexed { index, towable ->
+        towableEntities.forEachIndexed { index, towable ->
             vehicleTowableRepository.create(
                 id = UUID.randomUUID(),
-                vehicle = createdVehicle,
-                towable = towable,
+                vehicleEntity = createdVehicle,
+                towableEntity = towable,
                 order = index,
                 userId = userId
             )
@@ -92,61 +93,61 @@ class VehicleController {
      * @param vehicleId vehicle id
      * @return found vehicle or null if not found
      */
-    suspend fun find(vehicleId: UUID): Vehicle? {
+    suspend fun find(vehicleId: UUID): VehicleEntity? {
         return vehicleRepository.findByIdSuspending(vehicleId)
     }
 
     /**
      * Updates a vehicle
      *
-     * @param existingVehicle existing vehicle
+     * @param existingVehicleEntity existing vehicle
      * @param vehicleUpdateData vehicle rest data
-     * @param newTruck new truck
-     * @param newTowables new towables
+     * @param newTruckEntity new truck
+     * @param newTowableEntities new towables
      * @param userId user id
      * @return updated vehicle
      */
     suspend fun update(
-        existingVehicle: Vehicle,
-        vehicleUpdateData: fi.metatavu.vp.vehiclemanagement.model.Vehicle,
-        newTruck: Truck,
-        newTowables: List<Towable>,
+        existingVehicleEntity: VehicleEntity,
+        vehicleUpdateData: Vehicle,
+        newTruckEntity: TruckEntity,
+        newTowableEntities: List<TowableEntity>,
         userId: UUID
-    ): Vehicle {
-        existingVehicle.truck = newTruck
-        existingVehicle.archivedAt = vehicleUpdateData.archivedAt
-        existingVehicle.lastModifierId = userId
+    ): VehicleEntity {
+        existingVehicleEntity.truck = newTruckEntity
+        existingVehicleEntity.archivedAt = vehicleUpdateData.archivedAt
+        existingVehicleEntity.lastModifierId = userId
 
         //remove connection to towables
-        val towableVehicles = vehicleTowableRepository.listByVehicle(existingVehicle)
+        val towableVehicles = vehicleTowableRepository.listByVehicle(existingVehicleEntity)
         towableVehicles.forEach {
             vehicleTowableRepository.deleteSuspending(it)
         }
         //add new connections
-        newTowables.forEachIndexed { index, towable ->
+        newTowableEntities.forEachIndexed { index, towable ->
             vehicleTowableRepository.create(
                 id = UUID.randomUUID(),
-                vehicle = existingVehicle,
-                towable = towable,
+                vehicleEntity = existingVehicleEntity,
+                towableEntity = towable,
                 order = index,
                 userId = userId
             )
         }
 
-        return vehicleRepository.persistSuspending(existingVehicle)
+        return vehicleRepository.persistSuspending(existingVehicleEntity)
     }
 
     /**
      * Deletes a vehicle
      *
-     * @param vehicle vehicle to be deleted
+     * @param vehicleEntity vehicle to be deleted
      */
-    suspend fun delete(vehicle: Vehicle) {
-        val towableVehicles = vehicleTowableRepository.listByVehicle(vehicle)
+    suspend fun delete(vehicleEntity: VehicleEntity) {
+        val towableVehicles = vehicleTowableRepository.listByVehicle(vehicleEntity)
         towableVehicles.forEach {
             vehicleTowableRepository.deleteSuspending(it)
         }
-        vehicleRepository.deleteSuspending(vehicle)
+        vehicleRepository.deleteSuspending(vehicleEntity)
         vehicleTowableRepository.flush().awaitSuspending()
     }
 
@@ -216,10 +217,10 @@ class VehicleController {
     /**
      * Lists towable connections to vehicles
      *
-     * @param towable towable
+     * @param towableEntity towable
      * @return list of towable vehicles
      */
-    suspend fun listTowableToVehicles(towable: Towable): List<VehicleTowable> {
-        return vehicleTowableRepository.listByTowable(towable)
+    suspend fun listTowableToVehicles(towableEntity: TowableEntity): List<VehicleTowableEntity> {
+        return vehicleTowableRepository.listByTowable(towableEntity)
     }
 }

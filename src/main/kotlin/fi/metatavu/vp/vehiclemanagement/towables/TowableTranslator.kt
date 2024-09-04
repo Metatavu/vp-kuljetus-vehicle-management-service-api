@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.towables
 
+import fi.metatavu.vp.vehiclemanagement.model.Towable
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractTranslator
 import jakarta.enterprise.context.ApplicationScoped
 
@@ -7,10 +8,10 @@ import jakarta.enterprise.context.ApplicationScoped
  * Translator for translating towable entities into REST resources
  */
 @ApplicationScoped
-class TowableTranslator : AbstractTranslator<Towable, fi.metatavu.vp.vehiclemanagement.model.Towable>() {
+class TowableTranslator : AbstractTranslator<TowableEntity, Towable>() {
 
-    override suspend fun translate(entity: Towable): fi.metatavu.vp.vehiclemanagement.model.Towable {
-        return fi.metatavu.vp.vehiclemanagement.model.Towable(
+    override suspend fun translate(entity: TowableEntity): Towable {
+        return Towable(
             id = entity.id,
             plateNumber = entity.plateNumber,
             vin = entity.vin,

@@ -1,17 +1,19 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.truckspeed
 
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.Table
 import java.util.*
 
 /**
  * Entity representing truck speed
  */
 @Entity
-class TruckSpeed {
+@Table(name = "truckspeed")
+class TruckSpeedEntity {
 
     @Id
     var id: UUID? = null
@@ -23,5 +25,5 @@ class TruckSpeed {
     var speed: Float? = 0.0f
 
     @ManyToOne
-    lateinit var truck: Truck
+    lateinit var truck: TruckEntity
 }

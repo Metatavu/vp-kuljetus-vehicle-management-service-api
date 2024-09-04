@@ -10,5 +10,5 @@ import jakarta.ws.rs.core.Response
  */
 @RequestScoped
 class SystemApiImpl: SystemApi {
-    override fun ping(): Uni<Response> = Uni.createFrom().item { Response.ok("pong").build() }
+    override fun ping(): Uni<Response> = Uni.createFrom().item(Response.ok("pong").build())
 }

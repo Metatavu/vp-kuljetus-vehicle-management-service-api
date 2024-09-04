@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.location
 
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.model.TruckLocation
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -21,26 +22,26 @@ class TruckLocationController {
     /**
      * Creates new truck location
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param truckLocation truck location REST object
      * @return created truck location
      */
     suspend fun createTruckLocation(
-        truck: Truck,
-        truckLocation: fi.metatavu.vp.vehiclemanagement.model.TruckLocation
-    ): TruckLocation? {
+        truckEntity: TruckEntity,
+        truckLocation: TruckLocation
+    ): TruckLocationEntity? {
         val existingRecord = truckLocationRepository.find(
             "truck = :truck and timestamp = :timestamp",
-            Parameters.with("truck", truck).and("timestamp", truckLocation.timestamp)
-        ).firstResult<TruckLocation>().awaitSuspending()
+            Parameters.with("truck", truckEntity).and("timestamp", truckLocation.timestamp)
+        ).firstResult<TruckLocationEntity>().awaitSuspending()
         if (existingRecord != null) {
             return existingRecord
         }
 
         val latestRecord = truckLocationRepository.find(
             "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
-            Parameters.with("truck", truck).and("timestamp", truckLocation.timestamp)
-        ).firstResult<TruckLocation>().awaitSuspending()
+            Parameters.with("truck", truckEntity).and("timestamp", truckLocation.timestamp)
+        ).firstResult<TruckLocationEntity>().awaitSuspending()
         if (latestRecord != null &&
             latestRecord.timestamp!! < truckLocation.timestamp &&
             abs(latestRecord.latitude!! - truckLocation.latitude) < 0.0001 &&
@@ -55,14 +56,14 @@ class TruckLocationController {
             latitude = truckLocation.latitude,
             longitude = truckLocation.longitude,
             heading = truckLocation.heading,
-            truck = truck
+            truckEntity = truckEntity
         )
     }
 
     /**
      * Lists truck locations
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param after after
      * @param before before
      * @param first first
@@ -70,14 +71,14 @@ class TruckLocationController {
      * @return truck locations
      */
     suspend fun listTruckLocations(
-        truck: Truck,
+        truckEntity: TruckEntity,
         after: OffsetDateTime? = null,
         before: OffsetDateTime? = null,
         first: Int? = null,
         max: Int? = null
-    ): Pair<List<TruckLocation>, Long> {
+    ): Pair<List<TruckLocationEntity>, Long> {
         return truckLocationRepository.listTruckLocations(
-            truck = truck,
+            truckEntity = truckEntity,
             after = after,
             before = before,
             first = first,
@@ -88,9 +89,9 @@ class TruckLocationController {
     /**
      * Deletes truck location
      *
-     * @param truckLocation truck location
+     * @param truckLocationEntity truck location
      */
-    suspend fun deleteTruckLocation(truckLocation: TruckLocation) {
-        return truckLocationRepository.deleteSuspending(truckLocation)
+    suspend fun deleteTruckLocation(truckLocationEntity: TruckLocationEntity) {
+        return truckLocationRepository.deleteSuspending(truckLocationEntity)
     }
 }

@@ -1,5 +1,6 @@
-package fi.metatavu.vp.vehiclemanagement.trucks
+package fi.metatavu.vp.vehiclemanagement.towables
 
+import fi.metatavu.vp.vehiclemanagement.model.Towable
 import fi.metatavu.vp.vehiclemanagement.persistence.Metadata
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotEmpty
@@ -7,10 +8,11 @@ import java.time.OffsetDateTime
 import java.util.*
 
 /**
- * Entity representing a truck
+ * Entity for towables
  */
 @Entity
-class Truck: Metadata() {
+@Table(name = "towable")
+class TowableEntity : Metadata() {
 
     @Id
     var id: UUID? = null
@@ -21,7 +23,7 @@ class Truck: Metadata() {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    lateinit var type: fi.metatavu.vp.vehiclemanagement.model.Truck.Type
+    lateinit var type: Towable.Type
 
     @Column(unique = true, nullable = false)
     @NotEmpty

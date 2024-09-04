@@ -5,7 +5,7 @@ import fi.metatavu.vp.messaging.GlobalEventController
 import fi.metatavu.vp.messaging.events.DriverWorkEventGlobalEvent
 import fi.metatavu.vp.usermanagement.model.WorkEventType
 import fi.metatavu.vp.vehiclemanagement.WithCoroutineScope
-import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState
+import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateEntity
 import io.quarkus.vertx.ConsumeEvent
 import io.smallrye.mutiny.Uni
 import jakarta.enterprise.context.ApplicationScoped
@@ -37,7 +37,7 @@ class TruckDriveStateCreatedConsumer: WithCoroutineScope() {
      */
     @ConsumeEvent(TRUCK_DRIVE_STATE_CREATED)
     @Suppress("unused")
-    fun onTruckDriveStateCreated(driveState: TruckDriveState): Uni<Void> = withCoroutineScope {
+    fun onTruckDriveStateCreated(driveState: TruckDriveStateEntity): Uni<Void> = withCoroutineScope {
         logger.info("Truck drive state created: ${driveState.id}")
         val driverId = driveState.driverId
         val timestamp = driveState.timestamp
@@ -67,7 +67,7 @@ class TruckDriveStateCreatedConsumer: WithCoroutineScope() {
      * @param driveState truck drive state
      * @return work event type
      */
-    private fun getWorkEventType(driveState: TruckDriveState): WorkEventType {
+    private fun getWorkEventType(driveState: TruckDriveStateEntity): WorkEventType {
         return when (driveState.state) {
             TruckDriveStateEnum.DRIVE -> WorkEventType.DRIVE
             TruckDriveStateEnum.WORK -> WorkEventType.OTHER_WORK

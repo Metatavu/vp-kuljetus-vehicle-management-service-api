@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivestate
 
 import fi.metatavu.vp.vehiclemanagement.model.TruckDriveStateEnum
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import jakarta.persistence.*
 import java.util.*
 
@@ -9,7 +9,8 @@ import java.util.*
  * Entity class for TruckDriveState
  */
 @Entity
-class TruckDriveState {
+@Table(name = "truckdrivestate")
+class TruckDriveStateEntity {
 
     @Id
     lateinit var id: UUID
@@ -27,5 +28,5 @@ class TruckDriveState {
     var driverId: UUID? = null
 
     @ManyToOne
-    lateinit var truck: Truck
+    lateinit var truck: TruckEntity
 }

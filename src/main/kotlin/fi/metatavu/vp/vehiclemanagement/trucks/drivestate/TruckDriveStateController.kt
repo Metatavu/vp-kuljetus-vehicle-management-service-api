@@ -4,7 +4,7 @@ import fi.metatavu.vp.vehiclemanagement.event.TruckDriveStateCreatedConsumer
 import fi.metatavu.vp.vehiclemanagement.model.TruckDriveState
 import fi.metatavu.vp.vehiclemanagement.model.TruckDriveStateEnum
 import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.vertx.core.eventbus.EventBus
@@ -31,18 +31,18 @@ class TruckDriveStateController {
     /**
      * Creates a new truck drive state
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param truckDriveState truck drive state
      * @return created truck drive state
      */
     suspend fun createDriveState(
-        truck: Truck,
+        truckEntity: TruckEntity,
         truckDriveState: TruckDriveState
-    ): fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState? {
+    ): TruckDriveStateEntity? {
         val existingRecord = truckDriveStateRepository.find(
             "truck = :truck and timestamp = :timestamp",
-            Parameters.with("truck", truck).and("timestamp", truckDriveState.timestamp)
-        ).firstResult<fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState>().awaitSuspending()
+            Parameters.with("truck", truckEntity).and("timestamp", truckDriveState.timestamp)
+        ).firstResult<TruckDriveStateEntity>().awaitSuspending()
         if (existingRecord != null) {
             return existingRecord
         }
@@ -52,8 +52,8 @@ class TruckDriveStateController {
 
         val latestRecord = truckDriveStateRepository.find(
             "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
-            Parameters.with("truck", truck).and("timestamp", truckDriveState.timestamp)
-        ).firstResult<fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState>().awaitSuspending()
+            Parameters.with("truck", truckEntity).and("timestamp", truckDriveState.timestamp)
+        ).firstResult<TruckDriveStateEntity>().awaitSuspending()
         if (latestRecord != null &&
             latestRecord.timestamp!! < truckDriveState.timestamp &&
             latestRecord.state == truckDriveState.state &&
@@ -68,7 +68,7 @@ class TruckDriveStateController {
             timestamp = truckDriveState.timestamp,
             driverCardId = truckDriveState.driverCardId,
             driverId = foundDriverId,
-            truck = truck
+            truckEntity = truckEntity
         )
 
         eventBus.publish(TruckDriveStateCreatedConsumer.TRUCK_DRIVE_STATE_CREATED, createdDriveState)
@@ -79,7 +79,7 @@ class TruckDriveStateController {
     /**
      * Lists truck drive states
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param driverId driver id
      * @param state state
      * @param after after
@@ -89,16 +89,16 @@ class TruckDriveStateController {
      * @return truck drive states
      */
     suspend fun listDriveStates(
-        truck: Truck,
+        truckEntity: TruckEntity,
         driverId: UUID? = null,
         state: List<TruckDriveStateEnum>? = null,
         after: OffsetDateTime? = null,
         before: OffsetDateTime? = null,
         first: Int? = null,
         max: Int? = null
-    ): Pair<List<fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState>, Long> {
+    ): Pair<List<TruckDriveStateEntity>, Long> {
         return truckDriveStateRepository.list(
-            truck = truck,
+            truckEntity = truckEntity,
             driverId = driverId,
             state = state,
             after = after,
@@ -111,9 +111,9 @@ class TruckDriveStateController {
     /**
      * Deletes truck drive state
      *
-     * @param truckDriveState truck drive state
+     * @param truckDriveStateEntity truck drive state
      */
-    suspend fun deleteDriveState(truckDriveState: fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveState) {
-        truckDriveStateRepository.deleteSuspending(truckDriveState)
+    suspend fun deleteDriveState(truckDriveStateEntity: TruckDriveStateEntity) {
+        truckDriveStateRepository.deleteSuspending(truckDriveStateEntity)
     }
 }

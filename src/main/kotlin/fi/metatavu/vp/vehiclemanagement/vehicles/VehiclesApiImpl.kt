@@ -58,8 +58,8 @@ class VehiclesApiImpl: VehiclesApi, AbstractApi() {
             towableController.findTowable(it) ?: return@withCoroutineScope createBadRequest(createNotFoundMessage(TOWABLE, it))
         }
         val createdVehicle = vehicleController.create(
-            truck = truck,
-            towables = towables,
+            truckEntity = truck,
+            towableEntities = towables,
             userId = userId
         )
 

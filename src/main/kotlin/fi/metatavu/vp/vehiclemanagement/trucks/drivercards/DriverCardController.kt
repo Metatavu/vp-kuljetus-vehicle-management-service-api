@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivercards
 
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -17,24 +17,24 @@ class DriverCardController {
     /**
      * Lists driver cards
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @return list of driver cards
      */
-    suspend fun listDriverCards(truck: Truck): Pair<List<DriverCard>, Long> {
-        return driverCardRepository.list(truck)
+    suspend fun listDriverCards(truckEntity: TruckEntity): Pair<List<DriverCard>, Long> {
+        return driverCardRepository.list(truckEntity)
     }
 
     /**
      * Creates driver card
      *
      * @param driverCardId driver card id
-     * @param truck truck
+     * @param truckEntity truck
      * @return created driver card
      */
-    suspend fun createDriverCard(driverCardId: String, truck: Truck): DriverCard {
+    suspend fun createDriverCard(driverCardId: String, truckEntity: TruckEntity): DriverCard {
         return driverCardRepository.create(
             driverCardId = driverCardId,
-            truck = truck
+            truckEntity = truckEntity
         )
     }
 

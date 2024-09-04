@@ -1,18 +1,19 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.location
 
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
-import jakarta.validation.constraints.NotEmpty
+import jakarta.persistence.Table
 import java.util.*
 
 /**
  * Entity for truck location
  */
 @Entity
-class TruckLocation {
+@Table(name = "trucklocation")
+class TruckLocationEntity {
 
     @Id
     lateinit var id: UUID
@@ -30,6 +31,6 @@ class TruckLocation {
     var heading: Double? = 0.0
 
     @ManyToOne
-    lateinit var truck: Truck
+    lateinit var truck: TruckEntity
 
 }

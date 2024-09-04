@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.towables
 
+import fi.metatavu.vp.vehiclemanagement.model.Towable
 import fi.metatavu.vp.vehiclemanagement.spec.TowablesApi
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
@@ -31,7 +32,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun createTowable(towable: fi.metatavu.vp.vehiclemanagement.model.Towable): Uni<Response> =
+    override fun createTowable(towable: Towable): Uni<Response> =
         withCoroutineScope {
             val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 
@@ -78,7 +79,7 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun updateTowable(towableId: UUID, towable: fi.metatavu.vp.vehiclemanagement.model.Towable): Uni<Response> =
+    override fun updateTowable(towableId: UUID, towable: Towable): Uni<Response> =
         withCoroutineScope {
             val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
 

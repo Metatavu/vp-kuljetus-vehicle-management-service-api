@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.vehiclemanagement.model.SortOrder
+import fi.metatavu.vp.vehiclemanagement.model.Truck
 import fi.metatavu.vp.vehiclemanagement.model.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
@@ -47,11 +48,11 @@ class TruckController {
      */
     suspend fun createTruck(
         plateNumber: String,
-        type: fi.metatavu.vp.vehiclemanagement.model.Truck.Type,
+        type: Truck.Type,
         vin: String,
         name: String?,
         userId: UUID
-    ): Truck {
+    ): TruckEntity {
         val truck = truckRepository.create(
             id = UUID.randomUUID(),
             plateNumber = plateNumber,
@@ -71,7 +72,7 @@ class TruckController {
      * @param truckId truck id
      * @return found truck or null if not found
      */
-    suspend fun findTruck(truckId: UUID): Truck? {
+    suspend fun findTruck(truckId: UUID): TruckEntity? {
         return truckRepository.findByIdSuspending(truckId)
     }
 
@@ -81,7 +82,7 @@ class TruckController {
      * @param vin vin
      * @return found truck or null if not found
      */
-    suspend fun findTruck(vin: String): Truck? {
+    suspend fun findTruck(vin: String): TruckEntity? {
         return truckRepository.findByVin(vin)
     }
 
@@ -105,7 +106,7 @@ class TruckController {
         sortDirection: SortOrder? = null,
         firstResult: Int? = null,
         maxResults: Int? = null,
-    ): Pair<List<Truck>, Long> {
+    ): Pair<List<TruckEntity>, Long> {
         return truckRepository.list(
             plateNumber = plateNumber,
             archived = archived,
@@ -120,40 +121,40 @@ class TruckController {
     /**
      * Updates truck
      *
-     * @param existingTruck existing truck
+     * @param existingTruckEntity existing truck
      * @param newTruckData new truck data
      * @param userId user id
      * @return updated trailer
      */
-    suspend fun updateTruck(existingTruck: Truck, newTruckData: fi.metatavu.vp.vehiclemanagement.model.Truck, userId: UUID): Truck {
-        existingTruck.plateNumber = newTruckData.plateNumber
-        existingTruck.archivedAt = newTruckData.archivedAt
-        existingTruck.type = newTruckData.type
-        existingTruck.vin = newTruckData.vin
-        existingTruck.name = newTruckData.name
-        existingTruck.lastModifierId = userId
-        return truckRepository.persistSuspending(existingTruck)
+    suspend fun updateTruck(existingTruckEntity: TruckEntity, newTruckData: Truck, userId: UUID): TruckEntity {
+        existingTruckEntity.plateNumber = newTruckData.plateNumber
+        existingTruckEntity.archivedAt = newTruckData.archivedAt
+        existingTruckEntity.type = newTruckData.type
+        existingTruckEntity.vin = newTruckData.vin
+        existingTruckEntity.name = newTruckData.name
+        existingTruckEntity.lastModifierId = userId
+        return truckRepository.persistSuspending(existingTruckEntity)
     }
 
     /**
      * Deletes truck
      *
-     * @param truck truck to be deleted
+     * @param truckEntity truck to be deleted
      */
-    suspend fun deleteTruck(truck: Truck) {
-        driverCardController.listDriverCards(truck).first.forEach {
+    suspend fun deleteTruck(truckEntity: TruckEntity) {
+        driverCardController.listDriverCards(truckEntity).first.forEach {
             driverCardController.deleteDriverCard(it)
         }
-        truckSpeedController.listTruckSpeeds(truck).first.forEach {
+        truckSpeedController.listTruckSpeeds(truckEntity).first.forEach {
             truckSpeedController.deleteTruckSpeed(it)
         }
-        truckLocationController.listTruckLocations(truck).first.forEach {
+        truckLocationController.listTruckLocations(truckEntity).first.forEach {
             truckLocationController.deleteTruckLocation(it)
         }
-        truckDriveStateController.listDriveStates(truck = truck).first.forEach {
+        truckDriveStateController.listDriveStates(truckEntity = truckEntity).first.forEach {
             truckDriveStateController.deleteDriveState(it)
         }
-        truckRepository.deleteSuspending(truck)
+        truckRepository.deleteSuspending(truckEntity)
     }
 
 }

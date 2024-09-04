@@ -1,7 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.vehicles
 
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -11,45 +11,45 @@ import java.util.*
  * Repository for vehicles
  */
 @ApplicationScoped
-class VehicleRepository: AbstractRepository<Vehicle, UUID>() {
+class VehicleRepository: AbstractRepository<VehicleEntity, UUID>() {
 
     /**
      * Creates a vehicle
      *
      * @param id id
-     * @param truck truck of the vehicle
+     * @param truckEntity truck of the vehicle
      * @param userId creator id
      * @return created vehicle
      */
     suspend fun create(
         id: UUID,
-        truck: Truck,
+        truckEntity: TruckEntity,
         userId: UUID
-    ): Vehicle {
-        val vehicle = Vehicle()
-        vehicle.id = UUID.randomUUID()
-        vehicle.truck = truck
-        vehicle.creatorId = userId
-        vehicle.lastModifierId = userId
-        return persistSuspending(vehicle)
+    ): VehicleEntity {
+        val vehicleEntity = VehicleEntity()
+        vehicleEntity.id = UUID.randomUUID()
+        vehicleEntity.truck = truckEntity
+        vehicleEntity.creatorId = userId
+        vehicleEntity.lastModifierId = userId
+        return persistSuspending(vehicleEntity)
     }
 
     /**
      * Lists vehicles
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param archived archived
      * @param first first result
      * @param max max results
      * @return vehicles
      */
-    suspend fun list(truck: Truck?, archived: Boolean?, first: Int?, max: Int?): Pair<List<Vehicle>, Long> {
+    suspend fun list(truckEntity: TruckEntity?, archived: Boolean?, first: Int?, max: Int?): Pair<List<VehicleEntity>, Long> {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
 
-        if (truck != null) {
+        if (truckEntity != null) {
             addCondition(stringBuilder, "truck = :truck")
-            parameters.and("truck", truck)
+            parameters.and("truck", truckEntity)
         }
 
         if (archived == null || archived == false) {
@@ -69,33 +69,33 @@ class VehicleRepository: AbstractRepository<Vehicle, UUID>() {
     /**
      * Finds the active vehicle for a truck
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @return active vehicle for the truck
      */
-    suspend fun findActiveForTruck(truck: Truck): Vehicle? {
+    suspend fun findActiveForTruck(truckEntity: TruckEntity): VehicleEntity? {
         val query = "truck = :truck AND archivedAt IS NULL"
         val parameters = Parameters()
-        parameters.and("truck", truck)
-        return find(query, parameters).firstResult<Vehicle>().awaitSuspending()
+        parameters.and("truck", truckEntity)
+        return find(query, parameters).firstResult<VehicleEntity>().awaitSuspending()
     }
 
     /**
      * Lists vehicles
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @return list of vehicles that contains the truck
      */
-    suspend fun listByTruck(truck: Truck?): List<Vehicle> {
+    suspend fun listByTruck(truckEntity: TruckEntity?): List<VehicleEntity> {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
 
-        if (truck != null) {
+        if (truckEntity != null) {
             addCondition(stringBuilder, "truck = :truck")
-            parameters.and("truck", truck)
+            parameters.and("truck", truckEntity)
         }
 
         stringBuilder.append("ORDER BY createdAt DESC")
-        return find(stringBuilder.toString(), parameters).list<Vehicle>().awaitSuspending()
+        return find(stringBuilder.toString(), parameters).list<VehicleEntity>().awaitSuspending()
     }
 
 }

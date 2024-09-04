@@ -2,7 +2,7 @@ package fi.metatavu.vp.vehiclemanagement.trucks.drivestate
 
 import fi.metatavu.vp.vehiclemanagement.model.TruckDriveStateEnum
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
-import fi.metatavu.vp.vehiclemanagement.trucks.Truck
+import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.quarkus.panache.common.Parameters
 import io.quarkus.panache.common.Sort
 import jakarta.enterprise.context.ApplicationScoped
@@ -13,7 +13,7 @@ import java.util.*
  * Repository class for TruckDriveState
  */
 @ApplicationScoped
-class TruckDriveStateRepository : AbstractRepository<TruckDriveState, UUID>() {
+class TruckDriveStateRepository : AbstractRepository<TruckDriveStateEntity, UUID>() {
 
     /**
      * Creates a new truck drive state
@@ -23,7 +23,7 @@ class TruckDriveStateRepository : AbstractRepository<TruckDriveState, UUID>() {
      * @param timestamp timestamp
      * @param driverCardId driver card id
      * @param driverId driver id
-     * @param truck truck
+     * @param truckEntity truck
      * @return created truck drive state
      */
     suspend fun create(
@@ -32,22 +32,22 @@ class TruckDriveStateRepository : AbstractRepository<TruckDriveState, UUID>() {
         timestamp: Long,
         driverCardId: String?,
         driverId: UUID?,
-        truck: Truck
-    ): TruckDriveState {
-        val truckDriveState = TruckDriveState()
-        truckDriveState.id = id
-        truckDriveState.state = state
-        truckDriveState.timestamp = timestamp
-        truckDriveState.driverCardId = driverCardId
-        truckDriveState.driverId = driverId
-        truckDriveState.truck = truck
-        return persistSuspending(truckDriveState)
+        truckEntity: TruckEntity
+    ): TruckDriveStateEntity {
+        val truckDriveStateEntity = TruckDriveStateEntity()
+        truckDriveStateEntity.id = id
+        truckDriveStateEntity.state = state
+        truckDriveStateEntity.timestamp = timestamp
+        truckDriveStateEntity.driverCardId = driverCardId
+        truckDriveStateEntity.driverId = driverId
+        truckDriveStateEntity.truck = truckEntity
+        return persistSuspending(truckDriveStateEntity)
     }
 
     /**
      * Lists truck drive states
      *
-     * @param truck truck
+     * @param truckEntity truck
      * @param driverId driver id
      * @param state state
      * @param after after
@@ -57,19 +57,19 @@ class TruckDriveStateRepository : AbstractRepository<TruckDriveState, UUID>() {
      * @return truck drive states
      */
     suspend fun list(
-        truck: Truck,
+        truckEntity: TruckEntity,
         driverId: UUID? = null,
         state: List<TruckDriveStateEnum>? = null,
         after: OffsetDateTime? = null,
         before: OffsetDateTime? = null,
         first: Int? = null,
         max: Int? = null
-    ): Pair<List<TruckDriveState>, Long> {
+    ): Pair<List<TruckDriveStateEntity>, Long> {
         val stringBuilder = StringBuilder()
         val parameters = Parameters()
 
         stringBuilder.append("truck = :truck")
-        parameters.and("truck", truck)
+        parameters.and("truck", truckEntity)
 
         if (driverId != null) {
             stringBuilder.append(" AND driverId = :driverId")
