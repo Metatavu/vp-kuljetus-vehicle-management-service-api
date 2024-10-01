@@ -16,16 +16,20 @@ class DriverCardRepository: AbstractRepository<DriverCard, UUID>() {
      *
      * @param driverCardId driver card id
      * @param truckEntity truck
+     * @param timestamp timestamp
      * @return created driver card
      */
     suspend fun create(
         driverCardId: String,
-        truckEntity: TruckEntity
+        truckEntity: TruckEntity,
+        timestamp: Long
     ): DriverCard {
         val driverCard = DriverCard()
         driverCard.id = UUID.randomUUID()
         driverCard.driverCardId = driverCardId
         driverCard.truck = truckEntity
+        driverCard.timestamp = timestamp
+
         return persistSuspending(driverCard)
     }
 

@@ -2,7 +2,6 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.vehiclemanagement.model.*
 import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
-import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
@@ -63,9 +62,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckDriveStateTranslator: TruckDriveStateTranslator
-
-    @Inject
-    lateinit var userManagementService: UserManagementService
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
@@ -185,15 +181,18 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
         val insertedCard = driverCardController.createDriverCard(
             driverCardId = truckDriverCard.id,
-            truckEntity = truck
+            truckEntity = truck,
+            timestamp = truckDriverCard.timestamp
         )
+
         createOk(driverCardTranslator.translate(insertedCard))
     }
 
     @WithTransaction
     override fun deleteTruckDriverCard(
         truckId: UUID,
-        driverCardId: String
+        driverCardId: String,
+        xDriverCardRemovedAt: OffsetDateTime
     ): Uni<Response> = withCoroutineScope {
         if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
@@ -202,7 +201,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             return@withCoroutineScope createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
         }
 
-        driverCardController.deleteDriverCard(insertedDriverCard)
+        driverCardController.deleteDriverCard(insertedDriverCard, xDriverCardRemovedAt)
         createNoContent()
     }
 

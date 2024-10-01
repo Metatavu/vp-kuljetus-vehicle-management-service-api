@@ -10,6 +10,7 @@ import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeedController
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -143,7 +144,7 @@ class TruckController {
      */
     suspend fun deleteTruck(truckEntity: TruckEntity) {
         driverCardController.listDriverCards(truckEntity).first.forEach {
-            driverCardController.deleteDriverCard(it)
+            driverCardController.deleteDriverCard(it, OffsetDateTime.now())
         }
         truckSpeedController.listTruckSpeeds(truckEntity).first.forEach {
             truckSpeedController.deleteTruckSpeed(it)

@@ -300,4 +300,13 @@
         <dropTable tableName="TruckTelematicData"/>
     </changeSet>
 
+    <changeSet id="driver_card_timestamp" author="Ville Juutila">
+        <addColumn tableName="DriverCard">
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </addColumn>
+        <sql>UPDATE drivercard SET timestamp = unix_timestamp()</sql>
+    </changeSet>
+
 </databaseChangeLog>

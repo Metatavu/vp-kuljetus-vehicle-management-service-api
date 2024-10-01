@@ -24,4 +24,6 @@ class DriverCard {
     @ManyToOne
     lateinit var truck: TruckEntity
 
+    @Column(nullable = false)
+    var timestamp: Long? = null
 }
