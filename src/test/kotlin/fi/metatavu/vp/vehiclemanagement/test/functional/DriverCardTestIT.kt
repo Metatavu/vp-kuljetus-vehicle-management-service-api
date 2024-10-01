@@ -49,7 +49,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         assertEquals(message.workEventType, WorkEventType.DRIVER_CARD_INSERTED)
         assertEquals(message.time.toEpochSecond(), now.toEpochSecond())
 
-        it.setApiKey().trucks.deleteTruckDriverCard(truck.id, driver1CardId)
+        it.setApiKey().trucks.deleteTruckDriverCard(truck.id, driver1CardId, OffsetDateTime.now().minusDays(1))
 
         val messages2 = driverWorkEventConsumer.consumeMessages(1)
 
@@ -57,6 +57,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         val message2 = messages2.first()
         assertEquals(message2.driverId, driver1Id)
         assertEquals(message2.workEventType, WorkEventType.DRIVER_CARD_REMOVED)
+        assertEquals(message2.time.dayOfMonth, OffsetDateTime.now().minusDays(1).dayOfMonth)
     }
 
     @Test

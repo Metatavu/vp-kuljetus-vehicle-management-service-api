@@ -1,12 +1,14 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivercards
 
 import fi.metatavu.vp.vehiclemanagement.event.DriverCardEventConsumer
+import fi.metatavu.vp.vehiclemanagement.event.model.DriverCardEvent
 import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.vertx.core.eventbus.EventBus
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import java.time.OffsetDateTime
 
 /**
  * Controller for driver cards
@@ -51,7 +53,7 @@ class DriverCardController {
 
         eventBus.publish(
             DriverCardEventConsumer.DRIVER_CARD_EVENT,
-            DriverCardEventConsumer.DriverCardEvent(createdDriverCard, false, foundDriver)
+            DriverCardEvent(createdDriverCard, false, foundDriver)
         )
 
         return createdDriverCard
@@ -73,15 +75,16 @@ class DriverCardController {
      * Deletes driver card
      *
      * @param driverCard driver card to delete
+     * @param removedAt removed at
      * @return deleted driver card
      */
-    suspend fun deleteDriverCard(driverCard: DriverCard) {
+    suspend fun deleteDriverCard(driverCard: DriverCard, removedAt: OffsetDateTime) {
         driverCardRepository.deleteSuspending(driverCard)
 
         val foundDriver = driverCard.driverCardId.let { userManagementService.findDriverByDriverCardId(it) }
         eventBus.publish(
             DriverCardEventConsumer.DRIVER_CARD_EVENT,
-            DriverCardEventConsumer.DriverCardEvent(driverCard, true, foundDriver)
+            DriverCardEvent(driverCard.apply { timestamp = removedAt.toEpochSecond() }, true, foundDriver)
         )
     }
 }

@@ -220,9 +220,10 @@ class TrucksTestBuilderResource(
      *
      * @param truckId truck id
      * @param driverCardId driver card id
+     * @param removedAt removed at, defaults to now
      */
-    fun deleteTruckDriverCard(truckId: UUID, driverCardId: String) {
-        api.deleteTruckDriverCard(truckId, driverCardId)
+    fun deleteTruckDriverCard(truckId: UUID, driverCardId: String, removedAt: OffsetDateTime = OffsetDateTime.now()) {
+        api.deleteTruckDriverCard(truckId, driverCardId, removedAt.toString())
     }
 
     /**
@@ -230,11 +231,12 @@ class TrucksTestBuilderResource(
      *
      * @param truckId truck id
      * @param driverCardId driver card id
+     * @param removedAt removed at, defaults to now
      * @param expectedStatus expected status
      */
-    fun assertDeleteDriverCardFail(truckId: UUID, driverCardId: String, expectedStatus: Int) {
+    fun assertDeleteDriverCardFail(truckId: UUID, driverCardId: String, expectedStatus: Int, removedAt: OffsetDateTime = OffsetDateTime.now()) {
         try {
-            api.deleteTruckDriverCard(truckId, driverCardId)
+            api.deleteTruckDriverCard(truckId, driverCardId, removedAt.toString())
             Assert.fail(String.format("Expected delete to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)

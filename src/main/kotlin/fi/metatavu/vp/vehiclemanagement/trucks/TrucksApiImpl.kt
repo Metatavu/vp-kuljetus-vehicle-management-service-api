@@ -191,7 +191,8 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     @WithTransaction
     override fun deleteTruckDriverCard(
         truckId: UUID,
-        driverCardId: String
+        driverCardId: String,
+        xDriverCardRemovedAt: OffsetDateTime
     ): Uni<Response> = withCoroutineScope {
         if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
@@ -200,7 +201,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             return@withCoroutineScope createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
         }
 
-        driverCardController.deleteDriverCard(insertedDriverCard)
+        driverCardController.deleteDriverCard(insertedDriverCard, xDriverCardRemovedAt)
         createNoContent()
     }
 

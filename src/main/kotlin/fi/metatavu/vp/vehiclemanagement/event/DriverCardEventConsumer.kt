@@ -2,10 +2,9 @@ package fi.metatavu.vp.vehiclemanagement.event
 
 import fi.metatavu.vp.messaging.GlobalEventController
 import fi.metatavu.vp.messaging.events.DriverWorkEventGlobalEvent
-import fi.metatavu.vp.usermanagement.model.Driver
 import fi.metatavu.vp.usermanagement.model.WorkEventType
 import fi.metatavu.vp.vehiclemanagement.WithCoroutineScope
-import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCard
+import fi.metatavu.vp.vehiclemanagement.event.model.DriverCardEvent
 import io.quarkus.vertx.ConsumeEvent
 import io.smallrye.mutiny.Uni
 import jakarta.enterprise.context.ApplicationScoped
@@ -20,8 +19,6 @@ import java.time.ZoneOffset
  */
 @ApplicationScoped
 class DriverCardEventConsumer: WithCoroutineScope() {
-
-    data class DriverCardEvent(val driverCard: DriverCard, val removed: Boolean, val driver: Driver?)
 
     @Inject
     lateinit var logger: Logger
