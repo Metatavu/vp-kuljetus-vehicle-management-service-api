@@ -56,7 +56,8 @@ class DriverCardEventConsumer: WithCoroutineScope() {
             DriverWorkEventGlobalEvent(
                 driverId = driver.id,
                 workEventType = if (removed) WorkEventType.DRIVER_CARD_REMOVED else WorkEventType.DRIVER_CARD_INSERTED,
-                time = OffsetDateTime.of(LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.UTC), ZoneOffset.UTC)
+                time = OffsetDateTime.of(LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.UTC), ZoneOffset.UTC),
+                truckId = driverCard.truck.id!!
             )
         )
     }.replaceWithVoid()

@@ -56,7 +56,8 @@ class TruckDriveStateCreatedConsumer: WithCoroutineScope() {
             DriverWorkEventGlobalEvent(
                 driverId = driverId,
                 workEventType = getWorkEventType(driveState),
-                time = OffsetDateTime.of(LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.UTC), ZoneOffset.UTC)
+                time = OffsetDateTime.of(LocalDateTime.ofEpochSecond(timestamp, 0, ZoneOffset.UTC), ZoneOffset.UTC),
+                truckId = driveState.truck.id!!
             )
         )
     }.replaceWithVoid()
