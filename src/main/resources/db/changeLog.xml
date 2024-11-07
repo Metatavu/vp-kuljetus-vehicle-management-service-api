@@ -309,4 +309,9 @@
         <sql>UPDATE drivercard SET timestamp = unix_timestamp()</sql>
     </changeSet>
 
+    <changeSet id="driver_card_removed_at" author="katja danilova">
+        <addColumn tableName="DriverCard">
+            <column name="removedat" type="datetime(6)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
