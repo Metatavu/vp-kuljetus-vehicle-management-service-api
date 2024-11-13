@@ -6,6 +6,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
 import jakarta.validation.constraints.NotEmpty
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -26,4 +27,7 @@ class DriverCard {
 
     @Column(nullable = false)
     var timestamp: Long? = null
+
+    @Column
+    var removedAt: OffsetDateTime? = null
 }
