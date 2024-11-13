@@ -35,7 +35,7 @@ class DriverCardController : WithCoroutineScope() {
     lateinit var logger: Logger
 
     @ConfigProperty(name = "clearOldRemovedDriverCards.gracePeriod.minutes")
-    var gracePeriodHours: Long? = 0
+    var gracePeriodMinutes: Long? = 0
 
     /**
      * Cleans driver cards which were marked as removed longer than a selected grace period ago
