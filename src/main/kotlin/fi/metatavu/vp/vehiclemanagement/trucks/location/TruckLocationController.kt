@@ -6,6 +6,7 @@ import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import org.jboss.logging.Logger
 import java.time.OffsetDateTime
 import java.util.*
 import kotlin.math.abs
@@ -18,6 +19,9 @@ class TruckLocationController {
 
     @Inject
     lateinit var truckLocationRepository: TruckLocationRepository
+
+    @Inject
+    lateinit var logger: Logger
 
     /**
      * Creates new truck location
@@ -35,6 +39,7 @@ class TruckLocationController {
             Parameters.with("truck", truckEntity).and("timestamp", truckLocation.timestamp)
         ).firstResult<TruckLocationEntity>().awaitSuspending()
         if (existingRecord != null) {
+            logger.debug("Truck location $truckLocation already exists for truck with id ${truckEntity.id}")
             return existingRecord
         }
 
@@ -46,11 +51,12 @@ class TruckLocationController {
             latestRecord.timestamp!! < truckLocation.timestamp &&
             abs(latestRecord.latitude!! - truckLocation.latitude) < 0.0001 &&
             abs(latestRecord.longitude!! - truckLocation.longitude) < 0.0001) {
+            logger.debug("Latest truck location $truckLocation for truck with id ${truckEntity.id} was the same")
             return null
         }
 
 
-        return truckLocationRepository.create(
+        val createdTruckLocation = truckLocationRepository.create(
             id = UUID.randomUUID(),
             timestamp = truckLocation.timestamp,
             latitude = truckLocation.latitude,
@@ -58,6 +64,10 @@ class TruckLocationController {
             heading = truckLocation.heading,
             truckEntity = truckEntity
         )
+
+        logger.debug("Created truck location $truckLocation for truck with id ${truckEntity.id}")
+
+        return createdTruckLocation
     }
 
     /**

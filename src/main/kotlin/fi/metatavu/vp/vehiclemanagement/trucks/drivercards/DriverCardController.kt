@@ -48,14 +48,14 @@ class DriverCardController : WithCoroutineScope() {
     @WithTransaction
     fun clearOldRemovedDriverCards() = withCoroutineScope(60000) {
         if (gracePeriodMinutes == null) return@withCoroutineScope null
-        logger.info("Deleting the outdated truck driver cards")
+        logger.debug("Deleting the outdated truck driver cards")
         val cutoffDate = OffsetDateTime.now().minus(gracePeriodMinutes!!, ChronoUnit.MINUTES)
 
         val oldDriverCards = driverCardRepository.listRemovedBefore(cutoffDate)
         oldDriverCards.forEach { driverCard ->
             driverCardRepository.deleteSuspending(driverCard)
         }
-        logger.info("Removed ${oldDriverCards.size} truck driver cards")
+        logger.debug("Removed ${oldDriverCards.size} truck driver cards")
     }.replaceWithVoid()
 
     /**

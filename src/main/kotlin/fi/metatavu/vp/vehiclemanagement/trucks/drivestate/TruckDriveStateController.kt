@@ -10,6 +10,7 @@ import io.smallrye.mutiny.coroutines.awaitSuspending
 import io.vertx.core.eventbus.EventBus
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import org.jboss.logging.Logger
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -28,6 +29,9 @@ class TruckDriveStateController {
     @Inject
     lateinit var eventBus: EventBus
 
+    @Inject
+    lateinit var logger: Logger
+
     /**
      * Creates a new truck drive state
      *
@@ -44,6 +48,7 @@ class TruckDriveStateController {
             Parameters.with("truck", truckEntity).and("timestamp", truckDriveState.timestamp)
         ).firstResult<TruckDriveStateEntity>().awaitSuspending()
         if (existingRecord != null) {
+            logger.debug("Truck drive state $truckDriveState already exists for truck with id ${truckEntity.id}")
             return existingRecord
         }
 
@@ -58,6 +63,7 @@ class TruckDriveStateController {
             latestRecord.state == truckDriveState.state &&
             truckDriveState.driverCardId == latestRecord.driverCardId &&
             foundDriverId == latestRecord.driverId) {
+            logger.debug("Latest truck drive state $truckDriveState for truck with id ${truckEntity.id} was the same")
             return null
         }
 
@@ -71,6 +77,8 @@ class TruckDriveStateController {
         )
 
         eventBus.publish(TruckDriveStateCreatedConsumer.TRUCK_DRIVE_STATE_CREATED, createdDriveState)
+
+        logger.debug("Created truck drive state $truckDriveState for truck with id ${truckEntity.id}")
 
         return createdDriveState
     }

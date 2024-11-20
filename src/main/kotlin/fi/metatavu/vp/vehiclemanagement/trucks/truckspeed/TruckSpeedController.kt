@@ -6,6 +6,7 @@ import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import org.jboss.logging.Logger
 import java.time.OffsetDateTime
 import java.util.*
 import kotlin.math.abs
@@ -18,6 +19,9 @@ class TruckSpeedController {
 
     @Inject
     lateinit var truckSpeedRepository: TruckSpeedRepository
+
+    @Inject
+    lateinit var logger: Logger
 
     /**
      * Creates truck speed
@@ -32,6 +36,7 @@ class TruckSpeedController {
             Parameters.with("truck", truckEntity).and("timestamp", truckSpeed.timestamp)
         ).firstResult<TruckSpeedEntity>().awaitSuspending()
         if (existingRecord != null) {
+            logger.debug("Truck speed $truckSpeed already exists for truck with id ${truckEntity.id}")
             return existingRecord
         }
 
@@ -42,15 +47,20 @@ class TruckSpeedController {
         if (latestRecord != null &&
             latestRecord.timestamp!! < truckSpeed.timestamp &&
             abs(latestRecord.speed!! - truckSpeed.speed) < 0.0001) {
+            logger.debug("Latest truck speed $truckSpeed for truck with id ${truckEntity.id} was the same")
             return null
         }
 
-        return truckSpeedRepository.create(
+        val createdTruckSpeed = truckSpeedRepository.create(
             id = UUID.randomUUID(),
             timestamp = truckSpeed.timestamp,
             speed = truckSpeed.speed,
             truckEntity = truckEntity
         )
+
+        logger.debug("Created truck speed $truckSpeed for truck with id ${truckEntity.id}")
+        
+        return createdTruckSpeed
     }
 
     /**
