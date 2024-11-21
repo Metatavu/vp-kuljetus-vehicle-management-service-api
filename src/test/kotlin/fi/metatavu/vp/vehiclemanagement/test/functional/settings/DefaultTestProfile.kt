@@ -12,7 +12,9 @@ class DefaultTestProfile: QuarkusTestProfile {
     override fun getConfigOverrides(): MutableMap<String, String> {
         val config: MutableMap<String, String> = HashMap()
         config["vp.vehiclemanagement.telematics.apiKey"] = VEHICLE_MANAGEMENT_TELEMATICS_API_KEY
-
+        config["clearOldRemovedDriverCards.gracePeriod.minutes"] = "30"
+        config["clearOldRemovedDriverCards.every"] = "1s"
+        config["clearOldRemovedDriverCards.delay"] = "1s"
         config["mp.messaging.outgoing.vp-out.exchange.name"] = EXCHANGE_NAME
         config["vp.keycloak.vehicle-management.client"] = "vehicle-management-api"
         config["vp.keycloak.vehicle-management.secret"] = "JO46GQ1pda5NjjOO0BUMJOzHLjnoVmqf"

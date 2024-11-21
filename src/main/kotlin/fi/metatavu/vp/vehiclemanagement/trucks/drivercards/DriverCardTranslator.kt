@@ -12,7 +12,8 @@ class DriverCardTranslator: AbstractTranslator<DriverCard, TruckDriverCard>()   
     override suspend fun translate(entity: DriverCard): TruckDriverCard {
         return TruckDriverCard(
             id = entity.driverCardId,
-            timestamp = entity.timestamp!!
+            timestamp = entity.timestamp!!,
+            removedAt = entity.removedAt
         )
     }
 

@@ -1,8 +1,8 @@
 package fi.metatavu.vp.vehiclemanagement.trucks
 
 import fi.metatavu.vp.vehiclemanagement.model.*
-import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
+import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
@@ -168,21 +168,25 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     @WithTransaction
     override fun createTruckDriverCard(truckId: UUID, truckDriverCard: TruckDriverCard): Uni<Response> = withCoroutineScope {
         if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
-
         val driverCardWithId = driverCardController.findDriverCard(truckDriverCard.id)
-        if (driverCardWithId != null) {
-            return@withCoroutineScope createConflict("Driver card already exists")
+        if (driverCardWithId != null && driverCardWithId.removedAt == null) {
+            // Conflict if the card is already inserted in a truck and not removed
+            return@withCoroutineScope createConflict("Driver card already inserted in a truck")
         }
 
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
-        if (driverCardController.listDriverCards(truck).second > 0) {
-            return@withCoroutineScope createConflict("Truck already contains driver's card")
+        val currentTruckDriverCards = driverCardController.listDriverCards(truck).first
+
+        if (currentTruckDriverCards.isNotEmpty() && currentTruckDriverCards.any { it.removedAt == null }) {
+            // Conflict if the target truck already contains not removed card
+            return@withCoroutineScope createConflict("Truck already contains another driver's card")
         }
 
         val insertedCard = driverCardController.createDriverCard(
             driverCardId = truckDriverCard.id,
             truckEntity = truck,
-            timestamp = truckDriverCard.timestamp
+            timestamp = truckDriverCard.timestamp,
+            currentDriverCardInserted = driverCardWithId
         )
 
         createOk(driverCardTranslator.translate(insertedCard))
@@ -192,7 +196,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     override fun deleteTruckDriverCard(
         truckId: UUID,
         driverCardId: String,
-        xDriverCardRemovedAt: OffsetDateTime
+        xRemovedAt: OffsetDateTime
     ): Uni<Response> = withCoroutineScope {
         if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
@@ -201,7 +205,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
             return@withCoroutineScope createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
         }
 
-        driverCardController.deleteDriverCard(insertedDriverCard, xDriverCardRemovedAt)
+        driverCardController.removeDriverCard(insertedDriverCard, xRemovedAt)
         createNoContent()
     }
 
@@ -254,14 +258,14 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @RolesAllowed(MANAGER_ROLE, DRIVER_ROLE)
     override fun listDriveStates(
-      truckId: UUID,
-      driverId: UUID?,
-      state: List<TruckDriveStateEnum>?,
-      after: OffsetDateTime?,
-      before: OffsetDateTime?,
-      first: Int?,
-      max: Int?
-  ) = withCoroutineScope {
+        truckId: UUID,
+        driverId: UUID?,
+        state: List<TruckDriveStateEnum>?,
+        after: OffsetDateTime?,
+        before: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ) = withCoroutineScope {
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         val (states, count) = truckDriveStateController.listDriveStates(
             truckEntity = truck,
