@@ -21,6 +21,12 @@ abstract class KeycloakClient {
     @ConfigProperty(name = "quarkus.oidc.auth-server-url")
     lateinit var keycloakUrl: String
 
+    @ConfigProperty(name = "quarkus.oidc.credentials.secret")
+    lateinit var clientSecret: String
+
+    @ConfigProperty(name = "quarkus.oidc.client-id")
+    lateinit var clientId: String
+
     @Inject
     lateinit var vertx: Vertx
 

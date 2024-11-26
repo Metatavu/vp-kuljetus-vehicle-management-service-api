@@ -11,12 +11,6 @@ import org.eclipse.microprofile.config.inject.ConfigProperty
 class KeycloakIntegrationsClient : KeycloakClient() {
     override var clientType = KeycloakClientType.INTEGRATIONS
 
-    @ConfigProperty(name = "vp.keycloak.vehicle-management.secret")
-    lateinit var clientSecret: String
-
-    @ConfigProperty(name = "vp.keycloak.vehicle-management.client")
-    lateinit var clientId: String
-
     @ConfigProperty(name = "vp.keycloak.vehicle-management.password")
     lateinit var password: String
 

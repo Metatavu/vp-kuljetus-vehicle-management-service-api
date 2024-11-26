@@ -16,8 +16,6 @@ class DefaultTestProfile: QuarkusTestProfile {
         config["clearOldRemovedDriverCards.every"] = "1s"
         config["clearOldRemovedDriverCards.delay"] = "1s"
         config["mp.messaging.outgoing.vp-out.exchange.name"] = EXCHANGE_NAME
-        config["vp.keycloak.vehicle-management.client"] = "vehicle-management-api"
-        config["vp.keycloak.vehicle-management.secret"] = "JO46GQ1pda5NjjOO0BUMJOzHLjnoVmqf"
         config["vp.keycloak.vehicle-management.user"] = "vehicle-management-user"
         config["vp.keycloak.vehicle-management.password"] = "test"
         config["vp.env"] = "TEST"
