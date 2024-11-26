@@ -3,7 +3,6 @@ package fi.metatavu.vp.vehiclemanagement.test.functional.resources.wiremock
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
-import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.common.QuarkusTestResourceLifecycleManager
 
 /**
@@ -18,7 +17,7 @@ class UserManagementMockTestResource : QuarkusTestResourceLifecycleManager {
 
         wireMockServer.stubFor(
             get(urlPathEqualTo("/v1/drivers"))
-                .withHeader("X-API-Key",  equalTo(DefaultTestProfile.VEHICLE_MANAGEMENT_TELEMATICS_API_KEY))
+                .withHeader("Authorization", matching("Bearer\\s.+"))
                 .willReturn(
                     aResponse()
                         .withHeader("Content-Type", "application/json")
