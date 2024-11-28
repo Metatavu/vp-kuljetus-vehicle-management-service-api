@@ -474,7 +474,7 @@ class TrucksTestBuilderResource(
 
     override fun getApi(): TrucksApi {
         if (apiKey != null) {
-            ApiClient.apiKey["X-API-Key"] = apiKey
+            ApiClient.apiKey["X-DataReceiver-API-Key"] = apiKey
         }
         ApiClient.accessToken = accessTokenProvider?.accessToken
         return TrucksApi(ApiTestSettings.apiBasePath)

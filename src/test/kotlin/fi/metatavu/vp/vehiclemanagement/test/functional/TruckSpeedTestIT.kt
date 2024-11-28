@@ -75,7 +75,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             basePath = ApiTestSettings.apiBasePath,
             path = "/v1/trucks/{truckId}/speeds",
             method = Method.POST,
-            header = "X-API-Key" to "test-api-key",
+            header = "X-DataReceiver-API-Key" to "test-api-key",
             body = jacksonObjectMapper().writeValueAsString(truckSpeedData) // nothing to verify in truck body
         )
             .path(

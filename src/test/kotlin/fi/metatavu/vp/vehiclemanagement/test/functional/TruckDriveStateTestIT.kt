@@ -88,7 +88,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}/driveStates",
             method = Method.POST,
-            header = "X-API-Key" to "test-api-key",
+            header = "X-DataReceiver-API-Key" to "test-api-key",
             basePath = ApiTestSettings.apiBasePath,
             body = jacksonObjectMapper().writeValueAsString(truckDriveStateData)
         )

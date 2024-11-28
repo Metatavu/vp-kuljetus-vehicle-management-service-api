@@ -153,12 +153,8 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
    }
 
     // Driver cards
-
+    @RolesAllowed(DRIVER_ROLE)
     override fun listTruckDriverCards(truckId: UUID): Uni<Response> = withCoroutineScope {
-        if (loggedUserId == null && requestApiKey == null) return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
-        if (requestApiKey != null && requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
-        if (loggedUserId != null && !hasRealmRole(DRIVER_ROLE)) return@withCoroutineScope createForbidden(FORBIDDEN)
-
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
         val (cards, count) = driverCardController.listDriverCards(truck)
@@ -167,7 +163,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @WithTransaction
     override fun createTruckDriverCard(truckId: UUID, truckDriverCard: TruckDriverCard): Uni<Response> = withCoroutineScope {
-        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val driverCardWithId = driverCardController.findDriverCard(truckDriverCard.id)
         if (driverCardWithId != null && driverCardWithId.removedAt == null) {
             // Conflict if the card is already inserted in a truck and not removed
@@ -198,7 +194,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         driverCardId: String,
         xRemovedAt: OffsetDateTime
     ): Uni<Response> = withCoroutineScope {
-        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         val insertedDriverCard = driverCardController.findDriverCard(driverCardId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(DRIVER_CARD, driverCardId))
         if (insertedDriverCard.truck.id != truck.id) {
@@ -226,7 +222,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @WithTransaction
     override fun createTruckSpeed(truckId: UUID, truckSpeed: TruckSpeed): Uni<Response> = withCoroutineScope {
-        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         truckSpeedController.createTruckSpeed(truck, truckSpeed)  ?: return@withCoroutineScope createAccepted(null)
         createCreated()
@@ -248,7 +244,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @WithTransaction
     override fun createTruckLocation(truckId: UUID, truckLocation: TruckLocation): Uni<Response> = withCoroutineScope {
-        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         truckLocationController.createTruckLocation(truck, truckLocation) ?: return@withCoroutineScope createAccepted(null)
         createCreated()
@@ -281,7 +277,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @WithTransaction
     override fun createDriveState(truckId: UUID, truckDriveState: TruckDriveState): Uni<Response> = withCoroutineScope {
-        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
         truckDriveStateController.createDriveState(truck, truckDriveState) ?: return@withCoroutineScope createAccepted(null)
