@@ -54,19 +54,6 @@ class TruckDriveStateController {
 
         val foundDriverId = truckDriveState.driverCardId?.let { userManagementService.findDriverByDriverCardId(it)?.id }
 
-        val latestRecord = truckDriveStateRepository.find(
-            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
-            Parameters.with("truck", truckEntity).and("timestamp", truckDriveState.timestamp)
-        ).firstResult<TruckDriveStateEntity>().awaitSuspending()
-        if (latestRecord != null &&
-            latestRecord.timestamp!! < truckDriveState.timestamp &&
-            latestRecord.state == truckDriveState.state &&
-            truckDriveState.driverCardId == latestRecord.driverCardId &&
-            foundDriverId == latestRecord.driverId) {
-            logger.debug("Latest truck drive state $truckDriveState for truck with id ${truckEntity.id} was the same")
-            return null
-        }
-
         val createdDriveState = truckDriveStateRepository.create(
             id = UUID.randomUUID(),
             state = truckDriveState.state,
