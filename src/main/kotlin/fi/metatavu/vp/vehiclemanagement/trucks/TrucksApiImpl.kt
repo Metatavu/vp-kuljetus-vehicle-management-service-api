@@ -153,8 +153,11 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
    }
 
     // Driver cards
-    @RolesAllowed(DRIVER_ROLE)
     override fun listTruckDriverCards(truckId: UUID): Uni<Response> = withCoroutineScope {
+        if (loggedUserId == null && requestKeycloakKey == null) return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        if (requestKeycloakKey != null && requestKeycloakKey != keycloakApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (loggedUserId != null && !hasRealmRole(DRIVER_ROLE)) return@withCoroutineScope createForbidden(FORBIDDEN)
+
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
 
         val (cards, count) = driverCardController.listDriverCards(truck)

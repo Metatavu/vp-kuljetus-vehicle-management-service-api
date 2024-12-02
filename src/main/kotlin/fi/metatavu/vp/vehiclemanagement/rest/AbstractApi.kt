@@ -21,8 +21,11 @@ abstract class AbstractApi: WithCoroutineScope() {
     @ConfigProperty(name = "vp.env")
     private lateinit var environment: String
 
-    @ConfigProperty(name = "vp.vehiclemanagement.telematics.apiKey")
+    @ConfigProperty(name = "vp.vehiclemanagement.data-receiver.apiKey")
     lateinit var dataReceiverApiKeyValue: String
+
+    @ConfigProperty(name = "vp.vehiclemanagement.keycloak.apiKey")
+    lateinit var keycloakApiKeyValue: String
 
     @Inject
     private lateinit var jsonWebToken: JsonWebToken
@@ -61,6 +64,16 @@ abstract class AbstractApi: WithCoroutineScope() {
     protected val requestDataReceiverKey: String?
         get() {
             return headers.getHeaderString("X-DataReceiver-API-Key")
+        }
+
+    /**
+     * Returns request keycloak api key
+     *
+     * @return request keycloak api key
+     */
+    protected val requestKeycloakKey: String?
+        get() {
+            return headers.getHeaderString("X-Keycloak-API-Key")
         }
 
     /**
