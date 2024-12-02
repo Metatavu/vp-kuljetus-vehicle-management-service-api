@@ -250,6 +250,19 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         createCreated()
     }
 
+    override fun createTruckOdometerReading(truckId: UUID, truckOdometerReading: TruckOdometerReading): Uni<Response> {
+        TODO("Not yet implemented")
+    }
+    override fun listTruckOdometerReadings(
+        truckId: UUID,
+        after: OffsetDateTime?,
+        before: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> {
+        TODO("Not yet implemented")
+    }
+
     // Truck Drive State endpoints
 
     @RolesAllowed(MANAGER_ROLE, DRIVER_ROLE)
