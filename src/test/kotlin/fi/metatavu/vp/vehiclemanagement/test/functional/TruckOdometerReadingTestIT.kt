@@ -33,22 +33,22 @@ class TruckOdometerReadingTestIT : AbstractFunctionalTest() {
             timestamp = time1,
             odometerReading = 1000
         )
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id!!,
             truckOdometerReading = truckOdometerReadingData
         )
         // should be ignored because timestamp is same
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id,
             truckOdometerReading = truckOdometerReadingData.copy(odometerReading = 1001)
         )
         // should be ignored because the latest odometer reading record is the same
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id,
             truckOdometerReading = truckOdometerReadingData.copy(timestamp = time2)
         )
         // should be created successfully
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id,
             truckOdometerReading = truckOdometerReadingData.copy(odometerReading = 1001, timestamp = time2)
         )
@@ -99,7 +99,7 @@ class TruckOdometerReadingTestIT : AbstractFunctionalTest() {
         )
 
         val now = OffsetDateTime.now()
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id!!,
             truckOdometerReading = TruckOdometerReading(
                 timestamp = now.toEpochSecond(),
@@ -107,7 +107,7 @@ class TruckOdometerReadingTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id,
             truckOdometerReading = TruckOdometerReading(
                 timestamp = now.plusMinutes(1).toEpochSecond(),
@@ -115,7 +115,7 @@ class TruckOdometerReadingTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id,
             truckOdometerReading = TruckOdometerReading(
                 timestamp = now.plusMinutes(2).toEpochSecond(),
@@ -123,7 +123,7 @@ class TruckOdometerReadingTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck2.id!!,
             truckOdometerReading = TruckOdometerReading(
                 timestamp = now.toEpochSecond(),
@@ -131,7 +131,7 @@ class TruckOdometerReadingTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createTruckOdometerReading(
+        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck2.id,
             truckOdometerReading = TruckOdometerReading(
                 timestamp = now.minusMinutes(1).toEpochSecond(),

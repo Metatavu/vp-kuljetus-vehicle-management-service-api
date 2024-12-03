@@ -30,8 +30,8 @@ class DefaultTestProfile: QuarkusTestProfile {
     }
 
     companion object {
-        const val VEHICLE_MANAGEMENT_DATA_RECEIVER_API_KEY = "test-api-key"
-        const val VEHICLE_MANAGEMENT_KEYCLOAK_API_KEY = "test-api-key"
+        const val VEHICLE_MANAGEMENT_DATA_RECEIVER_API_KEY = "test-data-receiver-api-key"
+        const val VEHICLE_MANAGEMENT_KEYCLOAK_API_KEY = "test-keycloak-api-key"
         const val EXCHANGE_NAME = "test-exchange"
     }
 }

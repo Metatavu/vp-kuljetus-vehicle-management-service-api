@@ -17,7 +17,8 @@ import java.util.*
 class TrucksTestBuilderResource(
     testBuilder: TestBuilder,
     private val accessTokenProvider: AccessTokenProvider?,
-    private val apiKey: String?,
+    private val dataReceiverApiKey: String?,
+    private val keycloakApiKey: String?,
     apiClient: ApiClient
 ) : ApiTestBuilderResource<Truck, ApiClient>(testBuilder, apiClient) {
 
@@ -527,8 +528,12 @@ class TrucksTestBuilderResource(
     }
 
     override fun getApi(): TrucksApi {
-        if (apiKey != null) {
-            ApiClient.apiKey["X-DataReceiver-API-Key"] = apiKey
+        if (dataReceiverApiKey != null) {
+            ApiClient.apiKey["X-DataReceiver-API-Key"] = dataReceiverApiKey
+        }
+
+        if (keycloakApiKey != null) {
+            ApiClient.apiKey["X-Keycloak-API-Key"] = keycloakApiKey
         }
         ApiClient.accessToken = accessTokenProvider?.accessToken
         return TrucksApi(ApiTestSettings.apiBasePath)

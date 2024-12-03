@@ -37,9 +37,9 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
             timestamp = now,
             driverCardId = driver1CardId,
         )
-        it.setApiKey().trucks.createDriveState(truck.id!!, truckDriveStateData)
+        it.setDataReceiverApiKey().trucks.createDriveState(truck.id!!, truckDriveStateData)
         // should be ignored because timestamp is same
-        it.setApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(state = TruckDriveStateEnum.REST))
+        it.setDataReceiverApiKey().trucks.createDriveState(truck.id, truckDriveStateData.copy(state = TruckDriveStateEnum.REST))
 
         val createdTruckDriveStates = it.manager.trucks.listDriveStates(truck.id)
         assertEquals(1, createdTruckDriveStates.size)
@@ -57,7 +57,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
             assertEquals(WorkEventType.DRIVE, message.workEventType)
         }
 
-        it.setApiKey().trucks.createDriveState(
+        it.setDataReceiverApiKey().trucks.createDriveState(
             truck.id,
             truckDriveStateData.copy(state = TruckDriveStateEnum.REST, timestamp = now + 10_000)
         )
@@ -73,7 +73,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
     @Test
     fun testCreateTruckDriveStatesFail() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
-        val driverCard = it.setApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId", OffsetDateTime.now().toEpochSecond()))
+        val driverCard = it.setDataReceiverApiKey().trucks.createDriverCard(truck.id!!, TruckDriverCard("driverCardId", OffsetDateTime.now().toEpochSecond()))
 
         val now = System.currentTimeMillis()
         val truckDriveStateData = TruckDriveState(
@@ -83,7 +83,7 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
         )
 
         // access rights
-        it.setApiKey("fake key").trucks.assertCreateDriveStateFail(truck.id, truckDriveStateData, 403)
+        it.setDataReceiverApiKey("fake key").trucks.assertCreateDriveStateFail(truck.id, truckDriveStateData, 403)
 
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}/driveStates",
@@ -111,21 +111,21 @@ class TruckDriveStateTestIT : AbstractFunctionalTest() {
 
         val now = OffsetDateTime.now()
 
-        it.setApiKey().trucks.createDriveState(
+        it.setDataReceiverApiKey().trucks.createDriveState(
             truck.id!!, TruckDriveState(
                 state = TruckDriveStateEnum.DRIVE,
                 timestamp = now.toEpochSecond(),
                 driverCardId = driver1CardId
             )
         )
-        it.setApiKey().trucks.createDriveState(
+        it.setDataReceiverApiKey().trucks.createDriveState(
             truck.id, TruckDriveState(
                 state = TruckDriveStateEnum.REST,
                 timestamp = now.plusMinutes(1).toEpochSecond(),
                 driverCardId = driver1CardId
             )
         )
-        it.setApiKey().trucks.createDriveState(
+        it.setDataReceiverApiKey().trucks.createDriveState(
             truck2.id!!, TruckDriveState(
                 state = TruckDriveStateEnum.REST,
                 timestamp = now.toEpochSecond() * 1000,

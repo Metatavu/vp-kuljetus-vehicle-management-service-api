@@ -261,19 +261,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         createCreated()
     }
 
-    override fun createTruckOdometerReading(truckId: UUID, truckOdometerReading: TruckOdometerReading): Uni<Response> {
-        TODO("Not yet implemented")
-    }
-    override fun listTruckOdometerReadings(
-        truckId: UUID,
-        after: OffsetDateTime?,
-        before: OffsetDateTime?,
-        first: Int?,
-        max: Int?
-    ): Uni<Response> {
-        TODO("Not yet implemented")
-    }
-
     // Truck Drive State endpoints
 
     @RolesAllowed(MANAGER_ROLE, DRIVER_ROLE)
@@ -325,7 +312,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @WithTransaction
     override fun createTruckOdometerReading(truckId: UUID, truckOdometerReading: TruckOdometerReading): Uni<Response> = withCoroutineScope {
-        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
 
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         truckOdometerReadingController.createTruckOdometerReading(truck, truckOdometerReading) ?: return@withCoroutineScope createAccepted(null)
