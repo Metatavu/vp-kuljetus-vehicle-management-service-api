@@ -468,6 +468,60 @@ class TrucksTestBuilderResource(
         }
     }
 
+    /**
+     * Creates truck odometer reading
+     *
+     * @param truckId truck id
+     * @param truckOdometerReading truck odometer reading data
+     */
+    fun createTruckOdometerReading(truckId: UUID, truckOdometerReading: TruckOdometerReading) {
+        api.createTruckOdometerReading(truckId, truckOdometerReading)
+    }
+
+    /**
+     * Lists truck odometer readings
+     *
+     * @param truckId truck id
+     * @param after after
+     * @param before before
+     * @param first first
+     * @param max max
+     * @return list of truck odometer readings
+     */
+    fun listTruckOdometerReading(
+        truckId: UUID,
+        after: OffsetDateTime? = null,
+        before: OffsetDateTime? = null,
+        first: Int? = null,
+        max: Int? = null
+    ): Array<TruckOdometerReading> {
+        return api.listTruckOdometerReadings(truckId, after?.toString(), before?.toString(), first, max)
+    }
+
+    /**
+     * Asserts that the list of odometer readings could not be retrieved
+     *
+     * @param truckId truck id
+     * @param expectedStatus expected status
+     */
+    fun assertListTruckOdometerReadingFail(
+        truckId: UUID,
+        expectedStatus: Int
+    ) {
+        try {
+            api.listTruckOdometerReadings(
+                truckId = truckId,
+                after = null,
+                before = null,
+                first = null,
+                max = null
+            )
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
     override fun clean(p0: Truck?) {
         api.deleteTruck(p0?.id!!)
     }

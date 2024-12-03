@@ -314,4 +314,22 @@
             <column name="removedat" type="datetime(6)"/>
         </addColumn>
     </changeSet>
+
+    <changeSet id="truck_odometer_readings" author="katja danilova">
+        <createTable tableName="truckodometerreading">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="truck_id" type="binary(16)">
+                <constraints foreignKeyName="FK_TRUCKODOMETERREADING_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
+            </column>
+            <column name="timestamp" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="odometerreading" type="integer">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="truckodometerreading" columnNames="truck_id, timestamp" constraintName="un_truckodometerreading_truck_id_timestamp"/>
+    </changeSet>
 </databaseChangeLog>
