@@ -6,6 +6,7 @@ import fi.metatavu.vp.vehiclemanagement.model.TruckSortByField
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
+import fi.metatavu.vp.vehiclemanagement.trucks.odometerreading.TruckOdometerReadingController
 import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeedController
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import jakarta.enterprise.context.ApplicationScoped
@@ -36,6 +37,9 @@ class TruckController {
 
     @Inject
     lateinit var truckDriveStateController: TruckDriveStateController
+
+    @Inject
+    lateinit var truckOdometerReadingController: TruckOdometerReadingController
 
     /**
      * Creates new truck and a vehicle that is attached to it.
@@ -154,6 +158,9 @@ class TruckController {
         }
         truckDriveStateController.listDriveStates(truckEntity = truckEntity).first.forEach {
             truckDriveStateController.deleteDriveState(it)
+        }
+        truckOdometerReadingController.list(truck = truckEntity).first.forEach {
+            truckOdometerReadingController.deleteTruckOdometerReading(it)
         }
         truckRepository.deleteSuspending(truckEntity)
     }

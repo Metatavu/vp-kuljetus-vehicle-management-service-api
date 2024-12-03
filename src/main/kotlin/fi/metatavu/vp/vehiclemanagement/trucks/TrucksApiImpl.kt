@@ -9,6 +9,8 @@ import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateControl
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationTranslator
+import fi.metatavu.vp.vehiclemanagement.trucks.odometerreading.TruckOdometerReadingController
+import fi.metatavu.vp.vehiclemanagement.trucks.odometerreading.TruckOdometerReadingTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeedController
 import fi.metatavu.vp.vehiclemanagement.trucks.truckspeed.TruckSpeedTranslator
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
@@ -62,6 +64,12 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckDriveStateTranslator: TruckDriveStateTranslator
+
+    @Inject
+    lateinit var truckOdometerReadingController: TruckOdometerReadingController
+
+    @Inject
+    lateinit var truckOdometerReadingTranslator: TruckOdometerReadingTranslator
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
@@ -299,5 +307,29 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         truckDriveStateController.createDriveState(truck, truckDriveState) ?: return@withCoroutineScope createAccepted(null)
 
         createCreated()
+    }
+
+    // Odometer readings
+    @RolesAllowed(MANAGER_ROLE)
+    override fun listTruckOdometerReadings(
+        truckId: UUID,
+        after: OffsetDateTime?,
+        before: OffsetDateTime?,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> = withCoroutineScope {
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
+        val ( odometerReadings, count ) = truckOdometerReadingController.list(truck, after, before, first, max)
+        createOk(truckOdometerReadingTranslator.translate(odometerReadings), count)
+    }
+
+    @WithTransaction
+    override fun createTruckOdometerReading(truckId: UUID, truckOdometerReading: TruckOdometerReading): Uni<Response> = withCoroutineScope {
+        if (requestApiKey != apiKey) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+
+        val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
+        truckOdometerReadingController.createTruckOdometerReading(truck, truckOdometerReading) ?: return@withCoroutineScope createAccepted(null)
+        createCreated()
+
     }
 }
