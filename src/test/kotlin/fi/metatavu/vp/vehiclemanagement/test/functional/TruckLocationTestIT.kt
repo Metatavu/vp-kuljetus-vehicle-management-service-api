@@ -32,11 +32,11 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
             heading = 1.0,
             timestamp = now
         )
-        it.setApiKey().trucks.createTruckLocation(truck.id!!, truckLocationData)
+        it.setDataReceiverApiKey().trucks.createTruckLocation(truck.id!!, truckLocationData)
         // should be ignored because timestamp is same even if data is different
-        it.setApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(heading = 2.0))
+        it.setDataReceiverApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(heading = 2.0))
         // should be ignored because the latest location record is the same
-        it.setApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(timestamp = now + 1))
+        it.setDataReceiverApiKey().trucks.createTruckLocation(truck.id, truckLocationData.copy(timestamp = now + 1))
 
         val locations = it.manager.trucks.listTruckLocations(truck.id)
         assertEquals(1, locations.size)
@@ -58,12 +58,12 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
             heading = 1.0,
             timestamp = now
         )
-        it.setApiKey("fake key").trucks.assertCreateTruckLocationFail(truck.id!!, truckLocationData, 403)
+        it.setDataReceiverApiKey("fake key").trucks.assertCreateTruckLocationFail(truck.id!!, truckLocationData, 403)
 
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}/locations",
             method = Method.POST,
-            header = "X-API-Key" to "test-api-key",
+            header = "X-DataReceiver-API-Key" to "test-api-key",
             basePath = ApiTestSettings.apiBasePath,
             body = jacksonObjectMapper().writeValueAsString(truckLocationData)  // nothing to verify
         )
@@ -83,7 +83,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val truck2 = it.manager.trucks.create("002", "002", null, it.manager.vehicles)
         val now = OffsetDateTime.now()
-        it.setApiKey().trucks.createTruckLocation(
+        it.setDataReceiverApiKey().trucks.createTruckLocation(
             truck.id!!, TruckLocation(
                 latitude = 1.0,
                 longitude = 1.0,
@@ -91,7 +91,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
                 timestamp = now.toEpochSecond()
             )
         )
-        it.setApiKey().trucks.createTruckLocation(
+        it.setDataReceiverApiKey().trucks.createTruckLocation(
             truck.id, TruckLocation(
                 latitude = 2.0,
                 longitude = 2.0,
@@ -99,7 +99,7 @@ class TruckLocationTestIT : AbstractFunctionalTest() {
                 timestamp = now.plusMinutes(1).toEpochSecond()
             )
         )
-        it.setApiKey().trucks.createTruckLocation(
+        it.setDataReceiverApiKey().trucks.createTruckLocation(
             truck2.id!!, TruckLocation(
                 latitude = 1.0,
                 longitude = 1.0,

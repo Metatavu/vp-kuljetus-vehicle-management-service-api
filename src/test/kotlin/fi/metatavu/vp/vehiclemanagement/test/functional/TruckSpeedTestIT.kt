@@ -33,22 +33,22 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             timestamp = time1,
             speed = 100.0f
         )
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck.id!!,
             truckSpeed = truckSpeedData
         )
         // should be ignored because timestamp is same
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = truckSpeedData.copy(speed = 101.0f)
         )
         // should be ignored because the latest speed record is the same
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = truckSpeedData.copy(timestamp = time2)
         )
         // should be created successfully
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = truckSpeedData.copy(speed = 101.0f, timestamp = time2)
         )
@@ -75,7 +75,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             basePath = ApiTestSettings.apiBasePath,
             path = "/v1/trucks/{truckId}/speeds",
             method = Method.POST,
-            header = "X-API-Key" to "test-api-key",
+            header = "X-DataReceiver-API-Key" to "test-api-key",
             body = jacksonObjectMapper().writeValueAsString(truckSpeedData) // nothing to verify in truck body
         )
             .path(
@@ -99,7 +99,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
         )
 
         val now = OffsetDateTime.now()
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck.id!!,
             truckSpeed = TruckSpeed(
                 timestamp = now.toEpochSecond(),
@@ -107,7 +107,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = TruckSpeed(
                 timestamp = now.plusMinutes(1).toEpochSecond(),
@@ -115,7 +115,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck.id,
             truckSpeed = TruckSpeed(
                 timestamp = now.plusMinutes(2).toEpochSecond(),
@@ -123,7 +123,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck2.id!!,
             truckSpeed = TruckSpeed(
                 timestamp = now.toEpochSecond(),
@@ -131,7 +131,7 @@ class TruckSpeedTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createTruckSpeed(
+        it.setDataReceiverApiKey().trucks.createTruckSpeed(
             truckId = truck2.id,
             truckSpeed = TruckSpeed(
                 timestamp = now.minusMinutes(1).toEpochSecond(),
