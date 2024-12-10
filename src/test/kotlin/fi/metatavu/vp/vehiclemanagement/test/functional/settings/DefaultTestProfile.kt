@@ -11,7 +11,8 @@ class DefaultTestProfile: QuarkusTestProfile {
 
     override fun getConfigOverrides(): MutableMap<String, String> {
         val config: MutableMap<String, String> = HashMap()
-        config["vp.vehiclemanagement.telematics.apiKey"] = VEHICLE_MANAGEMENT_TELEMATICS_API_KEY
+        config["vp.vehiclemanagement.data-receiver.apiKey"] = VEHICLE_MANAGEMENT_DATA_RECEIVER_API_KEY
+        config["vp.vehiclemanagement.keycloak.apiKey"] = VEHICLE_MANAGEMENT_KEYCLOAK_API_KEY
         config["clearOldRemovedDriverCards.gracePeriod.minutes"] = "30"
         config["clearOldRemovedDriverCards.every"] = "1s"
         config["clearOldRemovedDriverCards.delay"] = "1s"
@@ -29,7 +30,8 @@ class DefaultTestProfile: QuarkusTestProfile {
     }
 
     companion object {
-        const val VEHICLE_MANAGEMENT_TELEMATICS_API_KEY = "test-api-key"
+        const val VEHICLE_MANAGEMENT_DATA_RECEIVER_API_KEY = "test-data-receiver-api-key"
+        const val VEHICLE_MANAGEMENT_KEYCLOAK_API_KEY = "test-keycloak-api-key"
         const val EXCHANGE_NAME = "test-exchange"
     }
 }

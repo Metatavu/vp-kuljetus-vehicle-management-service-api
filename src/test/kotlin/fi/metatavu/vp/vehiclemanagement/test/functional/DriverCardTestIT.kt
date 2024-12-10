@@ -35,7 +35,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val now = OffsetDateTime.now()
         val driverWorkEventConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
-        it.setApiKey().trucks.createDriverCard(
+        it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = TruckDriverCard(
                 id = driver1CardId,
@@ -51,7 +51,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         assertEquals(message.workEventType, WorkEventType.DRIVER_CARD_INSERTED)
         assertEquals(message.time.toEpochSecond(), now.toEpochSecond())
 
-        it.setApiKey().trucks.deleteTruckDriverCard(truck.id, driver1CardId, OffsetDateTime.now().minusDays(1))
+        it.setDataReceiverApiKey().trucks.deleteTruckDriverCard(truck.id, driver1CardId, OffsetDateTime.now().minusDays(1))
 
         val messages2 = driverWorkEventConsumer.consumeMessages(1)
 
@@ -72,35 +72,35 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             timestamp = OffsetDateTime.now().toEpochSecond()
         )
         val cardId = testCard.id
-        val created = it.setApiKey().trucks.createDriverCard(
+        val created = it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = testCard
         )
         assertEquals(testCard.id, created.id)
 
         // Invalid access rights
-        it.setApiKey("invalid").trucks.assertCreateDriverCardFail(
+        it.setDataReceiverApiKey("invalid").trucks.assertCreateDriverCardFail(
             truckId = truck.id,
             truckDriverCard = testCard,
             expectedStatus = 403
         )
 
         // Cannot insert the same card into the truck where it currently is
-        it.setApiKey().trucks.assertCreateDriverCardFail(
+        it.setDataReceiverApiKey().trucks.assertCreateDriverCardFail(
             truckId = truck.id,
             truckDriverCard = testCard,
             expectedStatus = 409
         )
 
         // Cannot insert another card in a truck that already has a different card
-        it.setApiKey().trucks.assertCreateDriverCardFail(
+        it.setDataReceiverApiKey().trucks.assertCreateDriverCardFail(
             truckId = truck.id,
             truckDriverCard = TruckDriverCard("another card", OffsetDateTime.now().toEpochSecond()),
             expectedStatus = 409
         )
 
         // Cannot insert the card that is currently inserted into another truck
-        it.setApiKey().trucks.assertCreateDriverCardFail(
+        it.setDataReceiverApiKey().trucks.assertCreateDriverCardFail(
             truckId = truck2.id!!,
             truckDriverCard = testCard,
             expectedStatus = 409
@@ -108,32 +108,32 @@ class DriverCardTestIT : AbstractFunctionalTest() {
 
         // Remove and re-insert the card, checking that removedAt status was updated correctly
         val removedAt = OffsetDateTime.now().minusMinutes(1)
-        it.setApiKey().trucks.deleteTruckDriverCard(
+        it.setDataReceiverApiKey().trucks.deleteTruckDriverCard(
             truckId = truck.id,
             driverCardId = cardId,
             removedAt = removedAt
         )
-        val truck1Cards = it.setApiKey().trucks.listDriverCards(truckId = truck.id)
+        val truck1Cards = it.driver.trucks.listDriverCards(truckId = truck.id)
         assertEquals(1, truck1Cards.size)
         val removedCard1 = truck1Cards.first()
         assertEquals(removedAt.toEpochSecond(), OffsetDateTime.parse(removedCard1.removedAt.toString()).toEpochSecond())
-        it.setApiKey().trucks.createDriverCard(
+        it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck.id,
             truckDriverCard = TruckDriverCard(
                 id = cardId,
                 timestamp = now.toEpochSecond()
             )
         )
-        val truck1CardsAfterReInsert = it.setApiKey().trucks.listDriverCards(truckId = truck.id)
+        val truck1CardsAfterReInsert = it.driver.trucks.listDriverCards(truckId = truck.id)
         assertEquals(1, truck1CardsAfterReInsert.size)
         assertNull(truck1CardsAfterReInsert.first().removedAt)
 
         // Remove the card from a truck, insert it to another one, test that it is completely removed from the first truck
-        it.setApiKey().trucks.deleteTruckDriverCard(
+        it.setDataReceiverApiKey().trucks.deleteTruckDriverCard(
             truckId = truck.id,
             driverCardId = cardId
         )
-        it.setApiKey().trucks.createDriverCard(
+        it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck2.id,
             truckDriverCard = TruckDriverCard(
                 id = cardId,
@@ -141,9 +141,9 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             )
         )
         // Check that cards at truck 1 are deleted
-        val truck1CardsAfterDeletion = it.setApiKey().trucks.listDriverCards(truckId = truck.id)
+        val truck1CardsAfterDeletion = it.driver.trucks.listDriverCards(truckId = truck.id)
         assertEquals(0, truck1CardsAfterDeletion.size)
-        val truck2Cards = it.setApiKey().trucks.listDriverCards(truckId = truck2.id)
+        val truck2Cards = it.driver.trucks.listDriverCards(truckId = truck2.id)
         assertEquals(1, truck2Cards.size)
     }
 
@@ -152,7 +152,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}/driverCards",
             method = Method.POST,
-            header = "X-API-Key" to "test-api-key",
+            header = "X-DataReceiver-API-Key" to "test-api-key",
             basePath = ApiTestSettings.apiBasePath,
             body = jacksonObjectMapper().writeValueAsString(
                 TruckDriverCard(
@@ -175,7 +175,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val truck2 = it.manager.trucks.create(Truck(plateNumber="0002", type = Truck.Type.TRUCK, vin = "0002"), it.manager.vehicles)
 
-        val driverCard1 = it.setApiKey().trucks.createDriverCard(
+        val driverCard1 = it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = TruckDriverCard(
                 id = "driverCardId",
@@ -183,7 +183,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             )
         )
 
-        val driverCard2 = it.setApiKey().trucks.createDriverCard(
+        val driverCard2 = it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck2.id!!,
             truckDriverCard = TruckDriverCard(
                 id = "driverCardId2",
@@ -192,20 +192,20 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         )
 
         // Access rights
-        it.setApiKey("invalid").trucks.assertDeleteDriverCardFail(
+        it.setDataReceiverApiKey("invalid").trucks.assertDeleteDriverCardFail(
             truckId = truck.id,
             driverCardId = driverCard1.id,
             expectedStatus = 403
         )
         // wrong truck/driver card combination
-        it.setApiKey().trucks.assertDeleteDriverCardFail(
+        it.setDataReceiverApiKey().trucks.assertDeleteDriverCardFail(
             truckId = truck.id,
             driverCardId = driverCard2.id,
             expectedStatus = 404
         )
 
-        it.setApiKey().trucks.deleteTruckDriverCard(truck.id, driverCard1.id)
-        val truckCards = it.setApiKey().trucks.listDriverCards(truck.id)
+        it.setDataReceiverApiKey().trucks.deleteTruckDriverCard(truck.id, driverCard1.id)
+        val truckCards = it.driver.trucks.listDriverCards(truck.id)
         assertEquals(1, truckCards.size)
         assertNotNull(truckCards.first().removedAt)
     }
@@ -218,7 +218,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             id = "driverCardId",
             timestamp = OffsetDateTime.now().toEpochSecond()
         )
-        it.setApiKey().trucks.createDriverCard(
+        it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = driverCardData
         )
@@ -226,7 +226,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}/driverCards/{driverCardId}",
             method = Method.DELETE,
-            header = "X-API-Key" to "test-api-key",
+            header = "X-DataReceiver-API-Key" to "test-api-key",
             basePath = ApiTestSettings.apiBasePath
         )
             .path(InvalidValueTestScenarioPath(
@@ -265,7 +265,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             id = "driverCardId",
             timestamp = OffsetDateTime.now().toEpochSecond()
         )
-        it.setApiKey().trucks.createDriverCard(
+        it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = driverCardData
         )
@@ -274,26 +274,23 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             id = "driverCardId2",
             timestamp = OffsetDateTime.now().toEpochSecond()
         )
-        it.setApiKey().trucks.createDriverCard(
+        it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck2.id!!,
             truckDriverCard = driverCardData2
         )
 
-        val list = it.setApiKey().trucks.listDriverCards(truck.id)
+        val list = it.driver.trucks.listDriverCards(truck.id)
         assertEquals(1, list.size)
         assertEquals(driverCardData.id, list[0].id)
 
-        val list2 = it.setApiKey().trucks.listDriverCards(truck2.id)
+        val list2 = it.driver.trucks.listDriverCards(truck2.id)
         assertEquals(1, list2.size)
         assertEquals(driverCardData2.id, list2[0].id)
 
-        it.setApiKey().trucks.assertListDriverCardsFail(UUID.randomUUID(), 404)
+        val truck1CardsBYKeycloak = it.setKeycloakApiKey().trucks.listDriverCards(truckId = truck.id)
+        assertEquals(1, truck1CardsBYKeycloak.size)
 
-        // Access rights
-        it.setApiKey("invalid").trucks.assertListDriverCardsFail(
-            truckId = truck.id,
-            expectedStatus = 403
-        )
+        it.driver.trucks.assertListDriverCardsFail(UUID.randomUUID(), 404)
     }
 
     @Test
@@ -301,7 +298,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         InvalidValueTestScenarioBuilder(
             path = "v1/trucks/{truckId}/driverCards",
             method = Method.GET,
-            header = "X-API-Key" to "test-api-key",
+            header = "X-DataReceiver-API-Key" to "test-api-key",
             basePath = ApiTestSettings.apiBasePath
         )
             .path(InvalidValueTestScenarioPath(
@@ -318,7 +315,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         val truck1 = it.manager.trucks.create(plateNumber = "01", vin = "01", vehiclesTestBuilderResource = it.manager.vehicles)
         val truck2 = it.manager.trucks.create(plateNumber = "02", vin = "02", vehiclesTestBuilderResource = it.manager.vehicles)
 
-        it.setApiKey().trucks.createDriverCard(
+        it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck1.id!!,
             truckDriverCard = TruckDriverCard(
                 id = driver1CardId,
@@ -326,7 +323,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
             )
         )
 
-        it.setApiKey().trucks.createDriverCard(
+        it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck2.id!!,
             truckDriverCard = TruckDriverCard(
                 id = driver2CardId,
@@ -335,21 +332,21 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         )
 
         // remove both cards
-        it.setApiKey().trucks.deleteTruckDriverCard(
+        it.setDataReceiverApiKey().trucks.deleteTruckDriverCard(
             truckId = truck1.id!!,
             driverCardId = driver1CardId,
             removedAt = OffsetDateTime.now().minusDays(1)
         )
 
-        it.setApiKey().trucks.deleteTruckDriverCard(
+        it.setDataReceiverApiKey().trucks.deleteTruckDriverCard(
             truckId = truck2.id!!,
             driverCardId = driver2CardId,
             removedAt = OffsetDateTime.now().minusDays(1)
         )
 
         Awaitility.await().atMost(Duration.ofMinutes(1)).until {
-            val truck1Cards = it.setApiKey().trucks.listDriverCards(truckId = truck1.id)
-            val truck2Cards = it.setApiKey().trucks.listDriverCards(truckId = truck2.id)
+            val truck1Cards = it.driver.trucks.listDriverCards(truckId = truck1.id)
+            val truck2Cards = it.driver.trucks.listDriverCards(truckId = truck2.id)
             (truck2Cards + truck1Cards).isEmpty()
         }
     }
