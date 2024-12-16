@@ -43,19 +43,6 @@ class TruckLocationController {
             return existingRecord
         }
 
-        val latestRecord = truckLocationRepository.find(
-            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
-            Parameters.with("truck", truckEntity).and("timestamp", truckLocation.timestamp)
-        ).firstResult<TruckLocationEntity>().awaitSuspending()
-        if (latestRecord != null &&
-            latestRecord.timestamp!! < truckLocation.timestamp &&
-            abs(latestRecord.latitude!! - truckLocation.latitude) < 0.0001 &&
-            abs(latestRecord.longitude!! - truckLocation.longitude) < 0.0001) {
-            logger.debug("Latest truck location $truckLocation for truck with id ${truckEntity.id} was the same")
-            return null
-        }
-
-
         val createdTruckLocation = truckLocationRepository.create(
             id = UUID.randomUUID(),
             timestamp = truckLocation.timestamp,

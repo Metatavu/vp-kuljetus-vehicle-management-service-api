@@ -43,18 +43,6 @@ class TruckOdometerReadingController {
             return existingRecord
         }
 
-        val latestRecord = truckOdometerReadingRepository.find(
-            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
-            Parameters.with("truck", truckEntity).and("timestamp", truckOdometerReading.timestamp)
-        ).firstResult<TruckOdometerReadingEntity>().awaitSuspending()
-        if (latestRecord != null &&
-            latestRecord.timestamp!! < truckOdometerReading.timestamp &&
-            abs(latestRecord.odometerReading!! - truckOdometerReading.odometerReading) < 0.0001
-        ) {
-            logger.debug("Latest truck odometer reading $truckOdometerReading for truck with id ${truckEntity.id} was the same")
-            return null
-        }
-
         val createdTruckOdometerReading = truckOdometerReadingRepository.createTruckOdometerReading(
             id = UUID.randomUUID(),
             timestamp = truckOdometerReading.timestamp,
