@@ -33,6 +33,7 @@ class TruckOdometerReadingTestIT : AbstractFunctionalTest() {
             timestamp = time1,
             odometerReading = 1000
         )
+        // should be created successfully
         it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id!!,
             truckOdometerReading = truckOdometerReadingData
@@ -41,11 +42,6 @@ class TruckOdometerReadingTestIT : AbstractFunctionalTest() {
         it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
             truckId = truck.id,
             truckOdometerReading = truckOdometerReadingData.copy(odometerReading = 1001)
-        )
-        // should be ignored because the latest odometer reading record is the same
-        it.setDataReceiverApiKey().trucks.createTruckOdometerReading(
-            truckId = truck.id,
-            truckOdometerReading = truckOdometerReadingData.copy(timestamp = time2)
         )
         // should be created successfully
         it.setDataReceiverApiKey().trucks.createTruckOdometerReading(

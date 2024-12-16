@@ -40,17 +40,6 @@ class TruckSpeedController {
             return existingRecord
         }
 
-        val latestRecord = truckSpeedRepository.find(
-            "truck = :truck and timestamp <= :timestamp order by timestamp desc limit 1",
-            Parameters.with("truck", truckEntity).and("timestamp", truckSpeed.timestamp)
-        ).firstResult<TruckSpeedEntity>().awaitSuspending()
-        if (latestRecord != null &&
-            latestRecord.timestamp!! < truckSpeed.timestamp &&
-            abs(latestRecord.speed!! - truckSpeed.speed) < 0.0001) {
-            logger.debug("Latest truck speed $truckSpeed for truck with id ${truckEntity.id} was the same")
-            return null
-        }
-
         val createdTruckSpeed = truckSpeedRepository.create(
             id = UUID.randomUUID(),
             timestamp = truckSpeed.timestamp,
