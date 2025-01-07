@@ -1,6 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.towables
 
 import fi.metatavu.vp.vehiclemanagement.model.Towable
+import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerController
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import java.util.*
@@ -14,6 +15,9 @@ class TowableController {
     @Inject
     lateinit var towableRepository: TowableRepository
 
+    @Inject
+    lateinit var thermometerController: ThermometerController
+
     /**
      * Creates new towable
      *
@@ -21,6 +25,7 @@ class TowableController {
      * @param type type
      * @param vin vin
      * @param name name
+     * @param imei imei
      * @param userId user id
      * @return created towable
      */
@@ -29,6 +34,7 @@ class TowableController {
         type: Towable.Type,
         vin: String,
         name: String?,
+        imei: String?,
         userId: UUID
     ): TowableEntity {
         return towableRepository.create(
@@ -37,6 +43,7 @@ class TowableController {
             type = type,
             vin = vin,
             name = name,
+            imei = imei,
             creatorId = userId,
             lastModifierId = userId
         )
@@ -50,6 +57,16 @@ class TowableController {
      */
     suspend fun findTowable(towableId: UUID): TowableEntity? {
         return towableRepository.findByIdSuspending(towableId)
+    }
+
+    /**
+     * Finds towable by imei
+     *
+     * @param imei imei
+     * @return found towable or null if not found
+     */
+    suspend fun findTowableByImei(imei: String): TowableEntity? {
+        return towableRepository.findByImei(imei)
     }
 
     /**
@@ -92,16 +109,20 @@ class TowableController {
         existingTowableEntity.type = newTowableData.type
         existingTowableEntity.vin = newTowableData.vin
         existingTowableEntity.name = newTowableData.name
+        existingTowableEntity.imei = newTowableData.imei
         existingTowableEntity.lastModifierId = userId
         return towableRepository.persistSuspending(existingTowableEntity)
     }
 
     /**
-     * Deletes towable
+     * Deletes towable and connected thermometers (not used in production)
      *
      * @param towableEntity towable to be deleted
      */
     suspend fun deleteTowable(towableEntity: TowableEntity) {
+        thermometerController.listByTowable(towableEntity).forEach {
+            thermometerController.deleteThermometer(it)
+        }
         towableRepository.deleteSuspending(towableEntity)
     }
 

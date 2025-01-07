@@ -215,6 +215,29 @@ class VehicleController {
     }
 
     /**
+     * Checks if IMEI is unique (not present in both trucks and trailers)
+     *
+     * @param imei IMEI
+     * @return true if unique
+     */
+    suspend fun isImeiUnique(imei: String?): Boolean {
+        if (imei == null) {
+            return true
+        }
+
+        val duplicateTruckImeis = truckRepository.findByImei(imei)
+        if (duplicateTruckImeis != null) {
+            return false
+        }
+        val duplicateTrailerImeis = towableRepository.findByImei(imei)
+        if (duplicateTrailerImeis != null) {
+            return false
+        }
+
+        return true
+    }
+
+    /**
      * Lists towable connections to vehicles
      *
      * @param towableEntity towable

@@ -30,6 +30,7 @@ class TowableRepository: AbstractRepository<TowableEntity, UUID>() {
         type: Towable.Type,
         vin: String,
         name: String?,
+        imei: String?,
         creatorId: UUID,
         lastModifierId: UUID
     ): TowableEntity {
@@ -39,6 +40,7 @@ class TowableRepository: AbstractRepository<TowableEntity, UUID>() {
         towableEntity.type = type
         towableEntity.vin = vin
         towableEntity.name = name
+        towableEntity.imei = imei
         towableEntity.creatorId = creatorId
         towableEntity.lastModifierId = lastModifierId
         return persistSuspending(towableEntity)
@@ -104,5 +106,15 @@ class TowableRepository: AbstractRepository<TowableEntity, UUID>() {
      */
     suspend fun countByVin(vin: String): Long {
         return count("vin", vin).awaitSuspending()
+    }
+
+    /**
+     * Finds a towable by IMEI
+     *
+     * @param imei IMEI
+     * @return found towable or null if not found
+     */
+    suspend fun findByImei(imei: String): TowableEntity? {
+        return find("imei", imei).firstResult<TowableEntity>().awaitSuspending()
     }
 }

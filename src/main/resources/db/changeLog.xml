@@ -332,4 +332,57 @@
         </createTable>
         <addUniqueConstraint tableName="truckodometerreading" columnNames="truck_id, timestamp" constraintName="un_truckodometerreading_truck_id_timestamp"/>
     </changeSet>
+
+    <changeSet id="thermometers" author="katja.danilova">
+        <addColumn tableName="truck">
+            <column name="imei" type="varchar(191)">
+                <constraints unique="true"/>
+            </column>
+        </addColumn>
+        <addColumn tableName="towable">
+            <column name="imei" type="varchar(191)">
+                <constraints unique="true" />
+            </column>
+        </addColumn>
+
+        <createTable tableName="thermometer">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="macaddress" type="varchar(191)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="varchar(191)"/>
+            <column name="truck_id" type="binary(16)">
+                <constraints foreignKeyName="FK_THERMOMETER_TRUCK_ID" referencedColumnNames="id" referencedTableName="Truck"/>
+            </column>
+            <column name="towable_id" type="binary(16)">
+                <constraints foreignKeyName="FK_THERMOMETER_TOWABLE_ID" referencedColumnNames="id" referencedTableName="Towable"/>
+            </column>
+            <column name="archivedat" type="datetime(6)"/>
+
+            <column name="createdAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modifiedAt" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="termperaturereading">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="thermometer_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="FK_TEMPERATURE_THERMOMETER_ID" referencedColumnNames="id" referencedTableName="thermometer"/>
+            </column>
+            <column name="value" type="float">
+                <constraints nullable="false"/>
+            </column>
+            <column name="timestamp" type="datetime(6)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addUniqueConstraint tableName="termperaturereading" columnNames="thermometer_id, timestamp" constraintName="un_temperaturereading_thermometer_id_timestamp"/>
+    </changeSet>
 </databaseChangeLog>

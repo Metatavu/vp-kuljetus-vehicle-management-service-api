@@ -29,6 +29,9 @@ class TruckEntity: Metadata() {
     @NotEmpty
     lateinit var vin: String
 
+    @Column(unique = true)
+    var imei: String? = null
+
     @Column
     var name: String? = null
 

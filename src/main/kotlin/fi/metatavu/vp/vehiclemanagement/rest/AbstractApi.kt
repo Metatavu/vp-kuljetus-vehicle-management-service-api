@@ -279,13 +279,16 @@ abstract class AbstractApi: WithCoroutineScope() {
         const val INVALID_VIN = "Invalid vin"
         const val NOT_UNIQUE_PLATE_NUMBER = "Plate number is not unique"
         const val NOT_UNIQUE_VIN = "vin is not unique"
+        const val NOT_UNIQUE_IMEI = "IMEI is not unique"
         const val INVALID_API_KEY = "Invalid API key"
+        const val BOTH_ENTITY_ENTITYTYPE_NEEDED = "Both entity and entityType are needed"
 
         const val TRUCK = "Truck"
         const val TOWABLE = "Towable"
         const val VEHICLE = "Vehicle"
         const val DRIVER_CARD = "Driver card"
-
+        const val THERMOMETER = "Thermometer"
+        
         const val DRIVER_ROLE = "driver"
         const val MANAGER_ROLE = "manager"
     }

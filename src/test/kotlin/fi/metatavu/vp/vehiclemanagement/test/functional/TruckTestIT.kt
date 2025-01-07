@@ -86,7 +86,8 @@ class TruckTestIT : AbstractFunctionalTest() {
             plateNumber = plateNumber,
             type = Truck.Type.TRUCK,
             vin = "someVinNumber",
-            name = "Some truck"
+            name = "Some truck",
+            imei = "someImei"
         )
         val createdTruck = builder.manager.trucks.create(truckData, builder.manager.vehicles)
         assertNotNull(createdTruck)
@@ -106,11 +107,16 @@ class TruckTestIT : AbstractFunctionalTest() {
         // Same check for vin
         builder.manager.trucks.assertCreateFail(
             400,
-            Truck(plateNumber = "DEF-456", type = Truck.Type.TRUCK, vin = createdTruck.vin)
+            Truck(plateNumber = "some other plate", type = Truck.Type.TRUCK, vin = createdTruck.vin)
         )
         builder.manager.towables.assertCreateFail(
             400,
-            Towable(plateNumber = "DEF-456", type = Towable.Type.TRAILER, vin = createdTruck.vin)
+            Towable(plateNumber = "some other plate", type = Towable.Type.TRAILER, vin = createdTruck.vin)
+        )
+        // duplicate imei
+        builder.manager.trucks.assertCreateFail(
+            400,
+            Truck(plateNumber = "some other plate", type = Truck.Type.TRUCK, vin = "003", imei = truckData.imei)
         )
     }
 
