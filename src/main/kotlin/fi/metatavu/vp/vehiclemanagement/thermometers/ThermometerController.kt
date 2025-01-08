@@ -66,10 +66,9 @@ class ThermometerController {
             ?: targetTowable?.let { thermometerRepository.findByTowable(it) }
 
         // Archive the current thermometer if it exists and has a different macAddress, it it is same, use it
-        if (currentThermometer != null && currentThermometer.macAddress != macAddress) {
-            archiveThermometer(currentThermometer)
-        } else if (currentThermometer != null) {
-            return currentThermometer
+        if (currentThermometer != null) {
+            if (currentThermometer.macAddress != macAddress) archiveThermometer(currentThermometer)
+            else return currentThermometer
         }
 
         // Find any unarchived thermometer by the provided macAddress
