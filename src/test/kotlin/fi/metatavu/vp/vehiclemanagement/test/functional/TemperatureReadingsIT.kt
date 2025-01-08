@@ -165,6 +165,15 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             )
         )
 
+        tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
+            TemperatureReading(
+                deviceIdentifier = towable1.imei!!,
+                timestamp = OffsetDateTime.now().toString(),
+                macAddress = thermometer3Mac,
+                value = 1f
+            )
+        )
+
         val thermometers2 = tb.manager.trucks.listThermometers()
         assertEquals(3, thermometers2.size)
         val archivedThermometers = tb.manager.trucks.listThermometers(includeArchived = true)

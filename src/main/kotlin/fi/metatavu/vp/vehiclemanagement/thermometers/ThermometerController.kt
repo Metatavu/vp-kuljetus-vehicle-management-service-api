@@ -60,29 +60,36 @@ class ThermometerController {
         targetTruck: TruckEntity?,
         targetTowable: TowableEntity?
     ): ThermometerEntity {
-        require(targetTruck != null || targetTowable != null) { "Truck or Towable cannot be null" }
-
-        val unarchivedThermometersByMac = thermometerRepository.listUnarchivedByMac(macAddress)
-        require(unarchivedThermometersByMac.size <= 1) { "Multiple active thermometers with the same mac address should not happen" }
-
-        // Archive thermometer that is currently connected to the targetTruck or targetTowable
+        // Find the current thermometer associated with the targetTruck or targetTowable
         val currentThermometer = targetTruck?.let { thermometerRepository.findByTruck(it) }
             ?: targetTowable?.let { thermometerRepository.findByTowable(it) }
-        currentThermometer?.let { archiveThermometer(it) }
 
-        val thermometerByMac = unarchivedThermometersByMac.firstOrNull()
-        return if (thermometerByMac != null &&
-            (thermometerByMac.truck?.imei == deviceIdentifier || thermometerByMac.towable?.imei == deviceIdentifier)) {
-            thermometerByMac
-        } else {
-            thermometerByMac?.let { archiveThermometer(it) }
-            thermometerRepository.create(
-                id = UUID.randomUUID(),
-                macAddress = macAddress,
-                truck = targetTruck,
-                towable = targetTowable
-            )
+        // Archive the current thermometer if it exists and has a different macAddress, it it is same, use it
+        if (currentThermometer != null && currentThermometer.macAddress != macAddress) {
+            archiveThermometer(currentThermometer)
+        } else if (currentThermometer != null) {
+            return currentThermometer
         }
+
+        // Find any unarchived thermometer by the provided macAddress
+        val unarchivedThermometersByMac = thermometerRepository.listUnarchivedByMac(macAddress)
+        require(unarchivedThermometersByMac.size <= 1) { "Multiple active thermometers with the same mac address should not happen" }
+        val thermometerByMac = unarchivedThermometersByMac.firstOrNull()
+
+        // If an unarchived thermometer is associated with the same deviceIdentifier, return it
+        if (thermometerByMac != null &&
+            (thermometerByMac.truck?.imei == deviceIdentifier || thermometerByMac.towable?.imei == deviceIdentifier)) {
+            return thermometerByMac
+        }
+
+        thermometerByMac?.let { archiveThermometer(it) }
+
+        return thermometerRepository.create(
+            id = UUID.randomUUID(),
+            macAddress = macAddress,
+            truck = targetTruck,
+            towable = targetTowable
+        )
     }
 
     /**
@@ -92,6 +99,7 @@ class ThermometerController {
      */
     suspend fun archiveThermometer(thermometer: ThermometerEntity) {
         if (thermometer.archivedAt == null) {
+            println("archiving thermometer ${thermometer.macAddress}")
             thermometer.archivedAt = OffsetDateTime.now()
             thermometerRepository.persistSuspending(thermometer)
         }
