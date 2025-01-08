@@ -78,8 +78,8 @@ class ThermometerController {
         val thermometerByMac = unarchivedThermometersByMac.firstOrNull()
 
         // If an unarchived thermometer is associated with the same deviceIdentifier, return it
-        if (thermometerByMac != null &&
-            (thermometerByMac.truck?.imei == deviceIdentifier || thermometerByMac.towable?.imei == deviceIdentifier)) {
+        val thermometerDeviceIdentifier = thermometerByMac.truck?.imei ?: thermometerByMac.towable?.imei
+        if (thermometerByMac != null && thermometerDeviceIdentifier == deviceIdentifier) {
             return thermometerByMac
         }
 
