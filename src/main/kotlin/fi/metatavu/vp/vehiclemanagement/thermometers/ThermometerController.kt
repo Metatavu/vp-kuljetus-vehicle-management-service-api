@@ -60,6 +60,7 @@ class ThermometerController {
         targetTruck: TruckEntity?,
         targetTowable: TowableEntity?
     ): ThermometerEntity {
+        require(targetTruck != null || targetTowable != null) { "TargetTruck or targetTowable must be present" }
         // Find the current thermometer associated with the targetTruck or targetTowable
         val currentThermometer = targetTruck?.let { thermometerRepository.findByTruck(it) }
             ?: targetTowable?.let { thermometerRepository.findByTowable(it) }
@@ -99,7 +100,6 @@ class ThermometerController {
      */
     suspend fun archiveThermometer(thermometer: ThermometerEntity) {
         if (thermometer.archivedAt == null) {
-            println("archiving thermometer ${thermometer.macAddress}")
             thermometer.archivedAt = OffsetDateTime.now()
             thermometerRepository.persistSuspending(thermometer)
         }
