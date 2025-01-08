@@ -3,6 +3,8 @@ package fi.metatavu.vp.vehiclemanagement.towables
 import fi.metatavu.vp.vehiclemanagement.model.Towable
 import fi.metatavu.vp.vehiclemanagement.spec.TowablesApi
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
+import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureReadingController
+import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureTranslator
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
 import io.quarkus.hibernate.reactive.panache.common.WithSession
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction
@@ -30,6 +32,12 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
     @Inject
     lateinit var vehicleController: VehicleController
 
+    @Inject
+    lateinit var temperatureReadingController: TemperatureReadingController
+
+    @Inject
+    lateinit var temperatureTranslator: TemperatureTranslator
+
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createTowable(towable: Towable): Uni<Response> =
@@ -47,11 +55,13 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
                 NOT_UNIQUE_PLATE_NUMBER
             )
             if (!vehicleController.isVinUnique(towable.vin)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_VIN)
+            if (!vehicleController.isImeiUnique(towable.imei)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_IMEI)
 
             val createdTruck = towableController.createTowable(
                 plateNumber = towable.plateNumber,
                 type = towable.type,
                 vin = towable.vin,
+                imei = towable.imei,
                 name = towable.name,
                 userId = userId
             )
@@ -107,6 +117,9 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
             if (!vehicleController.isVinUnique(towable.vin) && existingTowable.vin != towable.vin) {
                 return@withCoroutineScope createBadRequest(NOT_UNIQUE_VIN)
             }
+            if (!vehicleController.isImeiUnique(towable.imei) && existingTowable.imei != towable.imei) {
+                return@withCoroutineScope createBadRequest(NOT_UNIQUE_IMEI)
+            }
 
             val updatedTowable = towableController.updateTowable(existingTowable, towable, userId)
 
@@ -132,5 +145,29 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
 
         towableController.deleteTowable(existingTowable)
         createNoContent()
+    }
+
+    @RolesAllowed(MANAGER_ROLE)
+    override fun listTowableTemperatures(
+        towableId: UUID,
+        includeArchived: Boolean,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> = withCoroutineScope {
+        val towable = towableController.findTowable(towableId) ?: return@withCoroutineScope createNotFound(
+            createNotFoundMessage(
+                TOWABLE,
+                towableId
+            )
+        )
+
+        val (temperatures, count) = temperatureReadingController.listTowableTemperatures(
+            towable = towable,
+            includeArchived = includeArchived,
+            first = first,
+            max = max
+        )
+
+        createOk(temperatureTranslator.translate(temperatures), count)
     }
 }

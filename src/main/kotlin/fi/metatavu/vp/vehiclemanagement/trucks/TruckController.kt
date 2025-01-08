@@ -3,6 +3,8 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 import fi.metatavu.vp.vehiclemanagement.model.SortOrder
 import fi.metatavu.vp.vehiclemanagement.model.Truck
 import fi.metatavu.vp.vehiclemanagement.model.TruckSortByField
+import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerController
+import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerRepository
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
 import fi.metatavu.vp.vehiclemanagement.trucks.location.TruckLocationController
@@ -41,6 +43,9 @@ class TruckController {
     @Inject
     lateinit var truckOdometerReadingController: TruckOdometerReadingController
 
+    @Inject
+    lateinit var thermometerController: ThermometerController
+
     /**
      * Creates new truck and a vehicle that is attached to it.
      *
@@ -48,6 +53,7 @@ class TruckController {
      * @param type truck type
      * @param vin vin
      * @param name name
+     * @param imei imei
      * @param userId user id
      * @return created truck
      */
@@ -56,6 +62,7 @@ class TruckController {
         type: Truck.Type,
         vin: String,
         name: String?,
+        imei: String?,
         userId: UUID
     ): TruckEntity {
         val truck = truckRepository.create(
@@ -64,6 +71,7 @@ class TruckController {
             type = type,
             vin = vin,
             name = name,
+            imei = imei,
             creatorId = userId,
             lastModifierId = userId
         )
@@ -89,6 +97,16 @@ class TruckController {
      */
     suspend fun findTruck(vin: String): TruckEntity? {
         return truckRepository.findByVin(vin)
+    }
+
+    /**
+     * Finds truck by imei
+     *
+     * @param imei imei
+     * @return found truck or null if not found
+     */
+    suspend fun findTruckByImei(imei: String): TruckEntity? {
+        return truckRepository.findByImei(imei)
     }
 
     /**
@@ -137,12 +155,14 @@ class TruckController {
         existingTruckEntity.type = newTruckData.type
         existingTruckEntity.vin = newTruckData.vin
         existingTruckEntity.name = newTruckData.name
+        existingTruckEntity.imei = newTruckData.imei
         existingTruckEntity.lastModifierId = userId
         return truckRepository.persistSuspending(existingTruckEntity)
     }
 
     /**
-     * Deletes truck
+     * Deletes truck (and all related entities)
+     * Not available in production.
      *
      * @param truckEntity truck to be deleted
      */
@@ -161,6 +181,9 @@ class TruckController {
         }
         truckOdometerReadingController.list(truck = truckEntity).first.forEach {
             truckOdometerReadingController.deleteTruckOdometerReading(it)
+        }
+        thermometerController.listByTruck(truckEntity).forEach {
+            thermometerController.deleteThermometer(it)
         }
         truckRepository.deleteSuspending(truckEntity)
     }

@@ -7,11 +7,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.quarkus.test.common.DevServicesContext
 import org.eclipse.microprofile.config.ConfigProvider
 import org.json.JSONException
+import org.junit.Assert
 import org.skyscreamer.jsonassert.JSONCompare
 import org.skyscreamer.jsonassert.JSONCompareMode
 import org.skyscreamer.jsonassert.JSONCompareResult
 import org.skyscreamer.jsonassert.comparator.CustomComparator
 import java.io.File
+import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.zip.ZipFile
 
@@ -80,6 +82,18 @@ abstract class AbstractFunctionalTest {
         }
     }
 
+    /**
+     * Asserts that two objects are equal
+     *
+     * @param expected expected
+     * @param actual actual
+     */
+    fun assertOffsetDatetimeEquals(expected: String, actual: String) {
+        val expectedTimestamp = OffsetDateTime.parse(expected)
+        val actualTimestamp = OffsetDateTime.parse(actual)
+        Assert.assertEquals(expectedTimestamp.toEpochSecond(), actualTimestamp.toEpochSecond())
+    }
+
     private var devServicesContext: DevServicesContext? = null
 
     /**
@@ -123,9 +137,9 @@ abstract class AbstractFunctionalTest {
     }
 
     companion object {
-        val driver1Id = UUID.fromString("95dd89a2-da9a-4ce4-979d-8897b7603b2e")
-        val driver1CardId = "001"
-        val driver2Id = UUID.fromString("0bb1039a-7688-453d-b4e8-4f5ba277db0c")
-        val driver2CardId = "002"
+        val driver1Id: UUID = UUID.fromString("95dd89a2-da9a-4ce4-979d-8897b7603b2e")
+        const val driver1CardId = "001"
+        val driver2Id: UUID = UUID.fromString("0bb1039a-7688-453d-b4e8-4f5ba277db0c")
+        const val driver2CardId = "002"
     }
 }

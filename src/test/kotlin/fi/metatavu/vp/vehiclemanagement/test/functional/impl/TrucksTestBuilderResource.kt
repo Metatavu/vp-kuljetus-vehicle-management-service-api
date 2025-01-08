@@ -47,10 +47,12 @@ class TrucksTestBuilderResource(
         return createdTruck
     }
 
+
     fun create(
         plateNumber: String,
         vin: String,
         name: String? = null,
+        imei: String? = null,
         vehiclesTestBuilderResource: VehiclesTestBuilderResource
     ): Truck {
         return create(
@@ -58,7 +60,8 @@ class TrucksTestBuilderResource(
                 plateNumber = plateNumber,
                 vin = vin,
                 name = name,
-                type = Truck.Type.TRUCK
+                type = Truck.Type.TRUCK,
+                imei = imei
             ), vehiclesTestBuilderResource
         )
     }
@@ -69,7 +72,7 @@ class TrucksTestBuilderResource(
      * @return created truck
      */
     fun create(vehiclesTestBuilderResource: VehiclesTestBuilderResource): Truck {
-        return create("ABC-123", "001", null,  vehiclesTestBuilderResource)
+        return create("ABC-123", "001", null, null, vehiclesTestBuilderResource)
     }
 
     /**
@@ -521,6 +524,58 @@ class TrucksTestBuilderResource(
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)
         }
+    }
+
+    /**
+     * Creates truck fuel consumption
+     *
+     * @param truckId truck id
+     * @param truckFuelConsumption truck fuel consumption data
+     */
+    fun listTemperatureReadings(
+        truckId: UUID,
+        includeArchived: Boolean,
+        first: Int? = null,
+        max: Int? = null
+    ): Array<Temperature> {
+        return api.listTruckTemperatures(truckId, includeArchived, first, max)
+    }
+
+    /**
+     * Asserts that the list of temperature readings could not be retrieved
+     *
+     * @param truckId truck id
+     * @param expectedStatus expected status
+     */
+    fun assertListTemperatureReadingsFail(truckId: UUID, includeArchived: Boolean, expectedStatus: Int) {
+        try {
+            api.listTruckTemperatures(truckId, includeArchived, null, null)
+            Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
+    }
+
+    /**
+     * Creates truck fuel consumption
+     *
+     * @param truckId truck id
+     * @param truckFuelConsumption truck fuel consumption data
+     */
+    fun listThermometers(
+        entityId: UUID? = null,
+        entityType: TrucksApi.EntityTypeListThermometers? = null,
+        includeArchived: Boolean = false,
+        first: Int? = null,
+        max: Int? = null
+    ): Array<Thermometer> {
+        return api.listThermometers(
+            entityId = entityId,
+            entityType = entityType,
+            includeArchived = includeArchived,
+            first = first,
+            max = max
+        )
     }
 
     override fun clean(p0: Truck?) {

@@ -58,7 +58,8 @@ class TowableTestIT : AbstractFunctionalTest() {
             plateNumber = plateNumber,
             type = Towable.Type.TRAILER,
             vin = "someVinNumber",
-            name = "Some towable"
+            name = "Some towable",
+            imei = "someImei"
         )
         val createdTowable = builder.manager.towables.create(towableData)
         assertNotNull(createdTowable)
@@ -68,6 +69,9 @@ class TowableTestIT : AbstractFunctionalTest() {
         assertEquals(towableData.name, "Some towable")
         assertNotNull(createdTowable.id)
         assertNotNull(createdTowable.createdAt)
+
+        // duplicate imei
+        builder.manager.towables.assertCreateFail(400, towableData.copy(vin = "new"))
     }
 
     @Test

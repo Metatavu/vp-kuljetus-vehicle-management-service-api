@@ -23,6 +23,7 @@ class TruckTranslator : AbstractTranslator<TruckEntity, Truck>() {
             type = entity.type,
             activeVehicleId = vehicleRepository.findActiveForTruck(entity)?.id,
             name = entity.name,
+            imei = entity.imei,
             archivedAt = entity.archivedAt,
             createdAt = entity.createdAt,
             modifiedAt = entity.modifiedAt,

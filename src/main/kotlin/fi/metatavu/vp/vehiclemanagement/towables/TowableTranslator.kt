@@ -17,6 +17,7 @@ class TowableTranslator : AbstractTranslator<TowableEntity, Towable>() {
             vin = entity.vin,
             type = entity.type,
             name = entity.name,
+            imei = entity.imei,
             archivedAt = entity.archivedAt,
             createdAt = entity.createdAt,
             modifiedAt = entity.modifiedAt,

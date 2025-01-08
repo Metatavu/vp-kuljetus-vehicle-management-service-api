@@ -23,6 +23,7 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
      * @param type truck type
      * @param vin vin
      * @param name name
+     * @param imei imei
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created truck
@@ -33,6 +34,7 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
         type: Truck.Type,
         vin: String,
         name: String?,
+        imei: String?,
         creatorId: UUID,
         lastModifierId: UUID
     ): TruckEntity {
@@ -42,6 +44,7 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
         truckEntity.type = type
         truckEntity.vin = vin
         truckEntity.name = name
+        truckEntity.imei = imei
         truckEntity.creatorId = creatorId
         truckEntity.lastModifierId = lastModifierId
         return persistSuspending(truckEntity)
@@ -129,6 +132,16 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
      */
     suspend fun countByVin(vin: String): Long {
         return count("vin", vin).awaitSuspending()
+    }
+
+    /**
+     * Finds a truck by imei
+     *
+     * @param imei imei
+     * @return found truck or null if not found
+     */
+    suspend fun findByImei(imei: String): TruckEntity? {
+        return find("imei", imei).firstResult<TruckEntity>().awaitSuspending()
     }
 
     /**

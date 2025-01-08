@@ -3,6 +3,10 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 import fi.metatavu.vp.vehiclemanagement.model.*
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
+import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerController
+import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerTranslator
+import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureReadingController
+import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateController
@@ -71,6 +75,18 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     @Inject
     lateinit var truckOdometerReadingTranslator: TruckOdometerReadingTranslator
 
+    @Inject
+    lateinit var thermometerController: ThermometerController
+
+    @Inject
+    lateinit var thermometerTranslator: ThermometerTranslator
+
+    @Inject
+    lateinit var temperatureReadingController: TemperatureReadingController
+
+    @Inject
+    lateinit var temperatureTranslator: TemperatureTranslator
+
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createTruck(truck: Truck): Uni<Response> = withCoroutineScope {
@@ -82,12 +98,14 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
         if (!vehicleController.isPlateNumberUnique(truck.plateNumber)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_PLATE_NUMBER)
         if (!vehicleController.isVinUnique(truck.vin)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_VIN)
+        if (!vehicleController.isImeiUnique(truck.imei)) return@withCoroutineScope createBadRequest(NOT_UNIQUE_IMEI)
 
         val createdTruck = truckController.createTruck(
             plateNumber = truck.plateNumber,
             type = truck.type,
             vin = truck.vin,
             name = truck.name,
+            imei = truck.imei,
             userId = userId
         )
         createOk(truckTranslator.translate(createdTruck))
@@ -140,6 +158,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         }
         if (!vehicleController.isVinUnique(truck.vin) && existingTruck.vin != truck.vin) {
             return@withCoroutineScope createBadRequest(NOT_UNIQUE_VIN)
+        }
+        if (!vehicleController.isImeiUnique(truck.imei) && existingTruck.imei != truck.imei) {
+            return@withCoroutineScope createBadRequest(NOT_UNIQUE_IMEI)
         }
 
         val updated = truckController.updateTruck(existingTruck, truck, userId)
@@ -319,5 +340,74 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         truckOdometerReadingController.createTruckOdometerReading(truck, truckOdometerReading) ?: return@withCoroutineScope createAccepted(null)
         createCreated()
 
+    }
+
+    // Thermometers
+
+    @RolesAllowed(MANAGER_ROLE)
+    override fun listThermometers(
+        entityId: UUID?,
+        entityType: String?,
+        includeArchived: Boolean,
+        first: Int?,
+        max: Int?
+    ): Uni<Response> = withCoroutineScope {
+        if (entityId != null && entityType == null) return@withCoroutineScope createBadRequest(
+            BOTH_ENTITY_ENTITYTYPE_NEEDED
+        )
+        if (entityId == null && entityType != null) return@withCoroutineScope createBadRequest(
+            BOTH_ENTITY_ENTITYTYPE_NEEDED
+        )
+
+        val (thermometers, count) = thermometerController.listThermometers(
+            entityId = entityId,
+            entityType = entityType,
+            includeArchived = includeArchived,
+            first = first,
+            max = max
+        )
+        createOk(thermometerTranslator.translate(thermometers), count)
+    }
+
+    @RolesAllowed(MANAGER_ROLE)
+    override fun findThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
+        val thermometer =
+            thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound(
+                createNotFoundMessage(THERMOMETER, thermometerId)
+            )
+
+        createOk(thermometerTranslator.translate(thermometer))
+    }
+
+    @RolesAllowed(MANAGER_ROLE)
+    @WithTransaction
+    override fun updateThermometer(
+        thermometerId: UUID,
+        updateThermometerRequest: UpdateThermometerRequest
+    ): Uni<Response> = withCoroutineScope {
+        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        val found = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound(
+            createNotFoundMessage(THERMOMETER, thermometerId)
+        )
+        val updated = thermometerController.update(found, updateThermometerRequest, userId)
+        createOk(thermometerTranslator.translate(updated))
+    }
+
+    @RolesAllowed(MANAGER_ROLE)
+    override fun listTruckTemperatures(truckId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> =
+        withCoroutineScope {
+            val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(
+                createNotFoundMessage(
+                    TRUCK,
+                    truckId
+                )
+            )
+            val (temperatures, count) = temperatureReadingController.listTruckTemperatures(
+                truck = truck,
+                includeArchived = includeArchived,
+                first = first,
+                max = max
+            )
+            createOk(temperatureTranslator.translate(temperatures), count)
     }
 }

@@ -4,6 +4,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.test.client.apis.TowablesApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
+import fi.metatavu.vp.test.client.models.Temperature
 import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
@@ -44,8 +45,8 @@ class TowablesTestBuilderResource(
      * @param vin VIN
      * @return created towable
      */
-    fun create(plateNumber: String, vin: String): Towable {
-        return create(Towable(plateNumber = plateNumber, vin = vin, type = Towable.Type.TRAILER))
+    fun create(plateNumber: String, vin: String, imei: String? = null): Towable {
+        return create(Towable(plateNumber = plateNumber, vin = vin, imei = imei, type = Towable.Type.TRAILER))
     }
 
     /**
@@ -79,6 +80,24 @@ class TowablesTestBuilderResource(
             firstResult,
             maxResults
         )
+    }
+
+    /**
+     * Lists temperature readings
+     *
+     * @param towableId towable id
+     * @param includeArchived include archived
+     * @param first first result
+     * @param max max results
+     * @return list of temperature readings
+     */
+    fun listTemperatureReadings(
+        towableId: UUID,
+        includeArchived: Boolean,
+        first: Int? = null,
+        max: Int? = null
+    ): Array<Temperature> {
+        return api.listTowableTemperatures(towableId, includeArchived, first, max)
     }
 
     /**
