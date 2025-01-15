@@ -49,7 +49,7 @@ class TemperatureReadingsApiImpl : TemperatureReadingsApi, AbstractApi() {
         }
 
         val selectedThermometer = thermometerController.findOrCreate(
-            macAddress = temperatureReading.macAddress,
+            macAddress = temperatureReading.hardwareSensorId,
             deviceIdentifier = temperatureReading.deviceIdentifier,
             targetTruck = truckByIdentifier,
             targetTowable = towableByIdentifier

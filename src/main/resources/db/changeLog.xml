@@ -385,4 +385,9 @@
         </createTable>
         <addUniqueConstraint tableName="termperaturereading" columnNames="thermometer_id, timestamp" constraintName="un_temperaturereading_thermometer_id_timestamp"/>
     </changeSet>
+    <changeSet id="temperaturemillistimestamp" author="Simeon Platonov">
+        <renameTable oldTableName="termperaturereading" newTableName="temperaturereading"/>
+        <modifyDataType tableName="temperaturereading" columnName="timestamp" newDataType="bigint"/>
+        <sql>update temperaturereading set timestamp = floor(unix_timestamp(timestamp));</sql>
+    </changeSet>
 </databaseChangeLog>

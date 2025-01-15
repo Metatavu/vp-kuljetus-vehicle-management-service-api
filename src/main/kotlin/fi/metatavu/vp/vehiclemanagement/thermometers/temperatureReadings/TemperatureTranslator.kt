@@ -14,7 +14,7 @@ class TemperatureTranslator : AbstractTranslator<TemperatureReadingEntity, Tempe
             id = entity.id,
             thermometerId = entity.thermometer.id,
             value = entity.value!!,
-            timestamp = entity.timestamp
+            timestamp = entity.timestamp!!
         )
     }
 }
