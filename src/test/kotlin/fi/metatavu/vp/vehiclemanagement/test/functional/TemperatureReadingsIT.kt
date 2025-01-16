@@ -1,11 +1,13 @@
 package fi.metatavu.vp.vehiclemanagement.test.functional
 
 import fi.metatavu.vp.test.client.models.TemperatureReading
+import fi.metatavu.vp.test.client.models.TemperatureReadingSourceType
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import java.time.OffsetDateTime
 
 /**
@@ -28,9 +30,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         )
         val temperatureReading = TemperatureReading(
             deviceIdentifier = truck.imei!!,
-            timestamp = OffsetDateTime.now().toString(),
-            macAddress = "000",
-            value = -12.0f
+            timestamp = Instant.now().toEpochMilli(),
+            hardwareSensorId = "000",
+            value = -12.0f,
+            sourceType = TemperatureReadingSourceType.TRUCK
         )
 
         it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
@@ -42,20 +45,21 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         val truck1TemperatureReadings = it.manager.trucks.listTemperatureReadings(truck.id!!, false)
         assertEquals(1, truck1TemperatureReadings.size)
         assertEquals(temperatureReading.value, truck1TemperatureReadings.first().value)
-        assertOffsetDatetimeEquals(temperatureReading.timestamp, truck1TemperatureReadings.first().timestamp)
+        assertEquals(temperatureReading.timestamp, truck1TemperatureReadings.first().timestamp)
 
         var thermometers = it.manager.trucks.listThermometers()
         assertEquals(1, thermometers.size)
-        assertEquals(temperatureReading.macAddress, thermometers.first().macAddress)
+        assertEquals(temperatureReading.hardwareSensorId, thermometers.first().macAddress)
         assertEquals(thermometers[0].id, truck1TemperatureReadings.first().thermometerId)
 
         // New reading from the different mac of thermometer but same truck
         it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             temperatureReading.copy(
-                macAddress = "001",
+                hardwareSensorId = "001",
                 deviceIdentifier = truck.imei,
                 value = -13.0f,
-                timestamp = OffsetDateTime.now().toString()
+                timestamp = Instant.now().toEpochMilli(),
+                sourceType = TemperatureReadingSourceType.TRUCK
             )
         )
         thermometers = it.manager.trucks.listThermometers()
@@ -71,9 +75,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         val towable = it.manager.towables.create(plateNumber = "plate2", vin = "2", imei = "002")
         val temperatureReadingTowable = TemperatureReading(
             deviceIdentifier = towable.imei!!,
-            timestamp = OffsetDateTime.now().toString(),
-            macAddress = "002",
-            value = -12.0f
+            timestamp = Instant.now().toEpochMilli(),
+            hardwareSensorId = "002",
+            value = -12.0f,
+            sourceType = TemperatureReadingSourceType.TOWABLE
         )
         it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(temperatureReadingTowable)
         thermometers = it.manager.trucks.listThermometers()
@@ -91,9 +96,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             expectedStatus = 400,
             truckTemperatureReading = TemperatureReading(
                 deviceIdentifier = "000",
-                timestamp = OffsetDateTime.now().toString(),
-                macAddress = "001",
-                value = -12.0f
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = "001",
+                value = -12.0f,
+                sourceType = TemperatureReadingSourceType.TRUCK
             )
         )
 
@@ -101,9 +107,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             expectedStatus = 403,
             truckTemperatureReading = TemperatureReading(
                 deviceIdentifier = "000",
-                timestamp = OffsetDateTime.now().toString(),
-                macAddress = "001",
-                value = -12.0f
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = "001",
+                value = -12.0f,
+                sourceType = TemperatureReadingSourceType.TRUCK
             )
         )
     }
@@ -141,36 +148,40 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
                 deviceIdentifier = truck1.imei!!,
-                timestamp = OffsetDateTime.now().toString(),
-                macAddress = thermometer1Mac,
-                value = 0f
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = thermometer1Mac,
+                value = 0f,
+                sourceType = TemperatureReadingSourceType.TRUCK
             )
         )
 
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
                 deviceIdentifier = truck2.imei!!,
-                timestamp = OffsetDateTime.now().toString(),
-                macAddress = thermometer2Mac,
-                value = -12.0f
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = thermometer2Mac,
+                value = -12.0f,
+                sourceType = TemperatureReadingSourceType.TRUCK
             )
         )
 
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
                 deviceIdentifier = towable1.imei!!,
-                timestamp = OffsetDateTime.now().toString(),
-                macAddress = thermometer3Mac,
-                value = 0f
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = thermometer3Mac,
+                value = 0f,
+                sourceType = TemperatureReadingSourceType.TOWABLE
             )
         )
 
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
                 deviceIdentifier = towable1.imei!!,
-                timestamp = OffsetDateTime.now().toString(),
-                macAddress = thermometer3Mac,
-                value = 1f
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = thermometer3Mac,
+                value = 1f,
+                sourceType = TemperatureReadingSourceType.TOWABLE
             )
         )
 
@@ -184,9 +195,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
                 deviceIdentifier = towable1.imei!!,
-                timestamp = OffsetDateTime.now().toString(),
-                macAddress = thermometer1Mac,
-                value = 0f
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = thermometer1Mac,
+                value = 0f,
+                sourceType = TemperatureReadingSourceType.TOWABLE
             )
         )
         val thermometers3 = tb.manager.trucks.listThermometers()
@@ -199,9 +211,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
                 deviceIdentifier = truck1.imei,
-                timestamp = OffsetDateTime.now().toString(),
-                macAddress = thermometer4Mac,
-                value = 0f
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = thermometer4Mac,
+                value = 0f,
+                sourceType = TemperatureReadingSourceType.TRUCK
             )
         )
         val thermometers4 = tb.manager.trucks.listThermometers()

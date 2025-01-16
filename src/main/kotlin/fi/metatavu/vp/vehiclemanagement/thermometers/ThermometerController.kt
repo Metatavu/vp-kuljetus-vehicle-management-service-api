@@ -26,19 +26,19 @@ class ThermometerController {
     /**
      * Creates thermometer
      *
-     * @param macAddress mac address
+     * @param hardwareSensorId mac address
      * @param truck truck
      * @param towable towable
      * @return created thermometer
      */
     suspend fun create(
-        macAddress: String,
+        hardwareSensorId: String,
         truck: TruckEntity?,
         towable: TowableEntity?,
     ): ThermometerEntity {
         return thermometerRepository.create(
             id = UUID.randomUUID(),
-            macAddress = macAddress,
+            hardwareSensorId = hardwareSensorId,
             truck = truck,
             towable = towable
         )
@@ -48,14 +48,14 @@ class ThermometerController {
      * Finds thermometer or creates a new one if needed.
      * TargetTruck or targetTowable must be present.
      *
-     * @param macAddress thermometer mac address
+     * @param hardwareSensorId thermometer mac address
      * @param deviceIdentifier measurement device identifier (imei for trucks and towables)
      * @param targetTruck truck the deviceIdentifier belongs to
      * @param targetTowable towable the device identifier belongs to
      * @throws IllegalArgumentException if targetTruck and targetTowable are both null
      */
     suspend fun findOrCreate(
-        macAddress: String,
+        hardwareSensorId: String,
         deviceIdentifier: String,
         targetTruck: TruckEntity?,
         targetTowable: TowableEntity?
@@ -65,14 +65,14 @@ class ThermometerController {
         val currentThermometer = targetTruck?.let { thermometerRepository.findByTruck(it) }
             ?: targetTowable?.let { thermometerRepository.findByTowable(it) }
 
-        // Archive the current thermometer if it exists and has a different macAddress, it it is same, use it
+        // Archive the current thermometer if it exists and has a different hardwareSensorId, it it is same, use it
         if (currentThermometer != null) {
-            if (currentThermometer.macAddress != macAddress) archiveThermometer(currentThermometer)
+            if (currentThermometer.hardwareSensorId != hardwareSensorId) archiveThermometer(currentThermometer)
             else return currentThermometer
         }
 
-        // Find any unarchived thermometer by the provided macAddress
-        val unarchivedThermometersByMac = thermometerRepository.listUnarchivedByMac(macAddress)
+        // Find any unarchived thermometer by the provided hardwareSensorId
+        val unarchivedThermometersByMac = thermometerRepository.listUnarchivedByMac(hardwareSensorId)
         require(unarchivedThermometersByMac.size <= 1) { "Multiple active thermometers with the same mac address should not happen" }
         val thermometerByMac = unarchivedThermometersByMac.firstOrNull()
 
@@ -86,7 +86,7 @@ class ThermometerController {
 
         return thermometerRepository.create(
             id = UUID.randomUUID(),
-            macAddress = macAddress,
+            hardwareSensorId = hardwareSensorId,
             truck = targetTruck,
             towable = targetTowable
         )

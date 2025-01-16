@@ -1,5 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings
 
+import fi.metatavu.vp.vehiclemanagement.model.TemperatureReadingSourceType
 import fi.metatavu.vp.vehiclemanagement.persistence.AbstractRepository
 import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerEntity
 import fi.metatavu.vp.vehiclemanagement.towables.TowableEntity
@@ -28,7 +29,7 @@ class TemperatureReadingRepository: AbstractRepository<TemperatureReadingEntity,
         id: UUID,
         thermometer: ThermometerEntity,
         value: Float,
-        timestamp: OffsetDateTime
+        timestamp: Long
     ): TemperatureReadingEntity {
         val temperatureReading = TemperatureReadingEntity()
         temperatureReading.id = id
