@@ -22,6 +22,6 @@ class TemperatureReadingEntity {
     @Column(nullable = false)
     var value: Float? = 0.0F
 
-    @Column
+    @Column(nullable = false)
     var timestamp: Long? = null
 }
