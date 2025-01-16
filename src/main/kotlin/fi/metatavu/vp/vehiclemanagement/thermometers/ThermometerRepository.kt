@@ -18,20 +18,20 @@ class ThermometerRepository : AbstractRepository<ThermometerEntity, UUID>() {
      * Creates thermometer
      *
      * @param id thermometer id
-     * @param macAddress mac address
+     * @param hardwareSensorId mac address
      * @param truck truck
      * @param towable towable
      * @return created thermometer
      */
     suspend fun create(
         id: UUID,
-        macAddress: String,
+        hardwareSensorId: String,
         truck: TruckEntity?,
         towable: TowableEntity?
     ): ThermometerEntity {
         val thermometer = ThermometerEntity()
         thermometer.id = id
-        thermometer.macAddress = macAddress
+        thermometer.hardwareSensorId = hardwareSensorId
         thermometer.truck = truck
         thermometer.towable = towable
         return persistSuspending(thermometer)
@@ -40,11 +40,11 @@ class ThermometerRepository : AbstractRepository<ThermometerEntity, UUID>() {
     /**
      * Finds thermometer by mac address
      *
-     * @param macAddress mac address
+     * @param hardwareSensorId mac address
      * @return found thermometer or null if not found
      */
-    suspend fun listUnarchivedByMac(macAddress: String): List<ThermometerEntity> {
-        return list("macAddress = ?1 and archivedAt is null", macAddress).awaitSuspending()
+    suspend fun listUnarchivedByMac(hardwareSensorId: String): List<ThermometerEntity> {
+        return list("hardwareSensorId = ?1 and archivedAt is null", hardwareSensorId).awaitSuspending()
     }
 
     /**

@@ -14,7 +14,7 @@ class ThermometerTranslator : AbstractTranslator<ThermometerEntity, Thermometer>
         val entityType = if (entity.truck != null) Thermometer.EntityType.TRUCK else Thermometer.EntityType.TOWABLE
         return Thermometer(
             id = entity.id,
-            macAddress = entity.macAddress,
+            macAddress = entity.hardwareSensorId,
             entityId = entityId!!,
             entityType = entityType,
             archivedAt = entity.archivedAt,

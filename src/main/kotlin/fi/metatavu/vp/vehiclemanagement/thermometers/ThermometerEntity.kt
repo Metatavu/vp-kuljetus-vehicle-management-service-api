@@ -17,7 +17,7 @@ class ThermometerEntity {
     lateinit var id: UUID
 
     @Column(nullable = false)
-    lateinit var macAddress: String
+    lateinit var hardwareSensorId: String
 
     @Column
     var name: String? = null
