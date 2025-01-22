@@ -342,57 +342,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     }
 
-    // Thermometers
-
-    @RolesAllowed(MANAGER_ROLE)
-    override fun listThermometers(
-        entityId: UUID?,
-        entityType: String?,
-        includeArchived: Boolean,
-        first: Int?,
-        max: Int?
-    ): Uni<Response> = withCoroutineScope {
-        if (entityId != null && entityType == null) return@withCoroutineScope createBadRequest(
-            BOTH_ENTITY_ENTITYTYPE_NEEDED
-        )
-        if (entityId == null && entityType != null) return@withCoroutineScope createBadRequest(
-            BOTH_ENTITY_ENTITYTYPE_NEEDED
-        )
-
-        val (thermometers, count) = thermometerController.listThermometers(
-            entityId = entityId,
-            entityType = entityType,
-            includeArchived = includeArchived,
-            first = first,
-            max = max
-        )
-        createOk(thermometerTranslator.translate(thermometers), count)
-    }
-
-    @RolesAllowed(MANAGER_ROLE)
-    override fun findThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
-        val thermometer =
-            thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound(
-                createNotFoundMessage(THERMOMETER, thermometerId)
-            )
-
-        createOk(thermometerTranslator.translate(thermometer))
-    }
-
-    @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun updateThermometer(
-        thermometerId: UUID,
-        updateThermometerRequest: UpdateThermometerRequest
-    ): Uni<Response> = withCoroutineScope {
-        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
-        val found = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound(
-            createNotFoundMessage(THERMOMETER, thermometerId)
-        )
-        val updated = thermometerController.update(found, updateThermometerRequest, userId)
-        createOk(thermometerTranslator.translate(updated))
-    }
-
     @RolesAllowed(MANAGER_ROLE)
     override fun listTruckTemperatures(truckId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> =
         withCoroutineScope {

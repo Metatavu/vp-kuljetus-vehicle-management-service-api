@@ -30,6 +30,7 @@ class TestBuilderAuthentication(
     val towables = TowablesTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val vehicles = VehiclesTestBuilderResource(testBuilder, accessTokenProvider, createClient(accessTokenProvider))
     val temperatureReadings = TemperatureReadingTestBuilderResource(testBuilder, this.dataReceiverApiKey, createClient(accessTokenProvider))
+    val trackables = TrackablesTestBuilderResource(testBuilder, this.dataReceiverApiKey, createClient(accessTokenProvider))
 
     override fun createClient(authProvider: AccessTokenProvider?): ApiClient {
         val result = ApiClient(ApiTestSettings.apiBasePath)

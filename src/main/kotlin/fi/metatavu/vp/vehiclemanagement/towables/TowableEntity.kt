@@ -2,6 +2,7 @@ package fi.metatavu.vp.vehiclemanagement.towables
 
 import fi.metatavu.vp.vehiclemanagement.model.Towable
 import fi.metatavu.vp.vehiclemanagement.persistence.Metadata
+import fi.metatavu.vp.vehiclemanagement.persistence.TrackableEntity
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotEmpty
 import java.time.OffsetDateTime
@@ -12,10 +13,7 @@ import java.util.*
  */
 @Entity
 @Table(name = "towable")
-class TowableEntity : Metadata() {
-
-    @Id
-    var id: UUID? = null
+class TowableEntity : TrackableEntity() {
 
     @Column(nullable = false, unique = true)
     @NotEmpty
@@ -28,9 +26,6 @@ class TowableEntity : Metadata() {
     @Column(unique = true, nullable = false)
     @NotEmpty
     lateinit var vin: String
-
-    @Column(unique = true)
-    var imei: String? = null
 
     @Column
     var name: String? = null
