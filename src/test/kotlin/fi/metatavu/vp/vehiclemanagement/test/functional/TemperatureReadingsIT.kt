@@ -8,7 +8,6 @@ import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import java.time.OffsetDateTime
 
 /**
  * Tests for TemperatureReadings API and Thermometers
@@ -47,6 +46,11 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         assertEquals(temperatureReading.value, truck1TemperatureReadings.first().value)
         assertEquals(temperatureReading.timestamp, truck1TemperatureReadings.first().timestamp)
 
+        val thermometers1 = it.manager.thermometers.listThermometers()
+        assertEquals(1, thermometers1.size)
+        assertEquals(temperatureReading.hardwareSensorId, thermometers1.first().macAddress)
+        assertEquals(thermometers1[0].id, truck1TemperatureReadings.first().thermometerId)
+
         // New reading from the different mac of thermometer but same truck
         it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             temperatureReading.copy(
@@ -57,6 +61,9 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
                 sourceType = TemperatureReadingSourceType.TRUCK
             )
         )
+        val thermometers2 = it.manager.thermometers.listThermometers()
+        assertEquals(1, thermometers2.size)
+
         val truckTemperatureReadings = it.manager.trucks.listTemperatureReadings(truck.id, false)
         assertEquals(1, truckTemperatureReadings.size)
         assertEquals(-13.0f, truckTemperatureReadings[0].value)
@@ -73,6 +80,8 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             sourceType = TemperatureReadingSourceType.TOWABLE
         )
         it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(temperatureReadingTowable)
+        val thermometers3 = it.manager.thermometers.listThermometers()
+        assertEquals(2, thermometers3.size)
         val createdTemperatureReadingTowable = it.manager.towables.listTemperatureReadings(towable.id!!, false)
         assertEquals(1, createdTemperatureReadingTowable.size)
     }
@@ -132,6 +141,9 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         val thermometer3Mac = "002"
         val thermometer4Mac = "003"
 
+        val thermometers = tb.manager.thermometers.listThermometers()
+        assertEquals(0, thermometers.size)
+
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
                 deviceIdentifier = truck1.imei!!,
@@ -164,7 +176,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
 
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
-                deviceIdentifier = towable1.imei!!,
+                deviceIdentifier = towable1.imei,
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = thermometer3Mac,
                 value = 1f,
@@ -172,17 +184,27 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             )
         )
 
+        val thermometers2 = tb.manager.thermometers.listThermometers()
+        assertEquals(3, thermometers2.size)
+        val archivedThermometers = tb.manager.thermometers.listThermometers(includeArchived = true)
+        assertEquals(3, archivedThermometers.size)
         // New reading from mac 000 which comes from towable 1 -> old thermometer (000 at truck 1) gets archived,
         // current thermimeter at towable 1 gets archived.
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             TemperatureReading(
-                deviceIdentifier = towable1.imei!!,
+                deviceIdentifier = towable1.imei,
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = thermometer1Mac,
                 value = 0f,
                 sourceType = TemperatureReadingSourceType.TOWABLE
             )
         )
+
+        val thermometers3 = tb.manager.thermometers.listThermometers()
+        assertEquals(2, thermometers3.size)
+
+        val archivedThermometers2 = tb.manager.thermometers.listThermometers(includeArchived = true)
+        assertEquals(4, archivedThermometers2.size)
 
         // New reading from mac 003 which comes from truck 1 -> current thermometer at truck 1 is already archived
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
@@ -194,5 +216,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
                 sourceType = TemperatureReadingSourceType.TRUCK
             )
         )
+        val thermometers4 = tb.manager.thermometers.listThermometers()
+        assertEquals(3, thermometers4.size)
+
+        val archivedThermometers3 = tb.manager.thermometers.listThermometers(includeArchived = true)
+        assertEquals(5, archivedThermometers3.size)
     }
 }
