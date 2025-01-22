@@ -1,16 +1,11 @@
 package fi.metatavu.vp.vehiclemanagement.persistence
 
-import jakarta.persistence.Column
-import jakarta.persistence.Id
-import jakarta.persistence.MappedSuperclass
 import java.util.UUID
 
-@MappedSuperclass
-abstract class TrackableEntity: Metadata() {
-
-    @Id
-    var id: UUID? = null
-
-    @Column(unique = true)
-    var imei: String? = null
+/**
+ * Interface describing a Trackable e.g. truck or towable
+ */
+interface ITrackable {
+    var id: UUID?
+    var imei: String?
 }

@@ -1,6 +1,5 @@
 package fi.metatavu.vp.vehiclemanagement.test.functional.impl
 
-import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.test.client.apis.TrackablesApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.models.Trackable

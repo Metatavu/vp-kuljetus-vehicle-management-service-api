@@ -29,6 +29,8 @@ class TrackableTestIT: AbstractFunctionalTest() {
         val towableWithImei = allTowables.find { it.imei == "towable-imei" }
         assertEquals(2, allTowables.size)
 
+        testBuilder.setDataReceiverApiKey()
+
         val foundTruckByImei = testBuilder.manager.trackables.findTrackable(imei = "truck-imei")
         assertEquals(foundTruckByImei.imei, "truck-imei")
         assertEquals(foundTruckByImei.trackableType, TrackableType.TRUCK)
