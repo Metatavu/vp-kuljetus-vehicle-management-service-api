@@ -3,8 +3,6 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 import fi.metatavu.vp.vehiclemanagement.model.*
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
-import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerController
-import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerTranslator
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureReadingController
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
@@ -74,12 +72,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckOdometerReadingTranslator: TruckOdometerReadingTranslator
-
-    @Inject
-    lateinit var thermometerController: ThermometerController
-
-    @Inject
-    lateinit var thermometerTranslator: ThermometerTranslator
 
     @Inject
     lateinit var temperatureReadingController: TemperatureReadingController
