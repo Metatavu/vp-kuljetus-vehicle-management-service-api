@@ -31,7 +31,7 @@ class TrackablesApiImpl: TrackablesApi, AbstractApi() {
             ?: towableController.findTowableByImei(imei)
             ?: return@withCoroutineScope createNotFound("No trackable found with IMEI $imei")
 
-        return@withCoroutineScope createOk(trackableTranslator.translate(foundEntity))
+        createOk(trackableTranslator.translate(foundEntity))
 
     }
 }
