@@ -3,8 +3,6 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 import fi.metatavu.vp.vehiclemanagement.model.*
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
-import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerController
-import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerTranslator
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureReadingController
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
@@ -74,12 +72,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var truckOdometerReadingTranslator: TruckOdometerReadingTranslator
-
-    @Inject
-    lateinit var thermometerController: ThermometerController
-
-    @Inject
-    lateinit var thermometerTranslator: ThermometerTranslator
 
     @Inject
     lateinit var temperatureReadingController: TemperatureReadingController
@@ -340,57 +332,6 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         truckOdometerReadingController.createTruckOdometerReading(truck, truckOdometerReading) ?: return@withCoroutineScope createAccepted(null)
         createCreated()
 
-    }
-
-    // Thermometers
-
-    @RolesAllowed(MANAGER_ROLE)
-    override fun listThermometers(
-        entityId: UUID?,
-        entityType: String?,
-        includeArchived: Boolean,
-        first: Int?,
-        max: Int?
-    ): Uni<Response> = withCoroutineScope {
-        if (entityId != null && entityType == null) return@withCoroutineScope createBadRequest(
-            BOTH_ENTITY_ENTITYTYPE_NEEDED
-        )
-        if (entityId == null && entityType != null) return@withCoroutineScope createBadRequest(
-            BOTH_ENTITY_ENTITYTYPE_NEEDED
-        )
-
-        val (thermometers, count) = thermometerController.listThermometers(
-            entityId = entityId,
-            entityType = entityType,
-            includeArchived = includeArchived,
-            first = first,
-            max = max
-        )
-        createOk(thermometerTranslator.translate(thermometers), count)
-    }
-
-    @RolesAllowed(MANAGER_ROLE)
-    override fun findThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
-        val thermometer =
-            thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound(
-                createNotFoundMessage(THERMOMETER, thermometerId)
-            )
-
-        createOk(thermometerTranslator.translate(thermometer))
-    }
-
-    @RolesAllowed(MANAGER_ROLE)
-    @WithTransaction
-    override fun updateThermometer(
-        thermometerId: UUID,
-        updateThermometerRequest: UpdateThermometerRequest
-    ): Uni<Response> = withCoroutineScope {
-        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
-        val found = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound(
-            createNotFoundMessage(THERMOMETER, thermometerId)
-        )
-        val updated = thermometerController.update(found, updateThermometerRequest, userId)
-        createOk(thermometerTranslator.translate(updated))
     }
 
     @RolesAllowed(MANAGER_ROLE)
