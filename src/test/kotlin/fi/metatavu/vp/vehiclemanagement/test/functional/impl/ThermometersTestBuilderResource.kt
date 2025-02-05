@@ -3,7 +3,7 @@ package fi.metatavu.vp.vehiclemanagement.test.functional.impl
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.test.client.apis.ThermometersApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
-import fi.metatavu.vp.test.client.models.Thermometer
+import fi.metatavu.vp.test.client.models.TruckOrTowableThermometer
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import java.util.*
@@ -15,8 +15,8 @@ class ThermometersTestBuilderResource(
     testBuilder: TestBuilder,
     private val accessTokenProvider: AccessTokenProvider,
     apiClient: ApiClient
-): ApiTestBuilderResource<Thermometer, ApiClient>(testBuilder, apiClient) {
-    override fun clean(p0: Thermometer?) {
+): ApiTestBuilderResource<TruckOrTowableThermometer, ApiClient>(testBuilder, apiClient) {
+    override fun clean(p0: TruckOrTowableThermometer?) {
         // This API doesn't create any resources and therefore doesn't need to clean anything
     }
 
@@ -36,12 +36,12 @@ class ThermometersTestBuilderResource(
      */
     fun listThermometers(
         entityId: UUID? = null,
-        entityType: ThermometersApi.EntityTypeListThermometers? = null,
+        entityType: ThermometersApi.EntityTypeListTruckOrTowableThermometers? = null,
         includeArchived: Boolean = false,
         first: Int? = null,
         max: Int? = null
-    ): Array<Thermometer> {
-        return api.listThermometers(
+    ): Array<TruckOrTowableThermometer> {
+        return api.listTruckOrTowableThermometers(
             entityId = entityId,
             entityType = entityType,
             includeArchived = includeArchived,

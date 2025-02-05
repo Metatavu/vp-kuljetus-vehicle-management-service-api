@@ -4,7 +4,7 @@ import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.test.client.apis.TowablesApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
-import fi.metatavu.vp.test.client.models.Temperature
+import fi.metatavu.vp.test.client.models.TruckOrTowableTemperature
 import fi.metatavu.vp.test.client.models.Towable
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
@@ -96,7 +96,7 @@ class TowablesTestBuilderResource(
         includeArchived: Boolean,
         first: Int? = null,
         max: Int? = null
-    ): Array<Temperature> {
+    ): Array<TruckOrTowableTemperature> {
         return api.listTowableTemperatures(towableId, includeArchived, first, max)
     }
 

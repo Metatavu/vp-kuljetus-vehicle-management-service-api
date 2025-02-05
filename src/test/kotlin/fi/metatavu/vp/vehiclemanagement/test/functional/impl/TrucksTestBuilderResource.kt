@@ -527,17 +527,19 @@ class TrucksTestBuilderResource(
     }
 
     /**
-     * Creates truck fuel consumption
+     * Lists truck or towable temperature readings
      *
      * @param truckId truck id
-     * @param truckFuelConsumption truck fuel consumption data
+     * @param includeArchived include archived thermometers data
+     * @param first first result
+     * @param max max results
      */
     fun listTemperatureReadings(
         truckId: UUID,
         includeArchived: Boolean,
         first: Int? = null,
         max: Int? = null
-    ): Array<Temperature> {
+    ): Array<TruckOrTowableTemperature> {
         return api.listTruckTemperatures(truckId, includeArchived, first, max)
     }
 

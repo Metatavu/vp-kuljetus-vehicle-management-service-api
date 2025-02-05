@@ -1,7 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings
 
-import fi.metatavu.vp.vehiclemanagement.model.TemperatureReading
-import fi.metatavu.vp.vehiclemanagement.model.TemperatureReadingSourceType
+import fi.metatavu.vp.vehiclemanagement.model.TruckOrTowableTemperatureReading
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.spec.TemperatureReadingsApi
 import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerController
@@ -32,7 +31,7 @@ class TemperatureReadingsApiImpl : TemperatureReadingsApi, AbstractApi() {
     lateinit var towableController: TowableController
 
     @WithTransaction
-    override fun createTemperatureReading(temperatureReading: TemperatureReading): Uni<Response> = withCoroutineScope {
+    override fun createTemperatureReading(temperatureReading: TruckOrTowableTemperatureReading): Uni<Response> = withCoroutineScope {
         if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
 
         val truckByIdentifier = truckController.findTruckByImei(temperatureReading.deviceIdentifier)
