@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.thermometers
 
-import fi.metatavu.vp.vehiclemanagement.model.UpdateThermometerRequest
+import fi.metatavu.vp.vehiclemanagement.model.UpdateTruckOrTowableThermometerRequest
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureReadingController
 import fi.metatavu.vp.vehiclemanagement.towables.TowableEntity
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
@@ -65,7 +65,7 @@ class ThermometerController {
         val currentThermometer = targetTruck?.let { thermometerRepository.findByTruck(it) }
             ?: targetTowable?.let { thermometerRepository.findByTowable(it) }
 
-        // Archive the current thermometer if it exists and has a different hardwareSensorId, it it is same, use it
+        // Archive the current thermometer if it exists and has a different hardwareSensorId. If it is same, use it.
         if (currentThermometer != null) {
             if (currentThermometer.hardwareSensorId != hardwareSensorId) archiveThermometer(currentThermometer)
             else return currentThermometer
@@ -183,13 +183,11 @@ class ThermometerController {
      *
      * @param found found thermometer
      * @param updateThermometerRequest update thermometer request
-     * @param userId user id
      * @return updated thermometer
      */
     suspend fun update(
         found: ThermometerEntity,
-        updateThermometerRequest: UpdateThermometerRequest,
-        userId: UUID
+        updateThermometerRequest: UpdateTruckOrTowableThermometerRequest
     ): ThermometerEntity {
         found.name = updateThermometerRequest.name
         return thermometerRepository.persistSuspending(found)

@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.thermometers
 
-import fi.metatavu.vp.vehiclemanagement.model.UpdateThermometerRequest
+import fi.metatavu.vp.vehiclemanagement.model.UpdateTruckOrTowableThermometerRequest
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.spec.ThermometersApi
 import io.quarkus.hibernate.reactive.panache.common.WithSession
@@ -27,7 +27,7 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
     lateinit var thermometerTranslator: ThermometerTranslator
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun listThermometers(
+    override fun listTruckOrTowableThermometers(
         entityId: UUID?,
         entityType: String?,
         includeArchived: Boolean,
@@ -52,7 +52,7 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun findThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
+    override fun findTruckOrTowableThermometer(thermometerId: UUID): Uni<Response> = withCoroutineScope {
         val thermometer =
             thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound(
                 createNotFoundMessage(THERMOMETER, thermometerId)
@@ -63,15 +63,15 @@ class ThermometersApiImpl: ThermometersApi, AbstractApi() {
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
-    override fun updateThermometer(
+    override fun updateTruckOrTowableThermometer(
         thermometerId: UUID,
-        updateThermometerRequest: UpdateThermometerRequest
+        updateThermometerRequest: UpdateTruckOrTowableThermometerRequest
     ): Uni<Response> = withCoroutineScope {
-        val userId = loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        loggedUserId ?: return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         val found = thermometerController.findThermometer(thermometerId) ?: return@withCoroutineScope createNotFound(
             createNotFoundMessage(THERMOMETER, thermometerId)
         )
-        val updated = thermometerController.update(found, updateThermometerRequest, userId)
+        val updated = thermometerController.update(found, updateThermometerRequest)
         createOk(thermometerTranslator.translate(updated))
     }
 }

@@ -3,7 +3,7 @@ package fi.metatavu.vp.vehiclemanagement.test.functional.impl
 import fi.metatavu.vp.test.client.apis.TemperatureReadingsApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
 import fi.metatavu.vp.test.client.infrastructure.ClientException
-import fi.metatavu.vp.test.client.models.TemperatureReading
+import fi.metatavu.vp.test.client.models.TruckOrTowableTemperatureReading
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
 import org.junit.Assert
@@ -15,9 +15,9 @@ class TemperatureReadingTestBuilderResource(
     testBuilder: TestBuilder,
     private val dataReceiverApiKey: String?,
     apiClient: ApiClient
-) : ApiTestBuilderResource<TemperatureReading, ApiClient>(testBuilder, apiClient) {
+) : ApiTestBuilderResource<TruckOrTowableTemperatureReading, ApiClient>(testBuilder, apiClient) {
 
-    override fun clean(p0: TemperatureReading?) {
+    override fun clean(p0: TruckOrTowableTemperatureReading?) {
         // no delete endpoint available, will be cleaned by deleting truck/towable
     }
 
@@ -33,7 +33,7 @@ class TemperatureReadingTestBuilderResource(
      *
      * @param truckTemperatureReading temperature reading
      */
-    fun createTemperatureReading(truckTemperatureReading: TemperatureReading) {
+    fun createTemperatureReading(truckTemperatureReading: TruckOrTowableTemperatureReading) {
         api.createTemperatureReading(truckTemperatureReading)
     }
 
@@ -43,7 +43,7 @@ class TemperatureReadingTestBuilderResource(
      * @param expectedStatus expected status
      * @param truckTemperatureReading temperature reading
      */
-    fun assertCreateTemperatureReadingFail( expectedStatus: Int, truckTemperatureReading: TemperatureReading) {
+    fun assertCreateTemperatureReadingFail( expectedStatus: Int, truckTemperatureReading: TruckOrTowableTemperatureReading) {
         try {
             api.createTemperatureReading(truckTemperatureReading)
             Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))

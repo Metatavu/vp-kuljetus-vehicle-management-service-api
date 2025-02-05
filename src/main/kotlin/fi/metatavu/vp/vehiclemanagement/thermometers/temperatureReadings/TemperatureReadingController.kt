@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings
 
-import fi.metatavu.vp.vehiclemanagement.model.TemperatureReading
+import fi.metatavu.vp.vehiclemanagement.model.TruckOrTowableTemperatureReading
 import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerEntity
 import fi.metatavu.vp.vehiclemanagement.towables.TowableEntity
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
@@ -96,7 +96,7 @@ class TemperatureReadingController {
      */
     suspend fun create(
         thermometer: ThermometerEntity,
-        temperatureReading: TemperatureReading
+        temperatureReading: TruckOrTowableTemperatureReading
     ): TemperatureReadingEntity? {
         val existingRecord = temperatureReadingRepository.find(
             "thermometer = :thermometer and timestamp = :timestamp",

@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.test.functional
 
-import fi.metatavu.vp.test.client.models.TemperatureReading
+import fi.metatavu.vp.test.client.models.TruckOrTowableTemperatureReading
 import fi.metatavu.vp.test.client.models.TemperatureReadingSourceType
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
@@ -27,7 +27,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             imei = "000",
             vehiclesTestBuilderResource = it.manager.vehicles
         )
-        val temperatureReading = TemperatureReading(
+        val temperatureReading = TruckOrTowableTemperatureReading(
             deviceIdentifier = truck.imei!!,
             timestamp = Instant.now().toEpochMilli(),
             hardwareSensorId = "000",
@@ -72,7 +72,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
 
         // New reading from new thermometer mac from a new towable
         val towable = it.manager.towables.create(plateNumber = "plate2", vin = "2", imei = "002")
-        val temperatureReadingTowable = TemperatureReading(
+        val temperatureReadingTowable = TruckOrTowableTemperatureReading(
             deviceIdentifier = towable.imei!!,
             timestamp = Instant.now().toEpochMilli(),
             hardwareSensorId = "002",
@@ -93,7 +93,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
     fun createTemperatureReadingFail() = createTestBuilder().use { tb ->
         tb.setDataReceiverApiKey().temperatureReadings.assertCreateTemperatureReadingFail(
             expectedStatus = 400,
-            truckTemperatureReading = TemperatureReading(
+            truckTemperatureReading = TruckOrTowableTemperatureReading(
                 deviceIdentifier = "000",
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = "001",
@@ -104,7 +104,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
 
         tb.setDataReceiverApiKey("wrong").temperatureReadings.assertCreateTemperatureReadingFail(
             expectedStatus = 403,
-            truckTemperatureReading = TemperatureReading(
+            truckTemperatureReading = TruckOrTowableTemperatureReading(
                 deviceIdentifier = "000",
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = "001",
@@ -145,7 +145,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         assertEquals(0, thermometers.size)
 
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
-            TemperatureReading(
+            TruckOrTowableTemperatureReading(
                 deviceIdentifier = truck1.imei!!,
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = thermometer1Mac,
@@ -155,7 +155,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         )
 
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
-            TemperatureReading(
+            TruckOrTowableTemperatureReading(
                 deviceIdentifier = truck2.imei!!,
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = thermometer2Mac,
@@ -165,7 +165,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         )
 
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
-            TemperatureReading(
+            TruckOrTowableTemperatureReading(
                 deviceIdentifier = towable1.imei!!,
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = thermometer3Mac,
@@ -175,7 +175,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         )
 
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
-            TemperatureReading(
+            TruckOrTowableTemperatureReading(
                 deviceIdentifier = towable1.imei,
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = thermometer3Mac,
@@ -189,9 +189,9 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         val archivedThermometers = tb.manager.thermometers.listThermometers(includeArchived = true)
         assertEquals(3, archivedThermometers.size)
         // New reading from mac 000 which comes from towable 1 -> old thermometer (000 at truck 1) gets archived,
-        // current thermimeter at towable 1 gets archived.
+        // current thermometer at towable 1 gets archived.
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
-            TemperatureReading(
+            TruckOrTowableTemperatureReading(
                 deviceIdentifier = towable1.imei,
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = thermometer1Mac,
@@ -208,7 +208,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
 
         // New reading from mac 003 which comes from truck 1 -> current thermometer at truck 1 is already archived
         tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
-            TemperatureReading(
+            TruckOrTowableTemperatureReading(
                 deviceIdentifier = truck1.imei,
                 timestamp = Instant.now().toEpochMilli(),
                 hardwareSensorId = thermometer4Mac,
