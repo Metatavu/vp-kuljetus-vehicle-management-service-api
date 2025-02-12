@@ -395,4 +395,9 @@
     <changeSet id="renamethermometeraddress" author="Simeon Platonov">
         <renameColumn tableName="thermometer" oldColumnName="macaddress" newColumnName="hardwaresensorid" columnDataType="varchar(191)"/>
     </changeSet>
+    <changeSet id="cost_center" author="Simeon Platonov">
+        <addColumn tableName="truck">
+            <column name="costcenter" type="varchar(191)"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

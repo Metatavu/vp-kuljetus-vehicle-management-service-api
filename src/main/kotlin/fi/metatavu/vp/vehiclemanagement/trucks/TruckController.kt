@@ -54,6 +54,7 @@ class TruckController {
      * @param vin vin
      * @param name name
      * @param imei imei
+     * @param costCenter cost center
      * @param userId user id
      * @return created truck
      */
@@ -63,6 +64,7 @@ class TruckController {
         vin: String,
         name: String?,
         imei: String?,
+        costCenter: String?,
         userId: UUID
     ): TruckEntity {
         val truck = truckRepository.create(
@@ -73,6 +75,7 @@ class TruckController {
             name = name,
             imei = imei,
             creatorId = userId,
+            costCenter = costCenter,
             lastModifierId = userId
         )
         vehicleController.create(truck, emptyList(), userId)
@@ -156,6 +159,7 @@ class TruckController {
         existingTruckEntity.vin = newTruckData.vin
         existingTruckEntity.name = newTruckData.name
         existingTruckEntity.imei = newTruckData.imei
+        existingTruckEntity.costCenter = newTruckData.costCenter
         existingTruckEntity.lastModifierId = userId
         return truckRepository.persistSuspending(existingTruckEntity)
     }
