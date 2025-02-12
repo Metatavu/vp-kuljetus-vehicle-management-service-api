@@ -39,6 +39,9 @@ class TruckEntity: Metadata(), ITrackable {
     @Column
     var archivedAt: OffsetDateTime? = null
 
+    @Column
+    var costCenter: String? = null
+
     override lateinit var creatorId: UUID
 
     override lateinit var lastModifierId: UUID

@@ -87,7 +87,8 @@ class TruckTestIT : AbstractFunctionalTest() {
             type = Truck.Type.TRUCK,
             vin = "someVinNumber",
             name = "Some truck",
-            imei = "someImei"
+            imei = "someImei",
+            costCenter = "centre"
         )
         val createdTruck = builder.manager.trucks.create(truckData, builder.manager.vehicles)
         assertNotNull(createdTruck)
@@ -97,6 +98,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         assertEquals(truckData.type, createdTruck.type)
         assertEquals(truckData.vin, createdTruck.vin)
         assertEquals(truckData.name, createdTruck.name)
+        assertEquals(truckData.costCenter, createdTruck.costCenter)
         val allVehicles = builder.manager.vehicles.list()
         assertEquals(1, allVehicles.size)
         assertEquals(createdTruck.activeVehicleId, allVehicles[0].id)
@@ -202,7 +204,8 @@ class TruckTestIT : AbstractFunctionalTest() {
             plateNumber = "DEF-456",
             type = Truck.Type.SEMI_TRUCK,
             vin = "someVinNumber",
-            name = "Some truck"
+            name = "Some truck",
+            costCenter = "centre"
         )
         val updatedTruck = builder.manager.trucks.update(truck1.id!!, updateData)
         assertEquals(truck1.name, null)
@@ -211,6 +214,7 @@ class TruckTestIT : AbstractFunctionalTest() {
         assertEquals(updateData.plateNumber, updatedTruck.plateNumber)
         assertEquals(updateData.type, updatedTruck.type)
         assertEquals(updateData.vin, updatedTruck.vin)
+        assertEquals(updateData.costCenter, updatedTruck.costCenter)
 
         // Truck updates check for the plate number duplicates (ignoring own number)
         builder.manager.trucks.update(truck1.id, updatedTruck)

@@ -24,6 +24,7 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
      * @param vin vin
      * @param name name
      * @param imei imei
+     * @param costCenter cost center
      * @param creatorId creator id
      * @param lastModifierId last modifier id
      * @return created truck
@@ -35,6 +36,7 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
         vin: String,
         name: String?,
         imei: String?,
+        costCenter: String?,
         creatorId: UUID,
         lastModifierId: UUID
     ): TruckEntity {
@@ -45,6 +47,7 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
         truckEntity.vin = vin
         truckEntity.name = name
         truckEntity.imei = imei
+        truckEntity.costCenter = costCenter
         truckEntity.creatorId = creatorId
         truckEntity.lastModifierId = lastModifierId
         return persistSuspending(truckEntity)
