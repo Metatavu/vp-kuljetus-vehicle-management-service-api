@@ -1,4 +1,4 @@
-package fi.metatavu.vp.vehiclemanagement
+package fi.metatavu.vp
 
 import io.smallrye.mutiny.Uni
 import io.smallrye.mutiny.coroutines.asUni

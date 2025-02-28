@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.rest
 
-import fi.metatavu.vp.vehiclemanagement.WithCoroutineScope
+import fi.metatavu.vp.WithCoroutineScope
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Context
 import jakarta.ws.rs.core.HttpHeaders

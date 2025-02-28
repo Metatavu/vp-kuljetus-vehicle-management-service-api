@@ -4,7 +4,7 @@ import fi.metatavu.vp.vehiclemanagement.model.TruckDriveStateEnum
 import fi.metatavu.vp.messaging.GlobalEventController
 import fi.metatavu.vp.messaging.events.DriverWorkEventGlobalEvent
 import fi.metatavu.vp.usermanagement.model.WorkEventType
-import fi.metatavu.vp.vehiclemanagement.WithCoroutineScope
+import fi.metatavu.vp.WithCoroutineScope
 import fi.metatavu.vp.vehiclemanagement.trucks.drivestate.TruckDriveStateEntity
 import io.quarkus.vertx.ConsumeEvent
 import io.smallrye.mutiny.Uni
