@@ -1,5 +1,7 @@
 package fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings
 
+import fi.metatavu.vp.messaging.GlobalEventController
+import fi.metatavu.vp.messaging.events.TemperatureGlobalEvent
 import fi.metatavu.vp.vehiclemanagement.model.TruckOrTowableTemperatureReading
 import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerEntity
 import fi.metatavu.vp.vehiclemanagement.towables.TowableEntity
@@ -23,6 +25,9 @@ class TemperatureReadingController {
 
     @Inject
     lateinit var logger: Logger
+
+    @Inject
+    lateinit var globalEventController: GlobalEventController
 
     /**
      * Lists truck temperatures
@@ -107,6 +112,13 @@ class TemperatureReadingController {
             Panache.currentTransaction().awaitSuspending().markForRollback()
             return null
         }
+
+        globalEventController.publish(
+            TemperatureGlobalEvent(
+                sensorId = temperatureReading.hardwareSensorId,
+                temperature = temperatureReading.value
+            )
+        )
 
         return temperatureReadingRepository.create(
             id = UUID.randomUUID(),
