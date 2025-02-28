@@ -116,7 +116,8 @@ class TemperatureReadingController {
         globalEventController.publish(
             TemperatureGlobalEvent(
                 sensorId = temperatureReading.hardwareSensorId,
-                temperature = temperatureReading.value
+                temperature = temperatureReading.value,
+                timestamp = temperatureReading.timestamp
             )
         )
 

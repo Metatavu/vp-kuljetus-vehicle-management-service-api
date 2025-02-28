@@ -32,9 +32,11 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             imei = "000",
             vehiclesTestBuilderResource = it.manager.vehicles
         )
+
+        val timeStamp = Instant.now().toEpochMilli()
         val temperatureReading = TruckOrTowableTemperatureReading(
             deviceIdentifier = truck.imei!!,
-            timestamp = Instant.now().toEpochMilli(),
+            timestamp = timeStamp,
             hardwareSensorId = "000",
             value = -12.0f,
             sourceType = TemperatureReadingSourceType.TRUCK
@@ -50,6 +52,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         assertEquals(1, messages.size)
         assertEquals(-12.0f, messages.first().temperature)
         assertEquals("000", messages.first().sensorId)
+        assertEquals(timeStamp, messages.first().timestamp)
 
         val truck1TemperatureReadings = it.manager.trucks.listTemperatureReadings(truck.id!!, false)
         assertEquals(1, truck1TemperatureReadings.size)
