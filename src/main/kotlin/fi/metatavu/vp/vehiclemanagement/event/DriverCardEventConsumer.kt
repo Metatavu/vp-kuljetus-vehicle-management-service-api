@@ -3,7 +3,7 @@ package fi.metatavu.vp.vehiclemanagement.event
 import fi.metatavu.vp.messaging.GlobalEventController
 import fi.metatavu.vp.messaging.events.DriverWorkEventGlobalEvent
 import fi.metatavu.vp.usermanagement.model.WorkEventType
-import fi.metatavu.vp.WithCoroutineScope
+import fi.metatavu.vp.vehiclemanagement.WithCoroutineScope
 import fi.metatavu.vp.vehiclemanagement.event.model.DriverCardEvent
 import io.quarkus.vertx.ConsumeEvent
 import io.smallrye.mutiny.Uni

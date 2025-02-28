@@ -1,6 +1,6 @@
 package fi.metatavu.vp.vehiclemanagement.trucks.drivercards
 
-import fi.metatavu.vp.WithCoroutineScope
+import fi.metatavu.vp.vehiclemanagement.WithCoroutineScope
 import fi.metatavu.vp.vehiclemanagement.event.DriverCardEventConsumer
 import fi.metatavu.vp.vehiclemanagement.event.model.DriverCardEvent
 import fi.metatavu.vp.vehiclemanagement.integrations.UserManagementService
