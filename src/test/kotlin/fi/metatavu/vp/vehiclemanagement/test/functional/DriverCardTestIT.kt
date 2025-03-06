@@ -34,7 +34,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
     fun testDriverCardWorkEvents() = createTestBuilder().use {
         val truck = it.manager.trucks.create(it.manager.vehicles)
         val now = OffsetDateTime.now()
-        val driverWorkEventConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE.name)
+        val driverWorkEventConsumer = MessagingClient.setConsumer<DriverWorkEventGlobalEvent>(RoutingKey.DRIVER_WORKING_STATE_CHANGE)
         it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck.id!!,
             truckDriverCard = TruckDriverCard(
