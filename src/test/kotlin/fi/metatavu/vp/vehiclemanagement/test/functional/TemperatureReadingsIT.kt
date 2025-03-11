@@ -2,11 +2,9 @@ package fi.metatavu.vp.vehiclemanagement.test.functional
 
 import fi.metatavu.vp.messaging.RoutingKey
 import fi.metatavu.vp.messaging.client.MessagingClient
-import fi.metatavu.vp.messaging.events.DriverWorkEventGlobalEvent
 import fi.metatavu.vp.messaging.events.TemperatureGlobalEvent
 import fi.metatavu.vp.test.client.models.TruckOrTowableTemperatureReading
 import fi.metatavu.vp.test.client.models.TemperatureReadingSourceType
-import fi.metatavu.vp.usermanagement.model.WorkEventType
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.DefaultTestProfile
 import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.junit.TestProfile
@@ -32,9 +30,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             imei = "000",
             vehiclesTestBuilderResource = it.manager.vehicles
         )
+        val timestamp = Instant.now().toEpochMilli()
         val temperatureReading = TruckOrTowableTemperatureReading(
             deviceIdentifier = truck.imei!!,
-            timestamp = Instant.now().toEpochMilli(),
+            timestamp = timestamp,
             hardwareSensorId = "000",
             value = -12.0f,
             sourceType = TemperatureReadingSourceType.TRUCK
@@ -47,9 +46,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         ) // this will be ignored because it is same
 
         val messages = messageConsumer.consumeMessages(1)
+        val thermometer = it.manager.thermometers.listThermometers().first()
         assertEquals(1, messages.size)
         assertEquals(-12.0f, messages.first().temperature)
-        assertEquals("000", messages.first().sensorId)
+        assertEquals(thermometer.id, messages.first().thermometerId)
 
         val truck1TemperatureReadings = it.manager.trucks.listTemperatureReadings(truck.id!!, false)
         assertEquals(1, truck1TemperatureReadings.size)
