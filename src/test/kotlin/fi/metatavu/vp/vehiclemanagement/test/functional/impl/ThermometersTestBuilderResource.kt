@@ -3,9 +3,12 @@ package fi.metatavu.vp.vehiclemanagement.test.functional.impl
 import fi.metatavu.jaxrs.test.functional.builder.auth.AccessTokenProvider
 import fi.metatavu.vp.test.client.apis.ThermometersApi
 import fi.metatavu.vp.test.client.infrastructure.ApiClient
+import fi.metatavu.vp.test.client.infrastructure.ClientException
 import fi.metatavu.vp.test.client.models.TruckOrTowableThermometer
+import fi.metatavu.vp.test.client.models.UpdateTruckOrTowableThermometerRequest
 import fi.metatavu.vp.vehiclemanagement.test.functional.TestBuilder
 import fi.metatavu.vp.vehiclemanagement.test.functional.settings.ApiTestSettings
+import org.junit.Assert
 import java.util.*
 
 /**
@@ -48,5 +51,42 @@ class ThermometersTestBuilderResource(
             first = first,
             max = max
         )
+    }
+
+    /**
+     * Updates thermometers
+     *
+     * @param thermometerId thermometer id
+     * @param name name
+     */
+    fun updateThermometer(
+        thermometerId: UUID,
+        name: String,
+    ): TruckOrTowableThermometer {
+        return api.updateTruckOrTowableThermometer(
+            thermometerId = thermometerId,
+            updateTruckOrTowableThermometerRequest = UpdateTruckOrTowableThermometerRequest(
+                name = name,
+            ),
+        )
+    }
+
+    /**
+     * Asserts that updating thermometer fails with expected status
+     *
+     * @param expectedStatus expected status
+     * @param thermometerId thermometer id
+     * @param name name
+     */
+    fun assertUpdateThermometerFail( expectedStatus: Int, thermometerId: UUID, name: String) {
+        try {
+            api.updateTruckOrTowableThermometer(
+                thermometerId = thermometerId,
+                updateTruckOrTowableThermometerRequest = UpdateTruckOrTowableThermometerRequest(name = name)
+            )
+            Assert.fail(String.format("Expected create to fail with status %d", expectedStatus))
+        } catch (ex: ClientException) {
+            assertClientExceptionStatus(expectedStatus, ex)
+        }
     }
 }

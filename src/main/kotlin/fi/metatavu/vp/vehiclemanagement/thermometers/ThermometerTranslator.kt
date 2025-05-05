@@ -16,6 +16,7 @@ class ThermometerTranslator : AbstractTranslator<ThermometerEntity, TruckOrTowab
             else TruckOrTowableThermometer.EntityType.TOWABLE
         return TruckOrTowableThermometer(
             id = entity.id,
+            name = entity.name,
             macAddress = entity.hardwareSensorId,
             entityId = entityId!!,
             entityType = entityType,

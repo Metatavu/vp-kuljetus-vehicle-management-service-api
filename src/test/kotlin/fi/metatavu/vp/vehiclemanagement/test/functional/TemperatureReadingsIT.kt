@@ -232,4 +232,71 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         val archivedThermometers3 = tb.manager.thermometers.listThermometers(includeArchived = true)
         assertEquals(5, archivedThermometers3.size)
     }
+
+    /**
+     * Tests updating truck or towable temperatures
+     */
+    @Test
+    fun updateThermometersTests() = createTestBuilder().use { tb ->
+        val truck1 = tb.manager.trucks.create(
+            plateNumber = "plate1",
+            vin = "1",
+            imei = "000",
+            vehiclesTestBuilderResource = tb.manager.vehicles
+        )
+
+        val thermometer1Mac = "000"
+
+        tb.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
+            TruckOrTowableTemperatureReading(
+                deviceIdentifier = truck1.imei!!,
+                timestamp = Instant.now().toEpochMilli(),
+                hardwareSensorId = thermometer1Mac,
+                value = 0f,
+                sourceType = TemperatureReadingSourceType.TRUCK
+            )
+        )
+
+        val thermometers = tb.manager.thermometers.listThermometers()
+        assertEquals(1, thermometers.size)
+
+        val updatedName = "Test thermometer"
+        val updatedThermometer = tb.manager.thermometers.updateThermometer(
+            thermometers[0].id!!,
+            updatedName
+        )
+
+        assertEquals(
+            updatedThermometer.name,
+            updatedName,
+            "Thermometer name should be updated"
+        )
+
+        val thermometersAfterUpdate = tb.manager.thermometers.listThermometers()
+        assertEquals(1, thermometersAfterUpdate.size)
+        assertEquals(
+            updatedThermometer.name,
+            thermometersAfterUpdate[0].name,
+            "Thermometer name should be updated"
+        )
+
+        // Anonymous user should not be able to update thermometer
+        tb.anon.thermometers.assertUpdateThermometerFail(
+            expectedStatus = 401,
+            thermometerId = thermometers[0].id!!,
+            name = "test"
+        )
+        // User without role should not be able to update thermometer
+        tb.user.thermometers.assertUpdateThermometerFail(
+            expectedStatus = 403,
+            thermometerId = thermometers[0].id!!,
+            name = "test"
+        )
+        // Driver should not be able to update thermometer
+        tb.driver.thermometers.assertUpdateThermometerFail(
+            expectedStatus = 403,
+            thermometerId = thermometers[0].id!!,
+            name = "test"
+        )
+    }
 }
