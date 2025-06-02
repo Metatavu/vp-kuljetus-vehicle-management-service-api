@@ -3,6 +3,7 @@ package fi.metatavu.vp.vehiclemanagement.towables
 import fi.metatavu.vp.vehiclemanagement.model.Towable
 import fi.metatavu.vp.vehiclemanagement.spec.TowablesApi
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
+import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerController
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureReadingController
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureTranslator
 import fi.metatavu.vp.vehiclemanagement.vehicles.VehicleController
@@ -37,6 +38,9 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
 
     @Inject
     lateinit var temperatureTranslator: TemperatureTranslator
+
+    @Inject
+    lateinit var thermometerController: ThermometerController
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
@@ -81,10 +85,26 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
     }
 
     @RolesAllowed(DRIVER_ROLE, MANAGER_ROLE)
-    override fun listTowables(plateNumber: String?, archived: Boolean?, first: Int?, max: Int?): Uni<Response> =
+    override fun listTowables(plateNumber: String?, archived: Boolean?, thermometerId: UUID?, first: Int?, max: Int?): Uni<Response> =
         withCoroutineScope {
-            val (trucks, count) = towableController.listTowables(plateNumber, archived, first, max)
-            createOk(trucks.map { towableTranslator.translate(it) }, count)
+            if (thermometerId != null) {
+                val thermometer = thermometerController.findThermometer(thermometerId)
+                    ?: return@withCoroutineScope createOk(emptyList<Towable>())
+
+                val towable = thermometer.towable ?: return@withCoroutineScope createOk(emptyList<Towable>())
+
+                val returnList = mutableListOf<Towable>()
+                val archivedParameterMatches = (archived == true && towable.archivedAt != null) || (archived != true && towable.archivedAt == null)
+                val plateNumberParameterMatches = plateNumber.isNullOrEmpty() || plateNumber == towable.plateNumber
+                if ((first == 0 || first == null) && (max == null || max > 0) && archivedParameterMatches && plateNumberParameterMatches) {
+                    returnList.add(towableTranslator.translate(towable))
+                }
+
+                return@withCoroutineScope createOk(returnList, returnList.size.toLong())
+            } else {
+                val (towables, count) = towableController.listTowables(plateNumber, archived, first, max)
+                createOk(towables.map { towableTranslator.translate(it) }, count)
+            }
         }
 
     @RolesAllowed(MANAGER_ROLE)
