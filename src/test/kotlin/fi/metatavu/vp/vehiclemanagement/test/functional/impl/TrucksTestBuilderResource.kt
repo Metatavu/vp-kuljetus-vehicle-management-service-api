@@ -102,6 +102,7 @@ class TrucksTestBuilderResource(
         sortBy: TruckSortByField? = null,
         sortDirection: SortOrder? = null,
         firstResult: Int? = null,
+        thermometerId: UUID? = null,
         maxResults: Int? = null
     ): Array<Truck> {
         return api.listTrucks(
@@ -109,8 +110,9 @@ class TrucksTestBuilderResource(
             archived,
             sortBy = sortBy,
             sortDirection = sortDirection,
-            firstResult,
-            maxResults
+            thermometerId = thermometerId,
+            first = firstResult,
+            max = maxResults
         )
     }
 
@@ -158,7 +160,7 @@ class TrucksTestBuilderResource(
         maxResults: Int? = null
     ) {
         try {
-            api.listTrucks(plateNumber, archived, null, null, firstResult, maxResults)
+            api.listTrucks(plateNumber, archived, null, null, null, firstResult, maxResults)
             Assert.fail(String.format("Expected list to fail with status %d", expectedStatus))
         } catch (ex: ClientException) {
             assertClientExceptionStatus(expectedStatus, ex)

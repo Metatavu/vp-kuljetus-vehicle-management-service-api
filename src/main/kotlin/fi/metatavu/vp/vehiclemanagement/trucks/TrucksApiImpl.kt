@@ -3,6 +3,7 @@ package fi.metatavu.vp.vehiclemanagement.trucks
 import fi.metatavu.vp.vehiclemanagement.model.*
 import fi.metatavu.vp.vehiclemanagement.rest.AbstractApi
 import fi.metatavu.vp.vehiclemanagement.spec.TrucksApi
+import fi.metatavu.vp.vehiclemanagement.thermometers.ThermometerController
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureReadingController
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureTranslator
 import fi.metatavu.vp.vehiclemanagement.trucks.drivercards.DriverCardController
@@ -79,6 +80,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     @Inject
     lateinit var temperatureTranslator: TemperatureTranslator
 
+    @Inject
+    lateinit var thermometerController: ThermometerController
+
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
     override fun createTruck(truck: Truck): Uni<Response> = withCoroutineScope {
@@ -117,18 +121,36 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         archived: Boolean?,
         sortBy: TruckSortByField?,
         sortDirection: SortOrder?,
+        thermometerId: UUID?,
         first: Int?,
         max: Int?
     ): Uni<Response> = withCoroutineScope {
-        val ( trucks, count ) = truckController.listTrucks(
-            plateNumber = plateNumber,
-            archived = archived,
-            sortBy = sortBy,
-            sortDirection = sortDirection,
-            firstResult = first,
-            maxResults = max
-        )
-        createOk(trucks.map { truckTranslator.translate(it) }, count)
+        if (thermometerId != null) {
+            val thermometer = thermometerController.findThermometer(thermometerId)
+                ?: return@withCoroutineScope createOk(emptyList<Truck>())
+
+            val truck = thermometer.truck ?: return@withCoroutineScope createOk(emptyList<Truck>())
+
+            val returnList = mutableListOf<Truck>()
+            val archivedParameterMatches = (archived == true && truck.archivedAt != null) || (archived != true && truck.archivedAt == null)
+            val plateNumberParameterMatches = plateNumber.isNullOrEmpty() || plateNumber == truck.plateNumber
+            if ((first == 0 || first == null) && (max == null || max > 0) && archivedParameterMatches && plateNumberParameterMatches) {
+                returnList.add(truckTranslator.translate(truck))
+            }
+
+            return@withCoroutineScope createOk(returnList, returnList.size.toLong())
+        } else {
+            val ( trucks, count ) = truckController.listTrucks(
+                plateNumber = plateNumber,
+                archived = archived,
+                sortBy = sortBy,
+                sortDirection = sortDirection,
+                firstResult = first,
+                maxResults = max
+            )
+            createOk(trucks.map { truckTranslator.translate(it) }, count)
+        }
+
     }
 
     @RolesAllowed(MANAGER_ROLE)

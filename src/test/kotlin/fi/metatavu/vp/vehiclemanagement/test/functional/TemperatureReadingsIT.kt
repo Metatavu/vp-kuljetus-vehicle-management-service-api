@@ -11,6 +11,7 @@ import io.quarkus.test.junit.TestProfile
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.time.Instant
+import java.util.*
 
 /**
  * Tests for TemperatureReadings API and Thermometers
@@ -61,6 +62,16 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         assertEquals(temperatureReading.hardwareSensorId, thermometers1.first().macAddress)
         assertEquals(thermometers1[0].id, truck1TemperatureReadings.first().thermometerId)
 
+        val trucks = it.manager.trucks.list(thermometerId = thermometer.id)
+        assertEquals(1, trucks.size, "Truck should be found by thermometer id")
+        assertEquals(truck.id, trucks.first().id, "Truck id should match when listed by thermometer")
+        assertEquals(0, it.manager.trucks.list(thermometerId = UUID.randomUUID()).size, "Listing trucks by non-existing thermometer id should return empty list")
+        assertEquals(1, it.manager.trucks.list(plateNumber = "plate", thermometerId = thermometer.id).size, "Truck should be found by plate number and thermometer")
+        assertEquals(0, it.manager.trucks.list(plateNumber = "2133", thermometerId = thermometer.id).size, "Truck should not be found by non-existing plate number and thermometer")
+        assertEquals(0, it.manager.trucks.list(archived = true, thermometerId = thermometer.id).size, "There should be no archived trucks")
+        assertEquals(0, it.manager.trucks.list(maxResults = 0, thermometerId = thermometer.id).size, "Max 0 should return no trucks")
+        assertEquals(0, it.manager.trucks.list(firstResult = 1, thermometerId = thermometer.id).size, "First 1 should return no trucks")
+
         // New reading from the different mac of thermometer but same truck
         it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(
             temperatureReading.copy(
@@ -94,6 +105,17 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         assertEquals(2, thermometers3.size)
         val createdTemperatureReadingTowable = it.manager.towables.listTemperatureReadings(towable.id!!, false)
         assertEquals(1, createdTemperatureReadingTowable.size)
+        val thermometer2 = it.manager.thermometers.listThermometers().first()
+        val towables = it.manager.towables.list(thermometerId = thermometer2.id)
+        assertEquals(1, towables.size, "Towable should be found by thermometer id")
+        assertEquals(towable.id, towables.first().id, "Towable id should match when listed by thermometer")
+        assertEquals(0, it.manager.towables.list(thermometerId = UUID.randomUUID()).size, "Listing trucks by non-existing thermometer id should return empty list")
+        assertEquals(1, it.manager.towables.list(plateNumber = "plate2", thermometerId = thermometer2.id).size, "Towable should be found by plate number and thermometer")
+        assertEquals(0, it.manager.towables.list(plateNumber = "2133", thermometerId = thermometer2.id).size, "Towable should not be found by non-existing plate number and thermometer")
+        assertEquals(0, it.manager.towables.list(archived = true, thermometerId = thermometer2.id).size, "There should be no archived towables")
+        assertEquals(0, it.manager.towables.list(maxResults = 0, thermometerId = thermometer2.id).size, "Max 0 should return no towables")
+        assertEquals(0, it.manager.towables.list(firstResult = 1, thermometerId = thermometer2.id).size, "First 1 should return no towables")
+
     }
 
     /**
