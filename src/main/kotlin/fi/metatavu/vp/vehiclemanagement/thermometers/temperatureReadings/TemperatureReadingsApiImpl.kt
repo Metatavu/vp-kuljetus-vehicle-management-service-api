@@ -36,6 +36,8 @@ class TemperatureReadingsApiImpl : TemperatureReadingsApi, AbstractApi() {
 
     @WithTransaction
     override fun createTemperatureReading(temperatureReading: TruckOrTowableTemperatureReading): Uni<Response> = withCoroutineScope {
+        logger.info("Received request to save temperature reading for IMEI: ${temperatureReading.deviceIdentifier}")
+
         if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
 
         val truckByIdentifier = truckController.findTruckByImei(temperatureReading.deviceIdentifier)
