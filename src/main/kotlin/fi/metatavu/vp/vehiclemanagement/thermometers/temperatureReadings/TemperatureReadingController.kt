@@ -110,7 +110,7 @@ class TemperatureReadingController {
         if (existingRecord != null) {
             logger.info("Truck temperature reading $temperatureReading already exists for thermometer with id ${thermometer.id}")
             Panache.currentTransaction().awaitSuspending().markForRollback()
-            return null
+            return existingRecord
         }
 
         globalEventController.publish(

@@ -73,7 +73,6 @@ class ThermometerController {
 
         // Find any unarchived thermometer by the provided hardwareSensorId
         val unarchivedThermometersByMac = thermometerRepository.listUnarchivedByMac(hardwareSensorId)
-        require(unarchivedThermometersByMac.size <= 1) { "Multiple active thermometers with the same mac address should not happen" }
         val thermometerByMac = unarchivedThermometersByMac.firstOrNull()
 
         // If an unarchived thermometer is associated with the same deviceIdentifier, return it

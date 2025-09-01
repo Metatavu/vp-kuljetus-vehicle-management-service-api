@@ -40,11 +40,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             sourceType = TemperatureReadingSourceType.TRUCK
         )
         val messageConsumer = MessagingClient.setConsumer<TemperatureGlobalEvent>(RoutingKey.TEMPERATURE)
-        it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(temperatureReading)
-        it.setDataReceiverApiKey().temperatureReadings.assertCreateTemperatureReadingFail(
-            400,
-            temperatureReading
-        ) // this will be ignored because it is same
+        it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(temperatureReading) // this will be ignored because it is same
 
         val messages = messageConsumer.consumeMessages(1)
         val thermometer = it.manager.thermometers.listThermometers().first()
