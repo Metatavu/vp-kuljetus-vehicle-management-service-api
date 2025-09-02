@@ -400,7 +400,5 @@
             <column name="costcenter" type="varchar(191)"/>
         </addColumn>
     </changeSet>
-    <changeSet id="thermometer_uniqueness" author="Simeon Platonov">
-        <addUniqueConstraint initiallyDeferred="true" deferrable="true" tableName="thermometer" columnNames="hardwaresensorid"  constraintName="FK_thermometer_hardwaresensorid"/>
-    </changeSet>
+
 </databaseChangeLog>
