@@ -4,6 +4,8 @@ import fi.metatavu.vp.vehiclemanagement.model.UpdateTruckOrTowableThermometerReq
 import fi.metatavu.vp.vehiclemanagement.thermometers.temperatureReadings.TemperatureReadingController
 import fi.metatavu.vp.vehiclemanagement.towables.TowableEntity
 import fi.metatavu.vp.vehiclemanagement.trucks.TruckEntity
+import io.quarkus.hibernate.reactive.panache.Panache
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction
 import io.quarkus.panache.common.Parameters
 import io.smallrye.mutiny.coroutines.awaitSuspending
 import jakarta.enterprise.context.ApplicationScoped
@@ -61,34 +63,44 @@ class ThermometerController {
         targetTowable: TowableEntity?
     ): ThermometerEntity {
         require(targetTruck != null || targetTowable != null) { "TargetTruck or targetTowable must be present" }
-        // Find the current thermometer associated with the targetTruck or targetTowable
-        val currentThermometer = targetTruck?.let { thermometerRepository.findByTruck(it) }
-            ?: targetTowable?.let { thermometerRepository.findByTowable(it) }
 
-        // Archive the current thermometer if it exists and has a different hardwareSensorId. If it is same, use it.
-        if (currentThermometer != null) {
-            if (currentThermometer.hardwareSensorId != hardwareSensorId) archiveThermometer(currentThermometer)
-            else return currentThermometer
+        if (targetTowable != null && targetTruck != null) {
+            throw IllegalArgumentException("Only one of targetTruck or targetTowable can be present")
         }
 
-        // Find any unarchived thermometer by the provided hardwareSensorId
-        val unarchivedThermometersByMac = thermometerRepository.listUnarchivedByMac(hardwareSensorId)
-        val thermometerByMac = unarchivedThermometersByMac.firstOrNull()
+        val existingThermometer = thermometerRepository.listUnarchivedByMac(hardwareSensorId).firstOrNull()
 
-        // If an unarchived thermometer is associated with the same deviceIdentifier, return it
-        val thermometerDeviceIdentifier = thermometerByMac?.truck?.imei ?: thermometerByMac?.towable?.imei
-        if (thermometerByMac != null && thermometerDeviceIdentifier == deviceIdentifier) {
-            return thermometerByMac
+        // Option 1: No existing unarchived thermometer, create a new one
+        if (existingThermometer == null) {
+            println("option 1")
+            val newThermometer = thermometerRepository.create(
+                id = UUID.randomUUID(),
+                hardwareSensorId = hardwareSensorId,
+                truck = targetTruck,
+                towable = targetTowable
+            )
+            return newThermometer
         }
 
-        thermometerByMac?.let { archiveThermometer(it) }
+        // Option 2: Existing thermometer found but on a different vehicle
+        // -> Archive and create a new one
 
-        return thermometerRepository.create(
-            id = UUID.randomUUID(),
-            hardwareSensorId = hardwareSensorId,
-            truck = targetTruck,
-            towable = targetTowable
-        )
+        if (existingThermometer.truck?.id != targetTruck?.id && existingThermometer.towable?.id != targetTowable?.id) {
+            println("option 2")
+            archiveThermometer(existingThermometer)
+            val newThermometer = thermometerRepository.create(
+                id = UUID.randomUUID(),
+                hardwareSensorId = hardwareSensorId,
+                truck = targetTruck,
+                towable = targetTowable
+            )
+            return newThermometer
+        }
+
+        println("option 3")
+
+        // Option 3: Existing thermometer found and on the same vehicle
+        return existingThermometer
     }
 
     /**
@@ -99,7 +111,9 @@ class ThermometerController {
     suspend fun archiveThermometer(thermometer: ThermometerEntity) {
         if (thermometer.archivedAt == null) {
             thermometer.archivedAt = OffsetDateTime.now()
+            thermometer.hardwareSensorId += "_archived_${thermometer.archivedAt!!.toEpochSecond()}"
             thermometerRepository.persistSuspending(thermometer)
+            thermometerRepository.flush().awaitSuspending()
         }
     }
 

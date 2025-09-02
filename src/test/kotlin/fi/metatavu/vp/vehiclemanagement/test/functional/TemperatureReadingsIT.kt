@@ -79,10 +79,10 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             )
         )
         val thermometers2 = it.manager.thermometers.listThermometers()
-        assertEquals(1, thermometers2.size)
+        assertEquals(2, thermometers2.size)
 
         val truckTemperatureReadings = it.manager.trucks.listTemperatureReadings(truck.id, false)
-        assertEquals(1, truckTemperatureReadings.size)
+        assertEquals(2, truckTemperatureReadings.size)
         assertEquals(-13.0f, truckTemperatureReadings[0].value)
         val allTruckTemperatureReadings = it.manager.trucks.listTemperatureReadings(truck.id, true)
         assertEquals(2, allTruckTemperatureReadings.size)
@@ -98,7 +98,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         )
         it.setDataReceiverApiKey().temperatureReadings.createTemperatureReading(temperatureReadingTowable)
         val thermometers3 = it.manager.thermometers.listThermometers()
-        assertEquals(2, thermometers3.size)
+        assertEquals(3, thermometers3.size)
         val createdTemperatureReadingTowable = it.manager.towables.listTemperatureReadings(towable.id!!, false)
         assertEquals(1, createdTemperatureReadingTowable.size)
         val thermometer2 = it.manager.thermometers.listThermometers().first()
@@ -229,7 +229,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
         )
 
         val thermometers3 = tb.manager.thermometers.listThermometers()
-        assertEquals(2, thermometers3.size)
+        assertEquals(3, thermometers3.size)
 
         val archivedThermometers2 = tb.manager.thermometers.listThermometers(includeArchived = true)
         assertEquals(4, archivedThermometers2.size)
@@ -245,7 +245,7 @@ class TemperatureReadingsIT : AbstractFunctionalTest() {
             )
         )
         val thermometers4 = tb.manager.thermometers.listThermometers()
-        assertEquals(3, thermometers4.size)
+        assertEquals(4, thermometers4.size)
 
         val archivedThermometers3 = tb.manager.thermometers.listThermometers(includeArchived = true)
         assertEquals(5, archivedThermometers3.size)
