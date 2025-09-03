@@ -72,7 +72,6 @@ class ThermometerController {
 
         // Option 1: No existing unarchived thermometer, create a new one
         if (existingThermometer == null) {
-            println("option 1")
             val newThermometer = thermometerRepository.create(
                 id = UUID.randomUUID(),
                 hardwareSensorId = hardwareSensorId,
@@ -85,8 +84,9 @@ class ThermometerController {
         // Option 2: Existing thermometer found but on a different vehicle
         // -> Archive and create a new one
 
-        if (existingThermometer.truck?.id != targetTruck?.id && existingThermometer.towable?.id != targetTowable?.id) {
-            println("option 2")
+        val isOnDifferentVehicle = (existingThermometer.truck?.id != targetTruck?.id && targetTruck?.id != null)
+                || (existingThermometer.towable?.id != targetTowable?.id && targetTowable?.id != null)
+        if (isOnDifferentVehicle) {
             archiveThermometer(existingThermometer)
             val newThermometer = thermometerRepository.create(
                 id = UUID.randomUUID(),
@@ -96,9 +96,7 @@ class ThermometerController {
             )
             return newThermometer
         }
-
-        println("option 3")
-
+        
         // Option 3: Existing thermometer found and on the same vehicle
         return existingThermometer
     }
