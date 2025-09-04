@@ -84,8 +84,9 @@ class ThermometerController {
         // Option 2: Existing thermometer found but on a different vehicle
         // -> Archive and create a new one
 
-        val isOnDifferentVehicle = (existingThermometer.truck?.id != targetTruck?.id && targetTruck?.id != null)
-                || (existingThermometer.towable?.id != targetTowable?.id && targetTowable?.id != null)
+        val isOnDifferentVehicle =
+            (existingThermometer.truck?.id != targetTruck?.id && targetTruck?.id != null) || (existingThermometer.towable?.id != targetTowable?.id && targetTowable?.id != null)
+
         if (isOnDifferentVehicle) {
             archiveThermometer(existingThermometer)
             val newThermometer = thermometerRepository.create(
@@ -102,14 +103,15 @@ class ThermometerController {
     }
 
     /**
-     * Archives thermometer
+     * Archives thermometer.
+     * Mac address is appended with archivedAt_${timestamp} so that the hardwareSensorId that was used is freed for a new device.
      *
      * @param thermometer thermometer to archive
      */
     suspend fun archiveThermometer(thermometer: ThermometerEntity) {
         if (thermometer.archivedAt == null) {
             thermometer.archivedAt = OffsetDateTime.now()
-            thermometer.hardwareSensorId += "_archived_${thermometer.archivedAt!!.toEpochSecond()}"
+            thermometer.hardwareSensorId += "_archivedAt_${thermometer.archivedAt!!.toEpochSecond()}"
             thermometerRepository.persistSuspending(thermometer)
             thermometerRepository.flush().awaitSuspending()
         }
