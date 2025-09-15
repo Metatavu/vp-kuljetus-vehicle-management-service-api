@@ -93,7 +93,8 @@ class TemperatureReadingController {
     }
 
     /**
-     * Creates temperature reading record
+     * Creates temperature reading record.
+     * If a record with the same timestamp already exists for the given thermometer, does not create a new one but returns the existing one.
      *
      * @param thermometer thermometer
      * @param temperatureReading temperature reading request body
