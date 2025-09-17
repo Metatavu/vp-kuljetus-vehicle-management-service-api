@@ -24,6 +24,7 @@ import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.core.Response
+import org.jboss.logging.Logger
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -82,6 +83,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     @Inject
     lateinit var thermometerController: ThermometerController
+
+    @Inject
+    lateinit var logger: Logger
 
     @RolesAllowed(MANAGER_ROLE)
     @WithTransaction
@@ -198,14 +202,21 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     // Driver cards
     override fun listTruckDriverCards(truckId: UUID): Uni<Response> = withCoroutineScope {
+        logger.info("listTruckDriverCards called for truckId: $truckId")
         if (loggedUserId == null && requestKeycloakKey == null && requestDataReceiverKey == null) return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        logger.info("Authentication check 1 passed")
         if (requestKeycloakKey != null && requestKeycloakKey != keycloakApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        logger.info("Authentication check 2 passed")
         if (requestDataReceiverKey != null && requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        logger.info("Authentication check 3 passed")
+
         if (loggedUserId != null && !hasRealmRole(DRIVER_ROLE)) return@withCoroutineScope createForbidden(FORBIDDEN)
-
+        logger.info("Authentication check 4 passed")
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
-
+        logger.info("Found truck: ")
+        logger.info(truck.id)
         val (cards, count) = driverCardController.listDriverCards(truck)
+        logger.info("Found ${cards.size} driver cards")
         createOk(driverCardTranslator.translate(cards), count)
     }
 
