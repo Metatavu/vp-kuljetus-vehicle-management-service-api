@@ -198,7 +198,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
 
     // Driver cards
     override fun listTruckDriverCards(truckId: UUID): Uni<Response> = withCoroutineScope {
-        if (loggedUserId == null && requestKeycloakKey == null) return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
+        if (loggedUserId == null && requestKeycloakKey == null && requestDataReceiverKey == null) return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         if (requestKeycloakKey != null && requestKeycloakKey != keycloakApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         if (requestDataReceiverKey != null && requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         if (loggedUserId != null && !hasRealmRole(DRIVER_ROLE)) return@withCoroutineScope createForbidden(FORBIDDEN)
