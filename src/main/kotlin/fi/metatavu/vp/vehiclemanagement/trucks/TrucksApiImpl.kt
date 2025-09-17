@@ -205,9 +205,9 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         logger.info("listTruckDriverCards called for truckId: $truckId")
         if (loggedUserId == null && requestKeycloakKey == null && requestDataReceiverKey == null) return@withCoroutineScope createUnauthorized(UNAUTHORIZED)
         logger.info("Authentication check 1 passed")
-        if (requestKeycloakKey != null && requestKeycloakKey != keycloakApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (requestKeycloakKey?.isNotBlank() == true && requestKeycloakKey != keycloakApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         logger.info("Authentication check 2 passed")
-        if (requestDataReceiverKey != null && requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
+        if (requestDataReceiverKey?.isNotBlank() == true && requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         logger.info("Authentication check 3 passed")
 
         if (loggedUserId != null && !hasRealmRole(DRIVER_ROLE)) return@withCoroutineScope createForbidden(FORBIDDEN)
