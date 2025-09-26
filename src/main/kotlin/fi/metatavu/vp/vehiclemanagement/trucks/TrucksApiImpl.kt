@@ -225,16 +225,16 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         if (requestDataReceiverKey != dataReceiverApiKeyValue) return@withCoroutineScope createForbidden(INVALID_API_KEY)
         val driverCardWithId = driverCardController.findDriverCard(truckDriverCard.id)
         if (driverCardWithId != null && driverCardWithId.removedAt == null) {
-            // Conflict if the card is already inserted in a truck and not removed
-            return@withCoroutineScope createConflict("Driver card already inserted in a truck")
+            driverCardController.removeDriverCard(driverCardWithId, OffsetDateTime.now())
         }
 
         val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(createNotFoundMessage(TRUCK, truckId))
         val currentTruckDriverCards = driverCardController.listDriverCards(truck).first
 
-        if (currentTruckDriverCards.isNotEmpty() && currentTruckDriverCards.any { it.removedAt == null }) {
-            // Conflict if the target truck already contains not removed card
-            return@withCoroutineScope createConflict("Truck already contains another driver's card")
+        currentTruckDriverCards.filter {
+            it.removedAt == null
+        }.forEach {
+            driverCardController.removeDriverCard(it, OffsetDateTime.now())
         }
 
         val insertedCard = driverCardController.createDriverCard(
