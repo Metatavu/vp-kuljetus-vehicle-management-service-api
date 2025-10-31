@@ -404,20 +404,25 @@
         <addUniqueConstraint initiallyDeferred="true" deferrable="true" tableName="thermometer" columnNames="hardwaresensorid"  constraintName="FK_thermometer_hardwaresensorid"/>
     </changeSet>
     <changeSet id="index_truck_tables" author="Simeon Platonov">
-        <createIndex tableName="temperaturereading" indexName="index_temperaturereading_thermometer_id">
+        <createIndex tableName="temperaturereading" indexName="index_temperaturereading_thermometer_id_timestamp">
             <column name="thermometer_id"/>
+            <column name="timestamp"/>
         </createIndex>
-        <createIndex tableName="TruckDriveState" indexName="index_truckdrivingstate_truck_id">
+        <createIndex tableName="TruckDriveState" indexName="index_truckdrivingstate_truck_id_timestamp">
             <column name="truck_id"/>
+            <column name="timestamp"/>
         </createIndex>
-        <createIndex tableName="TruckLocation" indexName="index_trucklocation_truck_id">
+        <createIndex tableName="TruckLocation" indexName="index_trucklocation_truck_id_timestamp">
             <column name="truck_id"/>
+            <column name="timestamp"/>
         </createIndex>
-        <createIndex tableName="TruckSpeed" indexName="index_truckspeed_truck_id">
+        <createIndex tableName="TruckSpeed" indexName="index_truckspeed_truck_id_timestamp">
             <column name="truck_id"/>
+            <column name="timestamp"/>
         </createIndex>
-        <createIndex tableName="truckodometerreading" indexName="index_truckodometerreading_truck_id">
+        <createIndex tableName="truckodometerreading" indexName="index_truckodometerreading_truck_id_timestamp">
             <column name="truck_id"/>
+            <column name="timestamp"/>
         </createIndex>
     </changeSet>
 </databaseChangeLog>
