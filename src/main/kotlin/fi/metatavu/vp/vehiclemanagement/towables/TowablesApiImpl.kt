@@ -13,7 +13,11 @@ import io.smallrye.mutiny.Uni
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
+import jakarta.ws.rs.DefaultValue
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.Response
+import java.time.OffsetDateTime
 import java.util.*
 
 /**
@@ -172,7 +176,9 @@ class TowablesApiImpl : TowablesApi, AbstractApi() {
         towableId: UUID,
         includeArchived: Boolean,
         first: Int?,
-        max: Int?
+        max: Int?,
+        createdAfter: OffsetDateTime?,
+        createdBefore: OffsetDateTime?
     ): Uni<Response> = withCoroutineScope {
         val towable = towableController.findTowable(towableId) ?: return@withCoroutineScope createNotFound(
             createNotFoundMessage(

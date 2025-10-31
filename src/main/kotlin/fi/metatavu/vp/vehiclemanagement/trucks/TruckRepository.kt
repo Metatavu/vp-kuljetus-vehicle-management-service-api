@@ -61,6 +61,7 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
      * @param vin vin
      * @param sortBy sort by field
      * @param sortDirection sort direction
+     * @param textSearch text search
      * @param firstResult first result
      * @param maxResults max results
      * @return list of trucks
@@ -71,6 +72,7 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
         vin: String?,
         sortBy: TruckSortByField?,
         sortDirection: SortOrder?,
+        textSearch: String?,
         firstResult: Int?,
         maxResults: Int?
     ): Pair<List<TruckEntity>, Long> {
@@ -79,6 +81,11 @@ class TruckRepository: AbstractRepository<TruckEntity, UUID>() {
 
         val validSortDirection = convertRestSortOrderToJpa(sortDirection)
         val validSortBy = convertRestSortByToJpa(sortBy)
+
+        if (textSearch != null) {
+            addCondition(sb, "(plateNumber LIKE :textSearch OR name LIKE :textSearch)")
+            parameters.and("textSearch", "%$textSearch%")
+        }
 
         if (plateNumber != null) {
             addCondition(sb, "plateNumber = :plateNumber")

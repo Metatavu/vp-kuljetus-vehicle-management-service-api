@@ -120,6 +120,7 @@ class TruckController {
      * @param vin vin
      * @param sortBy sort by field
      * @param sortDirection sort direction
+     * @param textSearch text search
      * @param firstResult first result
      * @param maxResults max results
      * @return list of trucks
@@ -130,6 +131,7 @@ class TruckController {
         vin: String? = null,
         sortBy: TruckSortByField? = null,
         sortDirection: SortOrder? = null,
+        textSearch: String?,
         firstResult: Int? = null,
         maxResults: Int? = null,
     ): Pair<List<TruckEntity>, Long> {
@@ -138,6 +140,7 @@ class TruckController {
             archived = archived,
             vin = vin,
             sortBy = sortBy,
+            textSearch = textSearch,
             sortDirection = sortDirection,
             firstResult = firstResult,
             maxResults = maxResults

@@ -33,13 +33,15 @@ class PublicTrucksTestBuilderResource(
      * @param first first
      * @param max max
      * @param vin vin
+     * @param textSearch text search
      * @return public trucks
      */
     fun list(
         first: Int? = null,
         max: Int? = null,
-        vin: String? = null
+        vin: String? = null,
+        textSearch: String? = null
     ): Array<PublicTruck> {
-        return api.listPublicTrucks(vin = vin, first = first, max = max)
+        return api.listPublicTrucks(vin = vin, textSearch = textSearch, first = first, max = max)
     }
 }
