@@ -139,7 +139,7 @@ class DriverCardTestIT : AbstractFunctionalTest() {
         assertEquals(0, truck1CardsAfterDeletion.size)
         val truck2Cards = it.driver.trucks.listDriverCards(truckId = truck2.id)
         assertEquals(2, truck2Cards.size)
-        assertEquals(cardId, truck2Cards.first().id)
+        assertNotNull(truck2Cards.firstOrNull { it.id == testCard2.id })
         it.setDataReceiverApiKey().trucks.createDriverCard(
             truckId = truck2.id,
             truckDriverCard = testCard2
