@@ -403,4 +403,21 @@
     <changeSet id="thermometer_uniqueness" author="Simeon Platonov">
         <addUniqueConstraint initiallyDeferred="true" deferrable="true" tableName="thermometer" columnNames="hardwaresensorid"  constraintName="FK_thermometer_hardwaresensorid"/>
     </changeSet>
+    <changeSet id="index_truck_tables" author="Simeon Platonov">
+        <createIndex tableName="temperaturereading" indexName="index_temperaturereading_thermometer_id">
+            <column name="thermometer_id"/>
+        </createIndex>
+        <createIndex tableName="truckdrivingstate" indexName="index_truckdrivingstate_truck_id">
+            <column name="truck_id"/>
+        </createIndex>
+        <createIndex tableName="trucklocation" indexName="index_trucklocation_truck_id">
+            <column name="truck_id"/>
+        </createIndex>
+        <createIndex tableName="truckspeed" indexName="index_truckspeed_truck_id">
+            <column name="truck_id"/>
+        </createIndex>
+        <createIndex tableName="truckodometerreading" indexName="index_truckodometerreading_truck_id">
+            <column name="truck_id"/>
+        </createIndex>
+    </changeSet>
 </databaseChangeLog>
