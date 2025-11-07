@@ -27,6 +27,22 @@ import org.junit.jupiter.api.Test
 class TruckTestIT : AbstractFunctionalTest() {
 
     @Test
+    fun testTextSearch() = createTestBuilder().use { builder ->
+        val truck1Id = builder.manager.trucks.create(plateNumber = "DEF-455", vin = "005", name = "1", vehiclesTestBuilderResource = builder.manager.vehicles).id!!
+        val truck2Id = builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002", name = "5", vehiclesTestBuilderResource = builder.manager.vehicles).id!!
+        val truck3Id = builder.manager.trucks.create(plateNumber = "GHI-789", vin = "003", name = "2", vehiclesTestBuilderResource = builder.manager.vehicles).id!!
+
+        val search1 = builder.manager.trucks.list(textSearch = "5")
+        assertEquals(2, search1.size)
+        assert(search1.any { it.id == truck1Id })
+        assert(search1.any { it.id == truck2Id })
+
+        val search2 = builder.manager.trucks.list(textSearch = "8")
+        assertEquals(1, search2.size)
+        assertEquals(truck3Id, search2[0].id)
+    }
+
+    @Test
     fun testList() = createTestBuilder().use { builder ->
         builder.manager.trucks.create(plateNumber = plateNumber, vin = "001", name = "1", vehiclesTestBuilderResource = builder.manager.vehicles)
         builder.manager.trucks.create(plateNumber = "DEF-456", vin = "002", name = "5", vehiclesTestBuilderResource = builder.manager.vehicles)

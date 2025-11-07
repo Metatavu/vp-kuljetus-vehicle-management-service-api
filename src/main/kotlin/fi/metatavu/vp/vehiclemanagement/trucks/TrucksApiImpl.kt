@@ -23,6 +23,9 @@ import io.smallrye.mutiny.Uni
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.RequestScoped
 import jakarta.inject.Inject
+import jakarta.ws.rs.DefaultValue
+import jakarta.ws.rs.PathParam
+import jakarta.ws.rs.QueryParam
 import jakarta.ws.rs.core.Response
 import org.jboss.logging.Logger
 import java.time.OffsetDateTime
@@ -126,6 +129,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
         sortBy: TruckSortByField?,
         sortDirection: SortOrder?,
         thermometerId: UUID?,
+        textSearch: String?,
         first: Int?,
         max: Int?
     ): Uni<Response> = withCoroutineScope {
@@ -149,6 +153,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
                 archived = archived,
                 sortBy = sortBy,
                 sortDirection = sortDirection,
+                textSearch = textSearch,
                 firstResult = first,
                 maxResults = max
             )
@@ -369,7 +374,7 @@ class TrucksApiImpl: TrucksApi, AbstractApi() {
     }
 
     @RolesAllowed(MANAGER_ROLE)
-    override fun listTruckTemperatures(truckId: UUID, includeArchived: Boolean, first: Int?, max: Int?): Uni<Response> =
+    override fun listTruckTemperatures(truckId: UUID, includeArchived: Boolean, first: Int?, max: Int?, createdAfter: OffsetDateTime?, createdBefore: OffsetDateTime?): Uni<Response> =
         withCoroutineScope {
             val truck = truckController.findTruck(truckId) ?: return@withCoroutineScope createNotFound(
                 createNotFoundMessage(

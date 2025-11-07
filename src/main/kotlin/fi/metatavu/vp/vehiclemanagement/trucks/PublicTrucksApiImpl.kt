@@ -23,11 +23,12 @@ class PublicTrucksApiImpl: PublicTrucksApi, AbstractApi() {
     lateinit var publicTruckTranslator: PublicTruckTranslator
 
     override fun listPublicTrucks(
+        textSearch: String?,
         vin: String?,
         first: Int?,
         max: Int?
     ): Uni<Response> = withCoroutineScope {
-        val ( trucks, count ) = truckController.listTrucks(firstResult = first, maxResults = max, archived = null, plateNumber = null, vin = vin)
+        val ( trucks, count ) = truckController.listTrucks(firstResult = first, maxResults = max, archived = null, plateNumber = null, vin = vin, textSearch = textSearch)
         createOk(publicTruckTranslator.translate(trucks), count)
     }
 }
